@@ -43,7 +43,7 @@ class ALTTPWorld(World):
     data_version = 8
     remote_items: bool = False
     remote_start_inventory: bool = False
-    required_client_version = (0, 3, 2)
+    required_client_version = (0, 3, 1)
 
     set_rules = set_rules
 

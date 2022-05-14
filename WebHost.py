@@ -61,7 +61,7 @@ if __name__ == "__main__":
         autohost(app.config)
     if app.config["SELFGEN"]:
         autogen(app.config)
-    if app.config["SELFHOST"]:  # using WSGI, you just want to run get_app()
+    elif app.config["SELFHOST"]:  # using WSGI, you just want to run get_app()
         if app.config["DEBUG"]:
             autohost(app.config)
             app.run(debug=True, port=app.config["PORT"])
