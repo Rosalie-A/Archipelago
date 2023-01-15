@@ -1,0 +1,3 @@
+[submodule "worlds/smrpg/smrpg_web_randomizer"]
+	path = worlds/smrpg/smrpg_web_randomizer
+	url = https://github.com/Rosalie-A/smrpg_web_randomizer
