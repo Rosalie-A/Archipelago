@@ -67,7 +67,7 @@ locations_data = [
     ("Croco 2 (Boss)", SMRPGRegions.moleville),
     ("Punchinello", SMRPGRegions.moleville_mines_back),
     ("Booster", SMRPGRegions.booster_tower),
-    ("Knife Guy and Crate Guy", SMRPGRegions.booster_tower),
+    ("Clown Bros", SMRPGRegions.booster_tower),
     ("Bundt", SMRPGRegions.marrymore),
     ("Star Hill", SMRPGRegions.star_hill),
     ("King Calamari", SMRPGRegions.sunken_ship),
@@ -313,7 +313,7 @@ locations_data = [
 
 star_piece_locations: List[str] = [
     "Hammer Bros", "Croco 1 (Boss)", "Mack", "Pandorite", "Belome 1", "Bowyer", "Croco 2 (Boss)",
-    "Punchinello", "Booster", "Knife Guy and Crate Guy", "Bundt", "Star Hill", "King Calamari", "Hidon", "Johnny",
+    "Punchinello", "Booster", "Clown Bros", "Bundt", "Star Hill", "King Calamari", "Hidon", "Johnny",
     "Yaridovich (Boss)", "Belome 2", "Jagger", "Jinx 3 (Boss)", "Culex", "Box Boy", "Mega Smilax", "Dodo",
     "Birdo (Boss)", "Valentina", "Czar Dragon", "Axem Rangers", "Magikoopa", "Boomer", "Exor"
 ]

@@ -13,6 +13,8 @@ from .Locations import location_table, SMRPGRegions
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule, add_item_rule
 
+from .smrpg_web_randomizer.randomizer.management.commands import make_seed
+
 
 class SMRPGWeb(WebWorld):
     theme = "ice"
@@ -150,8 +152,16 @@ class SMRPGWorld(World):
         output = dict()
         for key, location in location_table.items():
             item = self.multiworld.get_location(location.name, self.player).item
-            output[location.rando_name] = item.name if item.player == self.player else "ArchipelagoItem"
-        print(output)
+            rando_name = item_table[item.name].rando_name if item.player == self.player else "ArchipelagoItem"
+            output[location.rando_name] = rando_name
+        make_seed.Command().handle(
+            mode="open",
+            flags="Ksb R7kc Cspjl -nfc Tc4ykduhi Sc4 -freeshops Edf Bc Qa X2 P1 Nbmq D1s W -showequips ",
+            seed=self.multiworld.seed % 2**32,
+            rom="smrpg.smc",
+            output_file="worlds/smrpg/randomized.sfc",
+            ap_data=output
+        )
 
     def modify_multidata(self, multidata: dict):
         import base64

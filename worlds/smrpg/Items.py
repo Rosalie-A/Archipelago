@@ -4,10 +4,11 @@ from BaseClasses import ItemClassification
 
 
 class ItemData(typing.NamedTuple):
+    name: str
     code: typing.Optional[int]
     classification: ItemClassification
+    rando_name: str # Internal randomizer name
     event: bool = False
-
 
 # Filler items that we can freely toss multiples of in the pool
 consumables = [
@@ -73,36 +74,36 @@ id = 0
 item_table = dict()
 
 for item in consumables:
-    new_item = ItemData(id, ItemClassification.filler, False)
+    new_item = ItemData(item, id, ItemClassification.filler, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
 for item in chest_rewards:
-    new_item = ItemData(id, ItemClassification.filler, False)
+    new_item = ItemData(item, id, ItemClassification.filler, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 
 for item in weapons:
-    new_item = ItemData(id, ItemClassification.useful, False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 
 for item in armor:
-    new_item = ItemData(id, ItemClassification.useful, False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 
 for item in accessories:
-    new_item = ItemData(id, ItemClassification.useful, False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 
 for item in key_items:
-    new_item = ItemData(id, ItemClassification.progression, False)
+    new_item = ItemData(item, id, ItemClassification.progression, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 
 for item in boss_items:
-    new_item = ItemData(id, ItemClassification.progression, False)
+    new_item = ItemData(item, id, ItemClassification.progression, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
