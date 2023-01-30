@@ -275,6 +275,9 @@ minor_gogo_checks = [
 ]
 
 minor_umaro_checks = [
+    "Umaro's Cave Basement 1 Lower Left",
+    "Umaro's Cave Basement 1 Left Central",
+    "Umaro's Cave Basement 2 Lower Left"
 ]
 
 minor_generic_checks = [
@@ -297,6 +300,7 @@ minor_generic_checks = [
     "Fanatics' Tower Thirty-fifth Floor",
     "Fanatics' Tower Seventh Floor",
     "Fanatics' Tower Eighth Floor",
+    "Fanatics' Tower Top Floor",
     "Figaro Castle East Shop Left",
     "Figaro Castle East Shop Right",
     "Figaro Castle Upper Hall",
@@ -330,9 +334,6 @@ minor_generic_checks = [
     "Narshe West Mines Right WoR",
     "Narshe West Mines Left WoR",
     "Narshe Moogle Lair WoR",
-    "Umaro's Cave Basement 1 Lower Left",
-    "Umaro's Cave Basement 1 Left Central",
-    "Umaro's Cave Basement 2 Lower Left",
     "Nikeah Inn Clock",
     "Returners' Hideout Banon's Room",
     "Returners' Hideout Bedroom",
