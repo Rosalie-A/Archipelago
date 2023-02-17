@@ -557,5 +557,5 @@ item_only_checks.extend(minor_ext_checks)
 item_only_checks.extend(minor_checks)
 no_item_checks = ["Cranes", "MagiMaster", "Imperial Air Force", "Nerapa", "Veldt", "Wrexsoul"]
 no_character_checks = ["Auction House 10kGP", "Auction House 20kGP", "Doma Castle Throne",
-                       "Doom Gaze", "AtmaWeapon", "Ifrit and Shiva", "Number 024", "Narshe Weapon Shop 1",
+                       "Doom Gaze", "Dream Stooges", "AtmaWeapon", "Ifrit and Shiva", "Number 024", "Narshe Weapon Shop 1",
                        "Tritoch", "Tzen Thief"]
