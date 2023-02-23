@@ -261,7 +261,6 @@ class Treasuresanity(Choice):
     option_off = 0
     option_on = 1
     option_on_with_additional_gating = 2
-    default = 1
 
 class EnableFlagstring(FreeText):
     """Enables the Flagstring option. Set this to "true" to use a custom Worlds Collide flagstring"""
@@ -302,6 +301,7 @@ ff6wc_options: typing.Dict[str, type(Option)] = {
     "EnableFlagstring": EnableFlagstring,
     "Flagstring": Flagstring
 }
+
 def generate_flagstring(multiworld: MultiWorld, player: int, starting_characters):
     if multiworld.EnableFlagstring[player].value == 'true':
         flags = multiworld.Flagstring[player].value.split(" ")
@@ -433,8 +433,8 @@ def generate_commands_string(multiworld: MultiWorld, player: int):
 
 def generate_battle_string(multiworld: MultiWorld, player: int):
     reward_value = multiworld.BattleRewardMultiplier[player] + 1
-    rewards_strings = [f"-xpm={reward_value}", f"-mpm={reward_value + 2}", f"-gpm={reward_value + 2}", "-be"]
-    no_xp_split_string = "-nxppd" # Javin - I prefer no xp split
+    rewards_strings = [f"-xpm={reward_value}", f"-mpm={reward_value}", f"-gpm={reward_value}", "-be"]
+
     boss_string = ""
     if multiworld.RandomizedBosses[player] == 1:
         boss_string = "-bbs"
@@ -448,7 +448,7 @@ def generate_battle_string(multiworld: MultiWorld, player: int):
     # Scaling factor of 2, abilities scale keeping elements, max level scale is 40, dragons get scaled
     scaling_string = ["-lsc=2", "-hmc=2", "-xgc=2", "-ase=2", "-msl=40", "-sed"]
 
-    return [*rewards_strings, boss_string, statue_string, dragon_string, *scaling_string, no_xp_split_string]
+    return [*rewards_strings, boss_string, statue_string, dragon_string, *scaling_string]
 
 
 def generate_magic_string(multiworld: MultiWorld, player: int):
@@ -475,7 +475,7 @@ def generate_magic_string(multiworld: MultiWorld, player: int):
         esper_equipability_string = ["-eebr", "6"]
 
     multi_summon_string = "-ems"
-    no_ultima_string = "-nu" # Javin: No Ultimas please
+
     natural_magic_strings = ["-nmmi"] # Show who has Natural Magic
     if multiworld.NaturalMagic[player] == 1 or multiworld.NaturalMagic == 3: # Random characters
         natural_magic_strings.extend(["-nm1=random", "-nm2=random"])
@@ -536,5 +536,4 @@ def generate_accessibility_string():
 
 def generate_fixes_string():
     # Bug fixes, and Magimaster can cast his final spell because I'm a jerk.
-    # Javin: Try to remember to find this flag because MM is a jerk.
-    return ["-fedc", "-fe", "-fbs", "-fvd", "-fj", "-dgne", "-wnz", "-cmd", "-mmnu"]
+    return ["-fedc", "-fe", "-fbs", "-fvd", "-fj", "-dgne", "-wnz", "-cmd"]
