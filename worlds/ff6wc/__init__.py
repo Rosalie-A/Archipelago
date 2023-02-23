@@ -97,7 +97,115 @@ class FF6WCWorld(World):
 
     def generate_early(self):
         if self.multiworld.EnableFlagstring[self.player].value == "true":
+
             self.starting_characters = []
+            character_list = []
+            flags = self.multiworld.Flagstring[self.player].value
+            # Determining Starting Characters
+            flags_list = flags.split(" ")
+            sc1_index = flags_list.index("-sc1") + 1
+            character_list.append(flags_list[sc1_index])
+            if "-sc2" in flags_list:
+                sc2_index = flags_list.index("-sc2") + 1
+                character_list.append(flags_list[sc2_index])
+            if "-sc3" in flags_list:
+                sc3_index = flags_list.index("-sc3") + 1
+                character_list.append(flags_list[sc3_index])
+            if "-sc4" in flags_list:
+                sc4_index = flags_list.index("-sc4") + 1
+                character_list.append(flags_list[sc4_index])
+
+            for character in range(len(character_list)):
+                if character_list[character] == "randomgu":
+                    compare_character_list = character_list.copy()
+                    character_list[character] = random.choice(Rom.characters[:12]).lower()
+                    while character_list[character] in compare_character_list:
+                        character_list[character] = random.choice(Rom.characters[:12]).lower()
+                elif character_list[character] == "random":
+                    compare_character_list = character_list.copy()
+                    character_list[character] = random.choice(Rom.characters[:14]).lower()
+                    while character_list[character] in compare_character_list:
+                        character_list[character] = random.choice(Rom.characters[:14]).lower()
+                elif character_list[character] not in character_list:
+                    character_list[character] = character_list[character]
+
+            for x in range(len(character_list)):
+                if x == 0:
+                    flags_list[sc1_index] = character_list[x]
+                if x == 1:
+                    flags_list[sc2_index] = character_list[x]
+                if x == 2:
+                    flags_list[sc3_index] = character_list[x]
+                if x == 3:
+                    flags_list[sc4_index] = character_list[x]
+
+
+            self.multiworld.StartingCharacterCount[self.player].value = len(character_list)
+
+            starting_character_options = list(self.multiworld.StartingCharacter1[self.player].name_lookup.values())
+            self.multiworld.StartingCharacter1[self.player].value = starting_character_options.index(character_list[0])
+            self.multiworld.StartingCharacter2[self.player].value = 14
+            self.multiworld.StartingCharacter3[self.player].value = 14
+            self.multiworld.StartingCharacter4[self.player].value = 14
+            if len(character_list) > 1:
+                self.multiworld.StartingCharacter2[self.player].value = starting_character_options.index(character_list[1])
+            if len(character_list) > 2:
+                self.multiworld.StartingCharacter3[self.player].value = starting_character_options.index(character_list[2])
+            if len(character_list) > 3:
+                self.multiworld.StartingCharacter4[self.player].value = starting_character_options.index(character_list[3])
+
+            proper_names = " ".join(character_list)
+            proper_names = proper_names.title()
+            character_list = proper_names.split(" ")
+            self.starting_characters = character_list
+
+            # Determining character, esper, and dragon requirements
+            # Finding KT Objective in flagstring (starts with 2)
+            character_count = 0
+            esper_count = 0
+            dragon_count = 0
+            boss_count = 0
+            alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+            for letter in alphabet: # Javin: I know there's a better way to do this, just need to learn
+                objective_list = ["-o", letter]
+                objective = "".join(objective_list)
+                if objective in flags_list:
+                    objective_code = flags_list[flags_list.index(objective) + 1]
+                    objective_code_list = objective_code.split(".")
+                    if objective_code_list[0] == "2":
+                        kt_obj_code = objective_code
+                        kt_obj_list = objective_code_list
+                        kt_obj_code_index = flags_list.index(objective) + 1
+            # Determining Esper and Dragon Counts
+            for index in range(len(kt_obj_list)):
+                if index%3 == 0 and index > 0:
+                    count_low = int(kt_obj_list[index + 1])
+                    count_high = int(kt_obj_list[index + 2])
+                    if kt_obj_list[index] == "2":
+                        character_count = random.randint(count_low, count_high)
+                        kt_obj_list[index + 1] = str(character_count)
+                        kt_obj_list[index + 2] = str(character_count)
+                    elif kt_obj_list[index] == "4":
+                        esper_count = random.randint(count_low, count_high)
+                        kt_obj_list[index + 1] = str(esper_count)
+                        kt_obj_list[index + 2] = str(esper_count)
+                    elif kt_obj_list[index] == "6":
+                        dragon_count = random.randint(count_low, count_high)
+                        kt_obj_list[index + 1] = str(dragon_count)
+                        kt_obj_list[index + 2] = str(dragon_count)
+                    elif kt_obj_list[index] == "8":
+                        boss_count = random.randint(count_low, count_high)
+                        kt_obj_list[index + 1] = str(boss_count)
+                        kt_obj_list[index + 2] = str(boss_count)
+            kt_obj_list_string = ".".join(kt_obj_list)
+            flags_list[kt_obj_code_index] = kt_obj_list_string
+
+            self.multiworld.Flagstring[self.player].value = " ".join(flags_list)
+            self.multiworld.CharacterCount[self.player].value = character_count
+            self.multiworld.EsperCount[self.player].value = esper_count
+            self.multiworld.DragonCount[self.player].value = dragon_count
+
+
         else:
             starting_characters = [
                 (self.multiworld.StartingCharacter1[self.player].current_key).capitalize(),
