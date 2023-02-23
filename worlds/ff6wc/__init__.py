@@ -3,6 +3,7 @@ import json
 import os
 import random
 import shutil
+import string
 import subprocess
 import threading
 from typing import NamedTuple, Union
@@ -142,32 +143,33 @@ class FF6WCWorld(World):
 
             self.multiworld.StartingCharacterCount[self.player].value = len(character_list)
 
-            proper_names = " ".join(character_list)
-            proper_names = proper_names.title()
-            character_list = proper_names.split(" ")
-          #  capslock_names = " ".join(character_list)
-          #  capslock_names = capslock_names.upper()
-          #  character_list = capslock_names.split(" ")
-            self.starting_characters = character_list
-            self.multiworld.StartingCharacter1[self.player].value = Rom.characters.index(character_list[0])
+            starting_character_options = list(self.multiworld.StartingCharacter1[self.player].name_lookup.values())
+            self.multiworld.StartingCharacter1[self.player].value = starting_character_options.index(character_list[0])
             self.multiworld.StartingCharacter2[self.player].value = 14
             self.multiworld.StartingCharacter3[self.player].value = 14
             self.multiworld.StartingCharacter4[self.player].value = 14
             if len(character_list) > 1:
-                self.multiworld.StartingCharacter2[self.player].value = Rom.characters.index(character_list[1])
+                self.multiworld.StartingCharacter2[self.player].value = starting_character_options.index(character_list[1])
             if len(character_list) > 2:
-                self.multiworld.StartingCharacter3[self.player].value = Rom.characters.index(character_list[2])
+                self.multiworld.StartingCharacter3[self.player].value = starting_character_options.index(character_list[2])
             if len(character_list) > 3:
-                self.multiworld.StartingCharacter4[self.player].value = Rom.characters.index(character_list[3])
+                self.multiworld.StartingCharacter4[self.player].value = starting_character_options.index(character_list[3])
+
+            proper_names = " ".join(character_list)
+            proper_names = proper_names.title()
+            character_list = proper_names.split(" ")
+            self.starting_characters = character_list
+
             # Determining character, esper, and dragon requirements
             # Finding KT Objective in flagstring (starts with 2)
             character_count = 0
             esper_count = 0
             dragon_count = 0
             boss_count = 0
-            alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
-            for letter in alphabet:
-                objective_list = ["-o", letter]
+
+            alphabet = string.ascii_lowercase
+            for letter in range(len(alphabet)):
+                objective_list = ["-o", alphabet[letter]]
                 objective = "".join(objective_list)
                 if objective in flags_list:
                     objective_code = flags_list[flags_list.index(objective) + 1]
@@ -176,7 +178,7 @@ class FF6WCWorld(World):
                         kt_obj_code = objective_code
                         kt_obj_list = objective_code_list
                         kt_obj_code_index = flags_list.index(objective) + 1
-                        letter = "z"
+                        break
             # Determining Esper and Dragon Counts
             for index in range(len(kt_obj_list)):
                 if index%3 == 0 and index > 0:
@@ -205,7 +207,7 @@ class FF6WCWorld(World):
             self.multiworld.CharacterCount[self.player].value = character_count
             self.multiworld.EsperCount[self.player].value = esper_count
             self.multiworld.DragonCount[self.player].value = dragon_count
-
+            # self.multiworld.BossCount[self.player].value = boss_count
 
         else:
             starting_characters = [
