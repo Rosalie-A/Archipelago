@@ -3,7 +3,6 @@ import json
 import os
 import random
 import shutil
-import string
 import subprocess
 import threading
 from typing import NamedTuple, Union
@@ -166,10 +165,9 @@ class FF6WCWorld(World):
             esper_count = 0
             dragon_count = 0
             boss_count = 0
-
-            alphabet = string.ascii_lowercase
-            for letter in range(len(alphabet)):
-                objective_list = ["-o", alphabet[letter]]
+            alphabet = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
+            for letter in alphabet: # Javin: I know there's a better way to do this, just need to learn
+                objective_list = ["-o", letter]
                 objective = "".join(objective_list)
                 if objective in flags_list:
                     objective_code = flags_list[flags_list.index(objective) + 1]
@@ -178,7 +176,6 @@ class FF6WCWorld(World):
                         kt_obj_code = objective_code
                         kt_obj_list = objective_code_list
                         kt_obj_code_index = flags_list.index(objective) + 1
-                        break
             # Determining Esper and Dragon Counts
             for index in range(len(kt_obj_list)):
                 if index%3 == 0 and index > 0:
@@ -207,7 +204,7 @@ class FF6WCWorld(World):
             self.multiworld.CharacterCount[self.player].value = character_count
             self.multiworld.EsperCount[self.player].value = esper_count
             self.multiworld.DragonCount[self.player].value = dragon_count
-            # self.multiworld.BossCount[self.player].value = boss_count
+
 
         else:
             starting_characters = [
