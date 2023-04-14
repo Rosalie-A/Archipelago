@@ -99,8 +99,7 @@ class FF6WCWorld(World):
         return return_location
 
     def generate_early(self):
-        if self.multiworld.EnableFlagstring[self.player].value == "true":
-
+        if (self.multiworld.Flagstring[self.player].value).capitalize() != "False":
             self.starting_characters = []
             character_list = []
             flags = self.multiworld.Flagstring[self.player].value
@@ -291,7 +290,7 @@ class FF6WCWorld(World):
 
     def create_items(self):
         # Setting variables for item restrictions based on custom flagstring or AllowStrongestItems value
-        if self.multiworld.EnableFlagstring[self.player]:
+        if (self.multiworld.Flagstring[self.player].value).capitalize() != "False":
             if "-nfps" in self.multiworld.Flagstring[self.player].value.split(" "):
                 self.no_paladin_shields = True
             if "-nee" in self.multiworld.Flagstring[self.player].value.split(" "):
