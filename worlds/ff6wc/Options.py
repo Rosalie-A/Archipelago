@@ -262,15 +262,10 @@ class Treasuresanity(Choice):
     option_on = 1
     option_on_with_additional_gating = 2
 
-class EnableFlagstring(FreeText):
-    """Enables the Flagstring option. Set this to "true" to use a custom Worlds Collide flagstring"""
-    display_name = "Enable Flagstring"
-    default = "false"
-
 class Flagstring(FreeText):
-    """Custom flagstring. For advanced users only: will override most other options"""
+    """Enables custom flagstring. For advanced users only: will override most other options"""
     display_name = "Flagstring"
-    default = "flagstring_here"
+    default = "False"
 
 ff6wc_options: typing.Dict[str, type(Option)] = {
     "CharacterCount": CharacterCount,
@@ -298,12 +293,12 @@ ff6wc_options: typing.Dict[str, type(Option)] = {
     "AllowStrongestItems": AllowStrongestItems,
     "RandomizeZozoClock": RandomizeZozoClock,
     "Treasuresanity": Treasuresanity,
-    "EnableFlagstring": EnableFlagstring,
     "Flagstring": Flagstring
 }
 
 def generate_flagstring(multiworld: MultiWorld, player: int, starting_characters):
-    if multiworld.EnableFlagstring[player].value == 'true':
+    
+    if (multiworld.Flagstring[player].value).capitalize() != 'False':
         flags = multiworld.Flagstring[player].value.split(" ")
     else:
         flags = [
