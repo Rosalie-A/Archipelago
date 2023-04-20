@@ -246,19 +246,45 @@ class FF6WCWorld(World):
                 (self.multiworld.StartingCharacter3[self.player].current_key).capitalize(),
                 (self.multiworld.StartingCharacter4[self.player].current_key).capitalize()
             ]
-            starting_characters = starting_characters[0:self.multiworld.StartingCharacterCount[self.player]]
-            starting_characters.sort(key=lambda character: character == "Random_with_no_gogo_or_umaro")
 
+            character_count = len(starting_characters) - starting_characters.count("None")
+            self.multiworld.StartingCharacterCount[self.player].value = character_count
+
+            starting_characters.sort(key=lambda character: character == "None")
+            starting_characters = starting_characters[0:character_count]
+
+            starting_characters.sort(key=lambda character: character == "Random_with_no_gogo_or_umaro")
             filtered_starting_characters = []
             for character in starting_characters:
-                if character == "Random_with_no_gogo_or_umaro":
+                if character != "Random_with_no_gogo_or_umaro" and character in filtered_starting_characters:
+                    character = random.choice(Rom.characters[:14])
+                    while character in filtered_starting_characters:
+                        character = random.choice(Rom.characters[:14])
+                elif character == "Random_with_no_gogo_or_umaro":
                     character = random.choice(Rom.characters[:12])
                     while character in filtered_starting_characters:
                         character = random.choice(Rom.characters[:12])
                 if character not in filtered_starting_characters:
                     filtered_starting_characters.append(character)
+            starting_characters = filtered_starting_characters
 
-            self.starting_characters = filtered_starting_characters
+            starting_character_options = list(self.multiworld.StartingCharacter1[self.player].name_lookup.values())
+            self.multiworld.StartingCharacter1[self.player].value = starting_character_options.index(starting_characters[0].lower())
+            self.multiworld.StartingCharacter2[self.player].value = 14
+            self.multiworld.StartingCharacter3[self.player].value = 14
+            self.multiworld.StartingCharacter4[self.player].value = 14
+            starting_character_options = list(self.multiworld.StartingCharacter2[self.player].name_lookup.values())
+            if character_count > 1:
+                self.multiworld.StartingCharacter2[self.player].value = \
+                    starting_character_options.index(starting_characters[1].lower())
+            if character_count > 2:
+                self.multiworld.StartingCharacter3[self.player].value = \
+                    starting_character_options.index(starting_characters[2].lower())
+            if character_count > 3:
+                self.multiworld.StartingCharacter4[self.player].value = \
+                    starting_character_options.index(starting_characters[3].lower())
+
+            self.starting_characters = starting_characters
 
     def create_regions(self):
         menu = Region("Menu", self.player, self.multiworld)
