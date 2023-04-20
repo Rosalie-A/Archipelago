@@ -420,7 +420,7 @@ class FF6WCWorld(World):
 
         for dragon in Locations.dragons:
             dragon_event = Locations.dragon_events_link[dragon]
-            add_item_rule(self.multiworld.get_location(dragon_event, self.player),
+            add_rule(self.multiworld.get_location(dragon_event, self.player),
                           lambda state: state.can_reach(str(dragon), 'Location', self.player))
 
         for location in Locations.fanatics_tower_checks:
