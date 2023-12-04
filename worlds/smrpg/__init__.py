@@ -56,7 +56,9 @@ class SMRPGWorld(World):
 
     def __init__(self, world: MultiWorld, player: int):
         super().__init__(world, player)
+        self.rom_name = None
         self.generator_in_use = threading.Event()
+        self.rom_name_text = ""
         self.rom_name_available_event = threading.Event()
         self.levels = None
 
@@ -72,13 +74,13 @@ class SMRPGWorld(World):
         return return_location
 
     def create_regions(self):
-        menu = Region("Menu", None, "Menu", self.player, self.multiworld)
-        overworld = Region("Overworld", None, "Overworld", self.player, self.multiworld)
+        menu = Region("Menu", self.player, self.multiworld)
+        overworld = Region("Overworld", self.player, self.multiworld)
         for key, location in location_table.items():
             try:
                 region = self.multiworld.get_region(location.region.name, self.player)
             except KeyError:
-                region = Region(location.region.name, None, location.region.name, self.player, self.multiworld)
+                region = Region(location.region.name, self.player, self.multiworld)
                 new_entrance = Entrance(self.player, location.region.name, overworld)
                 new_entrance.connect(region)
                 overworld.exits.append(new_entrance)
@@ -149,6 +151,10 @@ class SMRPGWorld(World):
             self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.all_mundane_items)))
 
     def generate_output(self, output_directory: str):
+        self.rom_name_text = f'SMRPG{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:11}'
+        self.rom_name_text = self.rom_name_text[:20]
+        self.rom_name = bytearray(self.rom_name_text, 'utf-8')
+        self.rom_name.extend([0] * (20 - len(self.rom_name)))
         output = dict()
         for key, location in location_table.items():
             item = self.multiworld.get_location(location.name, self.player).item
@@ -160,7 +166,8 @@ class SMRPGWorld(World):
             seed=self.multiworld.seed % 2**32,
             rom="smrpg.smc",
             output_file="worlds/smrpg/randomized.sfc",
-            ap_data=output
+            ap_data=output,
+            rom_name=self.rom_name
         )
 
     def modify_multidata(self, multidata: dict):

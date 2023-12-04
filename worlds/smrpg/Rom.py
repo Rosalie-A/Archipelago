@@ -1,12 +1,38 @@
+import hashlib
+import os
+from enum import Enum, auto
+
+import Utils
+from worlds.Files import APDeltaPatch
+
 treasure_chest_base_address = 0xE03D80
+rom_name_location = 0x00FFC0
+md5_hash = "d0b68d68d9efc0558242f5476d1c5b81"
+items_received_address = 0xE03FF0
+items_sendable_address = 0xE03062 # Is the Map/Star Piece menu available?
+bit_positions = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
+items_inventory_address = 0xF6F882
+gear_inventory_address = 0xF6F864
+keys_inventory_address = 0xF6F8A0
 
 class MemoryLocation():
     def __init__(self, address, bit, set_when_checked):
         self.address = address
-        self.bit = bit
+        self.bit = bit_positions[bit]
         self.set_when_checked = set_when_checked
 
-treasure_chests = {
+class ItemCategory(Enum):
+    item = auto()
+    gear = auto()
+    key = auto()
+
+class ItemData():
+    def __init__(self, id, category: ItemCategory):
+        self.id = id
+        self.category = category
+
+
+location_data: dict[str, MemoryLocation] = dict({
     "Mushroom Way 1", MemoryLocation(treasure_chest_base_address + 9, 6, False),
     "Mushroom Way 2", MemoryLocation(treasure_chest_base_address + 9, 7, False),
     "Mushroom Way 3", MemoryLocation(treasure_chest_base_address + 10, 0, False),
@@ -252,4 +278,192 @@ treasure_chests = {
     "Director", MemoryLocation(0x2E8E, 5, False),
     "Gunyolk", MemoryLocation(0x308F, 6, False),
     "Smithy", MemoryLocation(0x304A, 2, False),
-}
+})
+
+item_data: dict[str, ItemData] = dict({
+    "Hammer", ItemData(0x05, ItemCategory.gear),
+    "FroggieStick", ItemData(0x06, ItemCategory.gear),
+    "Nok Nok Shell", ItemData(0x07, ItemCategory.gear),
+    "Punch Glove", ItemData(0x08, ItemCategory.gear),
+    "Finger Shot", ItemData(0x09, ItemCategory.gear),
+    "Cymbals", ItemData(0x0A, ItemCategory.gear),
+    "Chomp", ItemData(0x0B, ItemCategory.gear),
+    "Masher", ItemData(0x0C, ItemCategory.gear),
+    "Chomp Shell", ItemData(0x0D, ItemCategory.gear),
+    "Super Hammer", ItemData(0x0E, ItemCategory.gear),
+    "Hand Gun", ItemData(0x0F, ItemCategory.gear),
+    "Whomp Glove", ItemData(0x10, ItemCategory.gear),
+    "Slap Glove", ItemData(0x11, ItemCategory.gear),
+    "Troopa Shell", ItemData(0x12, ItemCategory.gear),
+    "Parasol", ItemData(0x13, ItemCategory.gear),
+    "Hurly Gloves", ItemData(0x14, ItemCategory.gear),
+    "Double Punch", ItemData(0x15, ItemCategory.gear),
+    "Ribbit Stick", ItemData(0x16, ItemCategory.gear),
+    "Spiked Link", ItemData(0x17, ItemCategory.gear),
+    "Mega Glove", ItemData(0x18, ItemCategory.gear),
+    "War Fan", ItemData(0x19, ItemCategory.gear),
+    "Hand Cannon", ItemData(0x1A, ItemCategory.gear),
+    "Sticky Glove", ItemData(0x1B, ItemCategory.gear),
+    "Ultra Hammer", ItemData(0x1C, ItemCategory.gear),
+    "Super Slap", ItemData(0x1D, ItemCategory.gear),
+    "Drill Claw", ItemData(0x1E, ItemCategory.gear),
+    "Star Gun", ItemData(0x1F, ItemCategory.gear),
+    "Sonic Cymbal", ItemData(0x20, ItemCategory.gear),
+    "Lazy Shell Weapon", ItemData(0x21, ItemCategory.gear),
+    "Frying Pan", ItemData(0x22, ItemCategory.gear),
+    "Lucky Hammer", ItemData(0x23, ItemCategory.gear),
+    "Shirt", ItemData(0x25, ItemCategory.gear),
+    "Pants", ItemData(0x26, ItemCategory.gear),
+    "Thick Shirt", ItemData(0x27, ItemCategory.gear),
+    "Thick Pants", ItemData(0x28, ItemCategory.gear),
+    "Mega Shirt", ItemData(0x29, ItemCategory.gear),
+    "Mega Pants", ItemData(0x2A, ItemCategory.gear),
+    "Work Pants", ItemData(0x2B, ItemCategory.gear),
+    "Mega Cape", ItemData(0x2C, ItemCategory.gear),
+    "Happy Shirt", ItemData(0x2D, ItemCategory.gear),
+    "Happy Pants", ItemData(0x2E, ItemCategory.gear),
+    "Happy Cape", ItemData(0x2F, ItemCategory.gear),
+    "Happy Shell", ItemData(0x30, ItemCategory.gear),
+    "Polka Dress", ItemData(0x31, ItemCategory.gear),
+    "Sailor Shirt", ItemData(0x32, ItemCategory.gear),
+    "Sailor Pants", ItemData(0x33, ItemCategory.gear),
+    "Sailor Cape", ItemData(0x34, ItemCategory.gear),
+    "NauticaDress", ItemData(0x35, ItemCategory.gear),
+    "CourageShell", ItemData(0x36, ItemCategory.gear),
+    "Fuzzy Shirt", ItemData(0x37, ItemCategory.gear),
+    "Fuzzy Pants", ItemData(0x38, ItemCategory.gear),
+    "Fuzzy Cape", ItemData(0x39, ItemCategory.gear),
+    "Fuzzy Dress", ItemData(0x3A, ItemCategory.gear),
+    "Fire Shirt", ItemData(0x3B, ItemCategory.gear),
+    "Fire Pants", ItemData(0x3C, ItemCategory.gear),
+    "Fire Cape", ItemData(0x3D, ItemCategory.gear),
+    "Fire Shell", ItemData(0x3E, ItemCategory.gear),
+    "Fire Dress", ItemData(0x3F, ItemCategory.gear),
+    "Hero Shirt", ItemData(0x40, ItemCategory.gear),
+    "Prince Pants", ItemData(0x41, ItemCategory.gear),
+    "Star Cape", ItemData(0x42, ItemCategory.gear),
+    "Heal Shell", ItemData(0x43, ItemCategory.gear),
+    "Royal Dress", ItemData(0x44, ItemCategory.gear),
+    "Super Suit", ItemData(0x45, ItemCategory.gear),
+    "Lazy Shell Armor", ItemData(0x46, ItemCategory.gear),
+    "Zoom Shoes", ItemData(0x4A, ItemCategory.gear),
+    "Safety Badge", ItemData(0x4B, ItemCategory.gear),
+    "Jump Shoes", ItemData(0x4C, ItemCategory.gear),
+    "Safety Ring", ItemData(0x4D, ItemCategory.gear),
+    "Amulet", ItemData(0x4E, ItemCategory.gear),
+    "Scrooge Ring", ItemData(0x4F, ItemCategory.gear),
+    "Exp. Booster", ItemData(0x50, ItemCategory.gear),
+    "Attack Scarf", ItemData(0x51, ItemCategory.gear),
+    "Rare Scarf", ItemData(0x52, ItemCategory.gear),
+    "B'tub Ring", ItemData(0x53, ItemCategory.gear),
+    "Antidote Pin", ItemData(0x54, ItemCategory.gear),
+    "Wake Up Pin", ItemData(0x55, ItemCategory.gear),
+    "Fearless Pin", ItemData(0x56, ItemCategory.gear),
+    "Trueform Pin", ItemData(0x57, ItemCategory.gear),
+    "Coin Trick", ItemData(0x58, ItemCategory.gear),
+    "Ghost Medal", ItemData(0x59, ItemCategory.gear),
+    "Jinx Belt", ItemData(0x5A, ItemCategory.gear),
+    "Feather", ItemData(0x5B, ItemCategory.gear),
+    "Troopa Pin", ItemData(0x5C, ItemCategory.gear),
+    "Signal Ring", ItemData(0x5D, ItemCategory.gear),
+    "Quartz Charm", ItemData(0x5E, ItemCategory.gear),
+    "Mushroom", ItemData(0x60, ItemCategory.item),
+    "Mid Mushroom", ItemData(0x61, ItemCategory.item),
+    "Max Mushroom", ItemData(0x62, ItemCategory.item),
+    "Honey Syruo", ItemData(0x63, ItemCategory.item),
+    "Maple Syruo", ItemData(0x64, ItemCategory.item),
+    "Royal Syruo", ItemData(0x65, ItemCategory.item),
+    "Pick Me Up", ItemData(0x66, ItemCategory.item),
+    "Able Juice", ItemData(0x67, ItemCategory.item),
+    "Bracer", ItemData(0x68, ItemCategory.item),
+    "Energizer", ItemData(0x69, ItemCategory.item),
+    "Yoshi-Ade", ItemData(0x6A, ItemCategory.item),
+    "Red Essence", ItemData(0x6B, ItemCategory.item),
+    "KerokeroCola", ItemData(0x6C, ItemCategory.item),
+    "Yoshi Cookie", ItemData(0x6D, ItemCategory.item),
+    "Pure Water", ItemData(0x6E, ItemCategory.item),
+    "Sleepy Bomb", ItemData(0x6F, ItemCategory.item),
+    "Bad Mushroom", ItemData(0x70, ItemCategory.item),
+    "Fire Bomb", ItemData(0x71, ItemCategory.item),
+    "Ice Bomb", ItemData(0x72, ItemCategory.item),
+    "Flower Tab", ItemData(0x73, ItemCategory.item),
+    "Flower Jar", ItemData(0x74, ItemCategory.item),
+    "Flower Box", ItemData(0x75, ItemCategory.item),
+    "Yoshi Candy", ItemData(0x76, ItemCategory.item),
+    "FroggieDrink", ItemData(0x77, ItemCategory.item),
+    "Muku Cookie", ItemData(0x78, ItemCategory.item),
+    "Elixir", ItemData(0x79, ItemCategory.item),
+    "Megalixir", ItemData(0x7A, ItemCategory.item),
+    "See Ya", ItemData(0x7B, ItemCategory.item),
+    "Temple Key", ItemData(0x7C, ItemCategory.key),
+    "Goodie Bag", ItemData(0x7D, ItemCategory.item),
+    "EarlierTimes", ItemData(0x7E, ItemCategory.item),
+    "Freshen Up", ItemData(0x7F, ItemCategory.item),
+    "RareFrogCoin", ItemData(0x80, ItemCategory.key),
+    "Wallet", ItemData(0x81, ItemCategory.item),
+    "Cricket Pie", ItemData(0x82, ItemCategory.key),
+    "Rock Candy", ItemData(0x83, ItemCategory.item),
+    "Castle Key 1", ItemData(0x84, ItemCategory.key),
+    "Castle Key 2", ItemData(0x86, ItemCategory.key),
+    "Bambino Bomb", ItemData(0x87, ItemCategory.key),
+    "Sheep Attack", ItemData(0x88, ItemCategory.item),
+    "Carbo Cookie", ItemData(0x89, ItemCategory.item),
+    "Shiny Stone", ItemData(0x8A, ItemCategory.key),
+    "Room Key", ItemData(0x8C, ItemCategory.key),
+    "Elder Key", ItemData(0x8D, ItemCategory.key),
+    "Shed Key", ItemData(0x8E, ItemCategory.key),
+    "Lamb's Lure", ItemData(0x8F, ItemCategory.item),
+    "Fright Bomb", ItemData(0x90, ItemCategory.item),
+    "Mystery Egg", ItemData(0x91, ItemCategory.item),
+    "Lucky Jewel", ItemData(0x94, ItemCategory.item),
+    "Soprano Card", ItemData(0x96, ItemCategory.key),
+    "Alto Card", ItemData(0x97, ItemCategory.key),
+    "Tenor Card", ItemData(0x98, ItemCategory.key),
+    "Crystalline", ItemData(0x99, ItemCategory.item),
+    "Power Blast", ItemData(0x9A, ItemCategory.item),
+    "Wilt Shroom", ItemData(0x9B, ItemCategory.item),
+    "Rotten Shroom", ItemData(0x9C, ItemCategory.item),
+    "Moldy Shroom", ItemData(0x9D, ItemCategory.item),
+    "Seed", ItemData(0x9E, ItemCategory.item),
+    "Fertilizer", ItemData(0x9F, ItemCategory.item),
+    "Big Boo Flag", ItemData(0xA1, ItemCategory.item),
+    "DryBonesFlag", ItemData(0xA2, ItemCategory.item),
+    "Greaper Flag", ItemData(0xA3, ItemCategory.item),
+    "Cricket Jam", ItemData(0xA6, ItemCategory.item),
+    "Bright Card", ItemData(0xAE, ItemCategory.item),
+    "Mushroom 2", ItemData(0xAF, ItemCategory.item),
+    "Star Egg", ItemData(0xB0, ItemCategory.item)
+})
+
+class SMRPGDeltaPatch(APDeltaPatch):
+    hash = md5_hash
+    game = "Super Mario RPG: Legend of the Seven Stars"
+    patch_file_ending = ".apsmrpg"
+
+    @classmethod
+    def get_source_data(cls) -> bytes:
+        return get_base_rom_bytes()
+
+
+def get_base_rom_bytes(file_name: str = "") -> bytes:
+    base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
+    if not base_rom_bytes:
+        file_name = get_base_rom_path(file_name)
+        base_rom_bytes = bytes(open(file_name, "rb").read())
+
+        basemd5 = hashlib.md5()
+        basemd5.update(base_rom_bytes)
+        if md5_hash != basemd5.hexdigest():
+            raise Exception('Supplied Base Rom does not match known MD5 for NA (1.0) release. '
+                            'Get the correct game and version, then dump it')
+        get_base_rom_bytes.base_rom_bytes = base_rom_bytes
+    return base_rom_bytes
+
+
+def get_base_rom_path(file_name: str = "") -> str:
+    options = Utils.get_options()
+    if not file_name:
+        file_name = options["smrpg_options"]["rom_file"]
+    if not os.path.exists(file_name):
+        file_name = Utils.local_path(file_name)
+    return file_name
