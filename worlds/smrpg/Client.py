@@ -14,14 +14,11 @@ from . import Rom, Locations
 snes_logger: Logger = logging.getLogger("SNES")
 
 
-class FF6WCClient(SNIClient):
-    game: str = "Super Mario RPG: Legend of the Seven Stars"
+class SMRPGClient(SNIClient):
+    game = "Super Mario RPG Legend of the Seven Stars"
     locations = Rom.location_data
     location_names = locations.keys()
     location_ids = None
-
-    def __init__(self):
-        super()
 
     async def validate_rom(self, ctx: SNIContext) -> bool:
         from SNIClient import snes_read
@@ -75,7 +72,7 @@ class FF6WCClient(SNIClient):
             location_address = value.address
             location_id = Locations.location_table[location_name].id
             location_byte = await snes_read(ctx, location_address, 1)
-            if location_byte is not None:
+            if location_byte is not None and location_id not in ctx.locations_checked:
                 location_byte = location_byte[0] & value.bit
                 if ((location_byte > 0) and value.set_when_checked) \
                         or ((location_byte == 0) and not value.set_when_checked):

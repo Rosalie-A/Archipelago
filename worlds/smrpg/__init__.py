@@ -10,6 +10,7 @@ import Utils
 from BaseClasses import Item, Location, Region, Entrance, MultiWorld, ItemClassification, Tutorial
 from .Items import item_table
 from .Locations import location_table, SMRPGRegions
+from .Client import SMRPGClient
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule, add_item_rule
 
@@ -32,13 +33,10 @@ class SMRPGWeb(WebWorld):
 
 class SMRPGWorld(World):
     """
-    The Legend of Zelda needs almost no introduction. Gather the eight fragments of the
-    Triforce of Courage, enter Death Mountain, defeat Ganon, and rescue Princess Zelda.
-    This randomizer shuffles all the items in the game around, leading to a new adventure
-    every time.
+    Croakacola
     """
     #option_definitions = tloz_options
-    game = "Super Mario RPG"
+    game = "Super Mario RPG Legend of the Seven Stars"
     topology_present = False
     data_version = 1
     base_id = 8000

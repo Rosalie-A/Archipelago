@@ -73,7 +73,7 @@ locations_data = [
     ("King Calamari", SMRPGRegions.sunken_ship),
     ("Hidon", SMRPGRegions.sunken_ship_back),
     ("Johnny", SMRPGRegions.sunken_ship_back),
-    ("Yaridovich (Boss)", SMRPGRegions.seaside_town),
+    ("Yaridovich", SMRPGRegions.seaside_town),
     ("Belome 2", SMRPGRegions.belome_temple),
     ("Jagger", SMRPGRegions.monstro_town),
     ("Jinx 1", SMRPGRegions.monstro_town),
@@ -108,7 +108,7 @@ locations_data = [
     ("Yo'ster Isle Goal", SMRPGRegions.yoster_isle),
     ("Croco 2", SMRPGRegions.moleville),
     ("Booster Tower Ancestors", SMRPGRegions.booster_tower),
-    ("Booster Tower Checkerboard ", SMRPGRegions.booster_tower),
+    ("Booster Tower Checkerboard", SMRPGRegions.booster_tower),
     ("Knife Guy", SMRPGRegions.booster_tower),
     ("Seaside Town Key", SMRPGRegions.seaside_town),
     ("Monstro Town Key", SMRPGRegions.monstro_town),
@@ -314,7 +314,7 @@ locations_data = [
 star_piece_locations: List[str] = [
     "Hammer Bros", "Croco 1 (Boss)", "Mack", "Pandorite", "Belome 1", "Bowyer", "Croco 2 (Boss)",
     "Punchinello", "Booster", "Clown Bros", "Bundt", "Star Hill", "King Calamari", "Hidon", "Johnny",
-    "Yaridovich (Boss)", "Belome 2", "Jagger", "Jinx 3 (Boss)", "Culex", "Box Boy", "Mega Smilax", "Dodo",
+    "Yaridovich", "Belome 2", "Jagger", "Jinx 3 (Boss)", "Culex", "Box Boy", "Mega Smilax", "Dodo",
     "Birdo (Boss)", "Valentina", "Czar Dragon", "Axem Rangers", "Magikoopa", "Boomer", "Exor"
 ]
 

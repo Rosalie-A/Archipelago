@@ -61,7 +61,7 @@ class SMSNIClient(SNIClient):
         from SNIClient import snes_buffered_write, snes_flush_writes, snes_read
 
         rom_name = await snes_read(ctx, SM_ROMNAME_START, ROMNAME_SIZE)
-        if rom_name is None or rom_name == bytes([0] * ROMNAME_SIZE) or rom_name[:2] != b"SM" or rom_name[:3] == b"SMW":
+        if rom_name is None or rom_name == bytes([0] * ROMNAME_SIZE) or rom_name[:2] != b"SM" or rom_name[:3] == b"SMW" or rom_name[:5] == b"SMRPG":
             return False
 
         ctx.game = self.game
