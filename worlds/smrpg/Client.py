@@ -57,13 +57,7 @@ class SMRPGClient(SNIClient):
         if self.location_ids is None:
             self.location_ids = dict((v, k) for k, v in ctx.location_names.items())
 
-        items_sendable_data = await snes_read(ctx, Rom.items_sendable_address, 1)
-        if items_sendable_data is None:
-            return False
-        if items_sendable_data[0] == 0:
-            return False
-
-        return True
+        return await self.check_if_items_sendable(ctx)
 
     async def location_check(self, ctx):
         from SNIClient import snes_buffered_write, snes_flush_writes, snes_read
@@ -71,7 +65,8 @@ class SMRPGClient(SNIClient):
             location_name = key
             location_address = value.address
             location_id = Locations.location_table[location_name].id
-            location_byte = await snes_read(ctx, location_address, 1)
+            location_data = await snes_read(ctx, location_address, 1)
+            location_byte = location_data
             if location_byte is not None and location_id not in ctx.locations_checked:
                 location_byte = location_byte[0] & value.bit
                 if ((location_byte > 0) and value.set_when_checked) \
@@ -130,3 +125,13 @@ class SMRPGClient(SNIClient):
                 snes_buffered_write(ctx, inventory_address + index, item_id)
                 return True
         return False
+
+    async def check_if_items_sendable(self, ctx):
+        from SNIClient import snes_read
+        items_sendable_data_1 = await snes_read(ctx, Rom.items_sendable_address_1, 1)
+        items_sendable_data_2 = await snes_read(ctx, Rom.items_sendable_address_2, 1)
+        if items_sendable_data_1 is None or items_sendable_data_2 is None:
+            return False
+        if items_sendable_data_1[0] == 0 or items_sendable_data_2[0] in Rom.nonsendable_music_values:
+            return False
+        return True
