@@ -17,19 +17,30 @@ consumables = [
     "Pure Water", "Sleepy Bomb", "Bad Mushroom", "Fire Bomb", "Ice Bomb", "Flower Tab", "Flower Jar",
     "Flower Box", "Yoshi Candy", "Froggie Drink", "Muku Cookie", "Elixir", "Megalixir", "Freshen Up",
     "Rock Candy", "Sheep Attack", "Carbo Cookie", "Fright Bomb", "Crystalline", "Power Blast",
-    "Wilt Shroom", "Rotten Mush", "Moldy Mush", "Mushroom 2", "Lucky Jewel"
+    "Wilt Shroom", "Rotten Mush", "Moldy Mush", "Mushroom 2",
+]
+
+coin_rewards = [
+    "Five Coins", "Eight Coins", "Ten Coins", "Fifty Coins",
+    "One Hundred Coins", "One Hundred Fifty Coins","Frog Coin"
 ]
 
 chest_rewards = [
-    "Five Coins", "Eight Coins", "Ten Coins", "Fifty Coins", "One Hundred Coins", "One Hundred Fifty Coins",
-    "Flower", "Recovery Mushroom", "Frog Coin", "You Missed!"
+    *coin_rewards, "Flower", "Recovery Mushroom", "You Missed!"
 ]
 
 filler = [*consumables, *chest_rewards]
 
+key_items = [
+    "Temple Key", "Rare Frog Coin", "Cricket Pie", "Castle Key 1", "Castle Key 2", "Bambino Bomb",
+    "Room Key", "Elder Key", "Shed Key", "Soprano Card", "Alto Card", "Tenor Card", "Seed", "Fertilizer",
+    "Big Boo Flag", "Dry Bones Flag", "Greaper Flag", "Cricket Jam", "Bright Card"
+]
+
 # Not key items, but stuff that doesn't make sense to have in the pool multiple times
 singleton_items = [
-    "Wallet", "Goodie Bag", "See Ya", "Earlier Times", "Shiny Stone", "Lamb's Lure", "Mystery Egg", "Star Egg"
+    *key_items, "Wallet", "Goodie Bag", "See Ya", "Earlier Times", "Shiny Stone",
+    "Lamb's Lure", "Mystery Egg", "Star Egg", "Signal Ring", "Lucky Jewel"
 ]
 
 weapons = [
@@ -59,12 +70,6 @@ accessories = [
 equipment = [*weapons, *armor, *accessories]
 
 all_mundane_items = [*filler, *equipment]
-
-key_items = [
-    "Temple Key", "Rare Frog Coin", "Cricket Pie", "Castle Key 1", "Castle Key 2", "Bambino Bomb",
-    "Room Key", "Elder Key", "Shed Key", "Soprano Card", "Alto Card", "Tenor Card", "Seed", "Fertilizer",
-    "Big Boo Flag", "Dry Bones Flag", "Greaper Flag", "Cricket Jam", "Bright Card"
-]
 
 boss_items = [
     "Star Piece", "Defeated!", "Star Road Restored!"
@@ -98,8 +103,12 @@ for item in accessories:
     item_table[item] = new_item
     id += 1
 
-for item in key_items:
-    new_item = ItemData(item, id, ItemClassification.progression, item.replace(" ", "").replace("'", ""),  False)
+for item in singleton_items:
+    if item in key_items:
+        classification = ItemClassification.progression
+    else:
+        classification = ItemClassification.useful
+    new_item = ItemData(item, id, classification, item.replace(" ", "").replace("'", ""),  False)
     item_table[item] = new_item
     id += 1
 

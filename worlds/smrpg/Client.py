@@ -121,8 +121,8 @@ class SMRPGClient(SNIClient):
         if current_inventory_data is None:
             return
         for index, item_byte in enumerate(current_inventory_data):
-            if item_byte == 0:
-                snes_buffered_write(ctx, inventory_address + index, item_id)
+            if item_byte == 255:
+                snes_buffered_write(ctx, inventory_address + index, item_id.to_bytes(1, 'little'))
                 return True
         return False
 
@@ -130,8 +130,13 @@ class SMRPGClient(SNIClient):
         from SNIClient import snes_read
         items_sendable_data_1 = await snes_read(ctx, Rom.items_sendable_address_1, 1)
         items_sendable_data_2 = await snes_read(ctx, Rom.items_sendable_address_2, 1)
-        if items_sendable_data_1 is None or items_sendable_data_2 is None:
+        items_sendable_data_3 = await snes_read(ctx, Rom.items_sendable_address_3, 1)
+        if items_sendable_data_1 is None \
+                or items_sendable_data_2 is None \
+                or items_sendable_data_3 is None:
             return False
-        if items_sendable_data_1[0] == 0 or items_sendable_data_2[0] in Rom.nonsendable_music_values:
+        if items_sendable_data_1[0] == 0 \
+                or items_sendable_data_2[0] in Rom.nonsendable_music_values \
+                or items_sendable_data_3[0] != 0:
             return False
         return True

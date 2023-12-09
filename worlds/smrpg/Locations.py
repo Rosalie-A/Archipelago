@@ -322,6 +322,7 @@ additional_bambino_locks: List[str] = [
     "Melody Bay Song 2", "Melody Bay Song 3"
 ]
 
+
 tier_1_locations = ["Mushroom Way 1", "Mushroom Way 2", "Mushroom Way 4",
                     "Mushroom Kingdom Vault 1", "Mushroom Kingdom Vault 2", "Mushroom Kingdom Vault 3",
                     "Mushroom Kingdom Store", "Bandit's Way 1", "Bandit's Way 2", "Bandit's Way Star Chest",
@@ -389,8 +390,49 @@ tier_4_locations = ["Wallet Guy 1", "Wallet Guy 2", "Gardener Cloud 1", "Gardene
                     "Factory Behind Snakes 1", "Factory Behind Snakes 2", "Factory Toad Gift", "Melody Bay Song 2",
                     "Melody Bay Song 3", "Birdo", "Fertilizer"]
 
+missable_locations = [
+    "Wallet Guy 1", "Wallet Guy 2", "Invasion Guard", "Invasion Family", "Invasion Guest Room",
+    "Rose Town Toad", "Croco Flunkie 1", "Croco Flunkie 2", "Croco Flunkie 3", "Booster Tower Curtain Game",
+    "Nimbus Castle Before Birdo 1", "Nimbus Land Star Chest", "Nimbus Land Prisoners"
+]
+
+no_key_locations = [*missable_locations]
+
+no_reward_locations = [
+    "Toad Rescue 1", "Toad Rescue 2", "Hammer Bros Reward", "Wallet Guy 1",
+    "Wallet Guy 2", "Mushroom Kingdom Store", "Peach Surprise", "Invasion Family",
+    "Invasion Guest Room", "Invasion Guard", "Croco 1 Reward", "Pandorite Reward",
+    "Midas River First Time", "Rose Town Toad", "Gaz", "Treasure Seller 1",
+    "Treasure Seller 2", "Treasure Seller 3", "Croco Flunkie 1", "Croco Flunkie 2",
+    "Croco Flunkie 3", "Booster Tower Railway", "Booster Tower Chomp", "Booster Tower Curtain Game",
+    "Seaside Town Rescue", "Sunken Ship 3D Maze", "Sunken Ship Cannonball Puzzle",
+    "Sunken Ship Hidon Reward", "Belome Temple Treasure 1", "Belome Temple Treasure 2",
+    "Belome Temple Treasure 3", "Jinx Dojo Reward", "Culex Reward", "Super Jumps 30",
+    "Super Jumps 100", "Three Musty Fears", "Troopa Climb", "Dodo Reward", "Nimbus Land Inn",
+    "Nimbus Land Prisoners", "Nimbus Land Signal Ring", "Nimbus Land Cellar",
+    "Factory Toad Gift", "Goomba Thumping 1", "Goomba Thumping 2", "Cricket Pie Reward",
+    "Cricket Jam Reward"
+]
+
+no_coin_locations = [
+    "Bean Valley Beanstalk", "Bean Valley Box Boy Room",
+    "Bean Valley Cloud 2, Bean Valley Fall 2", "Bean Valley Slot Room",
+    "Booster Tower Top 1", "Factory Treasure Pit 2",
+    "Nimbus Castle Out Of Bounds 1", "Nimbus Land Shop"
+]
+
+star_allowed_locations = [
+    "Bandit's Way Dog Jump", "Bandit's Way Star Chest", "Barrel Volcano Star Room", "Kero Sewers Star Chest",
+    "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3", "Moleville Mines Star Chest"
+    "Nimbus Castle Star Chest", "Sea Star Chest"
+]
+
 location_table: Dict[str, LocationData] = dict()
 for index, value in enumerate(locations_data):
     star_piece_eligible = value[0] in star_piece_locations
-    location = LocationData(value[0], star_piece_eligible, value[1], index)
+    location = LocationData(
+        value[0],
+        star_piece_eligible,
+        value[1],
+        index)
     location_table[location.name] = location

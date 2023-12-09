@@ -35,11 +35,11 @@ class SMRPGWorld(World):
     """
     Croakacola
     """
-    #option_definitions = tloz_options
+    # option_definitions = tloz_options
     game = "Super Mario RPG Legend of the Seven Stars"
     topology_present = False
     data_version = 1
-    base_id = 8000
+    base_id = 85000
     web = SMRPGWeb()
 
     item_name_to_id = {name: data.code for name, data in item_table.items()}
@@ -109,6 +109,15 @@ class SMRPGWorld(World):
             if location.region is SMRPGRegions.factory:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Star Piece", self.player, 7))
+            if key in Locations.no_key_locations:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.name not in Items.key_items)
+            if key in Locations.no_coin_locations:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.name not in Items.coin_rewards)
+            if key in Locations.no_reward_locations:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.name not in Items.chest_rewards)
             add_item_rule(self.multiworld.get_location(key, self.player),
                           lambda item: item.name not in Items.boss_items)
 
@@ -127,15 +136,15 @@ class SMRPGWorld(World):
         self.multiworld.completion_condition[self.player] = lambda state: state.has("Star Road Restored!", self.player)
 
     def create_items(self):
-        for item in Items.key_items:
+        for item in Items.singleton_items:
             self.multiworld.itempool.append(self.create_item(item))
         pool_size = len(self.multiworld.get_unfilled_locations(self.player)) \
                     - len(Items.key_items) \
                     - len(Locations.star_piece_locations)
-        filler = pool_size // 3
-        weapons = pool_size // 5
-        armors = pool_size // 5
-        accessories = pool_size // 5
+        filler = int(pool_size // 1.5)
+        weapons = pool_size // 8
+        armors = pool_size // 8
+        accessories = pool_size // 8
         misc_pool = pool_size - filler - weapons - armors - accessories
         for i in range(filler):
             self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.filler)))
@@ -161,7 +170,7 @@ class SMRPGWorld(World):
         make_seed.Command().handle(
             mode="open",
             flags="Ksb R7kc Cspjl -nfc Tc4ykduhi Sc4 -freeshops Edf Bc Qa X2 P1 Nbmq D1s W -showequips ",
-            seed=self.multiworld.seed % 2**32,
+            seed=self.multiworld.seed % 2 ** 32,
             rom="smrpg.smc",
             output_file="worlds/smrpg/randomized.sfc",
             ap_data=output,
