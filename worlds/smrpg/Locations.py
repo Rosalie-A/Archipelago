@@ -76,8 +76,8 @@ locations_data = [
     ("Yaridovich", SMRPGRegions.seaside_town),
     ("Belome 2", SMRPGRegions.belome_temple),
     ("Jagger", SMRPGRegions.monstro_town),
-    ("Jinx 1", SMRPGRegions.monstro_town),
-    ("Jinx 2", SMRPGRegions.monstro_town),
+    # ("Jinx 1", SMRPGRegions.monstro_town),
+    # ("Jinx 2", SMRPGRegions.monstro_town),
     ("Jinx 3 (Boss)", SMRPGRegions.monstro_town),
     ("Culex", SMRPGRegions.monstro_town),
     ("Box Boy", SMRPGRegions.bean_valley),
@@ -322,7 +322,6 @@ additional_bambino_locks: List[str] = [
     "Melody Bay Song 2", "Melody Bay Song 3"
 ]
 
-
 tier_1_locations = ["Mushroom Way 1", "Mushroom Way 2", "Mushroom Way 4",
                     "Mushroom Kingdom Vault 1", "Mushroom Kingdom Vault 2", "Mushroom Kingdom Vault 3",
                     "Mushroom Kingdom Store", "Bandit's Way 1", "Bandit's Way 2", "Bandit's Way Star Chest",
@@ -424,8 +423,13 @@ no_coin_locations = [
 star_allowed_locations = [
     "Bandit's Way Dog Jump", "Bandit's Way Star Chest", "Barrel Volcano Star Room", "Kero Sewers Star Chest",
     "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3", "Moleville Mines Star Chest"
-    "Nimbus Castle Star Chest", "Sea Star Chest"
+                                                                                     "Nimbus Castle Star Chest",
+    "Sea Star Chest"
 ]
+
+culex_locations = ["Culex", "Culex Reward"]
+
+super_jump_locations = ["Super Jumps 30", "Super Jumps 100"]
 
 location_table: Dict[str, LocationData] = dict()
 for index, value in enumerate(locations_data):

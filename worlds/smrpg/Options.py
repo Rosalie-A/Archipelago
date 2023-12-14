@@ -39,12 +39,12 @@ class ShuffleBowsersKeepDoors(DefaultOnToggle):
     display_name = "Shuffle Bowser's Keep Doors"
 
 
-class CulexsLairPossible(DefaultOnToggle):
+class IncludeCulex(DefaultOnToggle):
     """
     A Star Piece might be located on the boss in Culex's Lair, and Culex's reward (normally the Quartz Charm)
-    might be required.
+    might be required. Shuffles Culex into the boss pool.
     """
-    display_name = "Culex's Lair Possible"
+    display_name = "Include Culex"
 
 
 class RandomizeEnemies(Choice):
@@ -127,11 +127,12 @@ class RandomizeEquipment(Choice):
     default = 0
 
 
-class SuperJumpsNotRequired(Toggle):
+class SuperJumpsNotRequired(DefaultOnToggle):
     """
-    Toggled on, this prevents progression items from being at the reward for thirty and a hundred Super Jumps.
+    Toggled on, this prevents progression items from being at the reward for thirty and one hundred Super Jumps.
     Toggled off, those locations may be required.
     """
+    display_name = "Super Jumps Not Required"
 
 
 class FreeShops(Toggle):
@@ -139,6 +140,7 @@ class FreeShops(Toggle):
     Toggled on, this gives you 9999 Coins, 99 Frog Coins, and makes shop prices all be one Coin/Frog Coin.
     Toggled off, shops will charge normal prices and you'll start with no Coins or Frog Coins.
     """
+    display_name = "Free Shops"
 
 
 smrpg_options: typing.Dict[str, type(Option)] = {
@@ -146,7 +148,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
     "StarPiecesInBowsersKeep": StarPiecesInBowsersKeep,
     "BowsersKeepDoors": BowsersKeepDoors,
     "ShuffleBowsersKeepDoors": ShuffleBowsersKeepDoors,
-    "CulexsLairPossible": CulexsLairPossible,
+    "IncludeCulex": IncludeCulex,
     "RandomizeEnemies": RandomizeEnemies,
     "RandomizeBosses": RandomizeBosses,
     "RandomizeCharacterStats": RandomizeCharacterStats,
@@ -159,14 +161,19 @@ smrpg_options: typing.Dict[str, type(Option)] = {
     "FreeShops": FreeShops
 }
 
+
 def build_flag_string(options: typing.Dict[str, typing.Any]):
     key_flags = build_key_flags(options)
-    character_flags = "Cj"
+    character_flags = build_character_flags(options)
     treasure_flags = ""
-    shop_flags = "Sc4"
+    shop_flags = build_shop_flags(options)
     battle_flags = "X2"
+    enemy_flags = build_enemy_flags(options)
+    equipment_flags = build_equipment_flags(options)
     challenge_flags = "P1 Nbmq"
     tweaks_flags = "W -showequips"
+    return f"{key_flags} {character_flags} {treasure_flags} {shop_flags}" \
+           f" {battle_flags} {enemy_flags} {equipment_flags} {challenge_flags} {tweaks_flags}"
 
 
 def build_key_flags(options: typing.Dict[str, typing.Any]):
@@ -175,18 +182,19 @@ def build_key_flags(options: typing.Dict[str, typing.Any]):
         key_flags += "7"
     if options["StarPiecesInBowsersKeep"] == StarPiecesInBowsersKeep.option_true:
         key_flags += "k"
-    if options["CulexsLairPossible"] == CulexsLairPossible.option_true:
+    if options["IncludeCulex"] == IncludeCulex.option_true:
         key_flags += "c"
     return key_flags
+
 
 def build_character_flags(options: typing.Dict[str, typing.Any]):
     character_flags = "Cj"
     starting_character_lookup = {
-        "option_mario": "Ym",
-        "option_mallow": "Yw",
-        "option_geno": "Yg",
-        "option_bowser": "Yb",
-        "option_toadstool": "Yt",
+        0: "Ym",
+        1: "Yw",
+        2: "Yg",
+        3: "Yb",
+        4: "Yt",
     }
     if options["RandomizeCharacterStats"] == RandomizeCharacterStats.option_true:
         character_flags += "s"
@@ -200,12 +208,41 @@ def build_character_flags(options: typing.Dict[str, typing.Any]):
         character_flags += " -palette"
     return character_flags
 
+
 def build_shop_flags(options: typing.Dict[str, typing.Any]):
     shop_flags = "Sc4"
     if options["FreeShops"] == FreeShops.option_true:
         shop_flags += " -freeshops"
     return shop_flags
 
-def build_enemy_flags()
 
+def build_enemy_flags(options: typing.Dict[str, typing.Any]):
+    enemy_flags = ""
+    if options["RandomizeEnemies"] == RandomizeEnemies.option_mild:
+        enemy_flags += " Edf"
+    if options["RandomizeEnemies"] == RandomizeEnemies.option_moderate:
+        enemy_flags += " Edfsa"
+    if options["RandomizeEnemies"] == RandomizeEnemies.option_severe:
+        enemy_flags += " Edfsac"
+    if options["RandomizeEnemies"] == RandomizeEnemies.option_extreme:
+        enemy_flags += " Edfsac!"
+    if options["RandomizeBosses"] == RandomizeBosses.option_true:
+        enemy_flags += " B"
+        if options["IncludeCulex"] == IncludeCulex.option_true:
+            enemy_flags += "c"
+    return enemy_flags
 
+def build_equipment_flags(options: typing.Dict[str, typing.Any]):
+    """
+    Randomize equipment. Mild randomizes who can equip each piece of gear. Moderate randomizes stats and buffs. Severe
+    removes safety checks for the status protection pins guarding against their status and a minimum number of instant
+    KO protection items.
+    """
+    equipment_flags = ""
+    if options["RandomizeEquipment"] == RandomizeEquipment.option_mild:
+        equipment_flags += "Qa"
+    if options["RandomizeEquipment"] == RandomizeEquipment.option_moderate:
+        equipment_flags += "Qsba"
+    if options["RandomizeEquipment"] == RandomizeEquipment.option_severe:
+        equipment_flags += "Qsba!"
+    return equipment_flags

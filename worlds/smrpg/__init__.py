@@ -11,6 +11,7 @@ from BaseClasses import Item, Location, Region, Entrance, MultiWorld, ItemClassi
 from .Items import item_table
 from .Locations import location_table, SMRPGRegions
 from .Client import SMRPGClient
+from .Options import smrpg_options, build_flag_string
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule, add_item_rule
 
@@ -35,7 +36,7 @@ class SMRPGWorld(World):
     """
     Croakacola
     """
-    # option_definitions = tloz_options
+    option_definitions = smrpg_options
     game = "Super Mario RPG Legend of the Seven Stars"
     topology_present = False
     data_version = 1
@@ -118,6 +119,14 @@ class SMRPGWorld(World):
             if key in Locations.no_reward_locations:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.name not in Items.chest_rewards)
+            if key in Locations.culex_locations \
+                    and self.multiworld.IncludeCulex[self.player] == Options.IncludeCulex.option_false:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.classification != ItemClassification.progression)
+            if key in Locations.super_jump_locations \
+                    and self.multiworld.SuperJumpsNotRequired[self.player] == Options.SuperJumpsNotRequired.option_true:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.classification != ItemClassification.progression)
             add_item_rule(self.multiworld.get_location(key, self.player),
                           lambda item: item.name not in Items.boss_items)
 
@@ -169,7 +178,7 @@ class SMRPGWorld(World):
             output[location.rando_name] = rando_name
         make_seed.Command().handle(
             mode="open",
-            flags="Ksb R7kc Cspjl -nfc Tc4ykduhi Sc4 -freeshops Edf Bc Qa X2 P1 Nbmq D1s W -showequips ",
+            flags=build_flag_string(self.options.as_dict(*smrpg_options.keys())),
             seed=self.multiworld.seed % 2 ** 32,
             rom="smrpg.smc",
             output_file="worlds/smrpg/randomized.sfc",
