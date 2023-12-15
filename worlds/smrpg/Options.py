@@ -171,7 +171,7 @@ def build_flag_string(options: typing.Dict[str, typing.Any]):
     enemy_flags = build_enemy_flags(options)
     equipment_flags = build_equipment_flags(options)
     challenge_flags = "P1 Nbmq"
-    tweaks_flags = "W -showequips"
+    tweaks_flags = build_tweaks_flags(options)
     return f"{key_flags} {character_flags} {treasure_flags} {shop_flags}" \
            f" {battle_flags} {enemy_flags} {equipment_flags} {challenge_flags} {tweaks_flags}"
 
@@ -246,3 +246,11 @@ def build_equipment_flags(options: typing.Dict[str, typing.Any]):
     if options["RandomizeEquipment"] == RandomizeEquipment.option_severe:
         equipment_flags += "Qsba!"
     return equipment_flags
+
+def build_tweaks_flags(options: typing.Dict[str, typing.Any]):
+    tweaks_flags= "W -showequips"
+    door_count = options["BowsersKeepDoors"]
+    tweaks_flags += f" D{door_count}"
+    if options["ShuffleBowsersKeepDoors"] == ShuffleBowsersKeepDoors.option_true:
+        tweaks_flags += "s"
+    return tweaks_flags

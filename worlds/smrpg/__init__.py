@@ -97,36 +97,51 @@ class SMRPGWorld(World):
             if location.region is SMRPGRegions.moleville_mines_back:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Bambino Bomb", self.player))
+
             if location.region is SMRPGRegions.nimbus_castle_middle:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Castle Key 1", self.player))
+
             if location.region is SMRPGRegions.nimbus_castle_back:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Castle Key 1", self.player)
                                        and state.has("Castle Key 2", self.player))
+
             if key in Locations.additional_bambino_locks:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Bambino Bomb", self.player))
+
             if location.region is SMRPGRegions.factory:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Star Piece", self.player, 7))
+
             if key in Locations.no_key_locations:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.name not in Items.key_items)
+
             if key in Locations.no_coin_locations:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.name not in Items.coin_rewards)
+
             if key in Locations.no_reward_locations:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.name not in Items.chest_rewards)
+
             if key in Locations.culex_locations \
                     and self.multiworld.IncludeCulex[self.player] == Options.IncludeCulex.option_false:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.classification != ItemClassification.progression)
+
             if key in Locations.super_jump_locations \
                     and self.multiworld.SuperJumpsNotRequired[self.player] == Options.SuperJumpsNotRequired.option_true:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.classification != ItemClassification.progression)
+
+            for index, location in enumerate(Locations.bowsers_keep_doors):
+                if index < self.multiworld.BowsersKeepDoors[self.player]:
+                    add_item_rule(self.multiworld.get_location(key, self.player),
+                                  lambda item: item.classification != ItemClassification.progression)
+
             add_item_rule(self.multiworld.get_location(key, self.player),
                           lambda item: item.name not in Items.boss_items)
 

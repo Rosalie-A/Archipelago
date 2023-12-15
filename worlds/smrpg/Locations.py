@@ -431,6 +431,9 @@ culex_locations = ["Culex", "Culex Reward"]
 
 super_jump_locations = ["Super Jumps 30", "Super Jumps 100"]
 
+bowsers_keep_doors = ["Bowser's Keep Door Reward 1", "Bowser's Keep Door Reward 2", "Bowser's Keep Door Reward 3",
+                      "Bowser's Keep Door Reward 4", "Bowser's Keep Door Reward 5", "Bowser's Keep Door Reward 6"]
+
 location_table: Dict[str, LocationData] = dict()
 for index, value in enumerate(locations_data):
     star_piece_eligible = value[0] in star_piece_locations
