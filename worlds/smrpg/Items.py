@@ -123,7 +123,7 @@ item_table["Invincibility Star"] = ItemData("Invincibility Star", id, ItemClassi
 original_item_list = {
     "Five Coins": 1,
     "Eight Coins": 1,
-    "Flower": 38,
+    "Flower": 32,
     "Recovery Mushroom": 18,
     "Honey Syrup": 1,
     "Flower Tab": 10,

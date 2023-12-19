@@ -134,10 +134,16 @@ class SMRPGWorld(World):
             if key in Locations.additional_bambino_locks:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Bambino Bomb", self.player))
-
+            star_pieces = 6
+            if self.multiworld.StarPieceGoal[self.player] == Options.StarPieceGoal.option_seven:
+                star_pieces = 7
             if location.region is SMRPGRegions.factory:
                 add_rule(self.multiworld.get_location(key, self.player),
-                         lambda state: state.has("Star Piece", self.player, 7))
+                         lambda state: state.has("Star Piece", self.player, star_pieces))
+            if location.region is SMRPGRegions.bowsers_keep:
+                if self.multiworld.StarPiecesInBowsersKeep[self.player] == Options.StarPiecesInBowsersKeep.option_false:
+                    add_rule(self.multiworld.get_location(key, self.player),
+                             lambda state: state.has("Star Piece", self.player, star_pieces))
 
             if key in Locations.no_key_locations:
                 add_item_rule(self.multiworld.get_location(key, self.player),
@@ -163,14 +169,29 @@ class SMRPGWorld(World):
 
             add_item_rule(self.multiworld.get_location(key, self.player),
                           lambda item: item.name not in Items.boss_items)
+        for key, locations in Locations.key_item_locations.items():
+            for location in locations:
+                add_rule(self.multiworld.get_location(location, self.player),
+                         lambda state: state.has(key, self.player))
         for index, location2 in enumerate(Locations.bowsers_keep_doors):
             if index < self.multiworld.BowsersKeepDoors[self.player]:
                 add_item_rule(self.multiworld.get_location(location2, self.player),
                               lambda item: item.classification != ItemClassification.progression)
 
     def generate_basic(self):
-        boss_locations = deepcopy(Locations.star_piece_locations)
-        star_pieces = self.multiworld.random.sample(boss_locations, 7)
+        boss_locations = set(deepcopy(Locations.star_piece_locations))
+        exclude_keep = False
+        exclude_factory = True
+        if self.multiworld.StarPiecesInBowsersKeep[self.player] == Options.StarPiecesInBowsersKeep.option_false:
+            exclude_keep = True
+        star_pieces = 6
+        if self.multiworld.StarPieceGoal[self.player] == Options.StarPieceGoal.option_seven:
+            star_pieces = 7
+        if exclude_factory:
+            boss_locations = [x for x in boss_locations if x not in Locations.factory_bosses]
+        if exclude_keep:
+            boss_locations = [x for x in boss_locations if x not in Locations.keep_bosses]
+        star_pieces = self.multiworld.random.sample(boss_locations, star_pieces)
         for location in boss_locations:
             if location in star_pieces:
                 self.multiworld.get_location(location, self.player).place_locked_item(
@@ -178,6 +199,17 @@ class SMRPGWorld(World):
             else:
                 self.multiworld.get_location(location, self.player).place_locked_item(
                     self.create_item("Defeated!"))
+        boss_locations = deepcopy(Locations.star_piece_locations)
+        if exclude_keep:
+            for location in boss_locations:
+                if Locations.location_table[location].region == Locations.SMRPGRegions.bowsers_keep:
+                    self.multiworld.get_location(location, self.player).place_locked_item(
+                        self.create_item("Defeated!"))
+        if exclude_factory:
+            for location in boss_locations:
+                if Locations.location_table[location].region == Locations.SMRPGRegions.factory:
+                    self.multiworld.get_location(location, self.player).place_locked_item(
+                        self.create_item("Defeated!"))
         star_locations = deepcopy(Locations.star_allowed_locations)
         stars = self.multiworld.random.sample(star_locations, 9)
         for location in star_locations:

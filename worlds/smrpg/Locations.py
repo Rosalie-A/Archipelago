@@ -315,11 +315,12 @@ star_piece_locations: List[str] = [
     "Hammer Bros", "Croco 1 (Boss)", "Mack", "Pandorite", "Belome 1", "Bowyer", "Croco 2 (Boss)",
     "Punchinello", "Booster", "Clown Bros", "Bundt", "Star Hill", "King Calamari", "Hidon", "Johnny",
     "Yaridovich", "Belome 2", "Jagger", "Jinx 3 (Boss)", "Culex", "Box Boy", "Mega Smilax", "Dodo",
-    "Birdo (Boss)", "Valentina", "Czar Dragon", "Axem Rangers", "Magikoopa", "Boomer", "Exor"
+    "Birdo (Boss)", "Valentina", "Czar Dragon", "Axem Rangers", "Magikoopa", "Boomer", "Exor", "Countdown",
+    "Cloaker and Domino", "Clerk", "Manager", "Director", "Gunyolk"
 ]
 
 additional_bambino_locks: List[str] = [
-    "Melody Bay Song 2", "Melody Bay Song 3"
+    "Melody Bay Song 2", "Melody Bay Song 3", "Culex", "Culex Reward"
 ]
 
 tier_1_locations = ["Mushroom Way 1", "Mushroom Way 2", "Mushroom Way 4",
@@ -459,6 +460,28 @@ world_six_regions = [
 
 world_seven_regions = [
     SMRPGRegions.bowsers_keep, SMRPGRegions.factory
+]
+
+key_item_locations = {
+    "Temple Key": ["Belome Temple Treasure 1", "Belome Temple Treasure 2", "Belome Temple Treasure 3"],
+    "Rare Frog Coin": ["Rare Frog Coin Reward"],
+    "Cricket Pie": ["Cricket Pie Reward"],
+    "Room Key": ["Booster Tower Zoom Shoes"],
+    "Elder Key": ["Booster Tower Chomp"],
+    "Shed Key": ["Seaside Town Rescue"],
+    "Big Boo Flag": ["Three Musty Fears"],
+    "Dry Bones Flag": ["Three Musty Fears"],
+    "Greaper Flag": ["Three Musty Fears"],
+    "Seed": ["Gardener Cloud 1", "Gardener Cloud 2"],
+    "Fertilizer": ["Gardener Cloud 1", "Gardener Cloud 2"]
+}
+
+keep_bosses = [
+    "Magikoopa", "Boomer", "Exor"
+]
+
+factory_bosses = [
+    "Countdown", "Cloaker and Domino", "Clerk", "Manager", "Director", "Gunyolk"
 ]
 
 culex_locations = ["Culex", "Culex Reward"]
