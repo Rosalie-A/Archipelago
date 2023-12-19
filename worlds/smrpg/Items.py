@@ -7,8 +7,9 @@ class ItemData(typing.NamedTuple):
     name: str
     code: typing.Optional[int]
     classification: ItemClassification
-    rando_name: str # Internal randomizer name
+    rando_name: str  # Internal randomizer name
     event: bool = False
+
 
 # Filler items that we can freely toss multiples of in the pool
 consumables = [
@@ -22,7 +23,7 @@ consumables = [
 
 coin_rewards = [
     "Five Coins", "Eight Coins", "Ten Coins", "Fifty Coins",
-    "One Hundred Coins", "One Hundred Fifty Coins","Frog Coin"
+    "One Hundred Coins", "One Hundred Fifty Coins", "Frog Coin"
 ]
 
 chest_rewards = [
@@ -84,22 +85,22 @@ for item in consumables:
     id += 1
 
 for item in chest_rewards:
-    new_item = ItemData(item, id, ItemClassification.filler, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, ItemClassification.filler, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
 for item in weapons:
-    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
 for item in armor:
-    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
 for item in accessories:
-    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, ItemClassification.useful, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
@@ -108,11 +109,89 @@ for item in singleton_items:
         classification = ItemClassification.progression
     else:
         classification = ItemClassification.useful
-    new_item = ItemData(item, id, classification, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, classification, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
 
 for item in boss_items:
-    new_item = ItemData(item, id, ItemClassification.progression, item.replace(" ", "").replace("'", ""),  False)
+    new_item = ItemData(item, id, ItemClassification.progression, item.replace(" ", "").replace("'", ""), False)
     item_table[item] = new_item
     id += 1
+
+item_table["Invincibility Star"] = ItemData("Invincibility Star", id, ItemClassification.useful, "InvincibilityStar", False)
+
+original_item_list = {
+    "Five Coins": 1,
+    "Eight Coins": 1,
+    "Flower": 38,
+    "Recovery Mushroom": 18,
+    "Honey Syrup": 1,
+    "Flower Tab": 10,
+    "Hammer": 1,
+    "Ten Coins": 2,  # Figure out CoinsDoubleBig later
+    "Frog Coin": 29,
+    "Pick Me Up": 3,
+    "Mushroom": 2,
+    "Wake Up Pin": 1,
+    "Kerokero Cola": 9,
+    "Wallet": 1,
+    "Trueform Pin": 1,
+    "Nok Nok Shell": 1,
+    "Froggie Stick": 1,
+    "Lazy Shell Armor": 1,
+    "Lazy Shell Weapon": 1,
+    "Finger Shot": 1,
+    "You Missed!": 1,
+    "Red Essence": 5,
+    "Flower Jar": 3,
+    "Lucky Jewel": 1,
+    "Mystery Egg": 1,
+    "Frying Pan": 1,
+    "One Hundred Fifty Coins": 3,
+    "Rock Candy": 6,
+    "Masher": 1,
+    "Zoom Shoes": 1,
+    "Goodie Bag": 1,
+    "Chomp": 1,
+    "Amulet": 1,
+    "Flower Box": 1,
+    "Max Mushroom": 5,
+    "One Hundred Coins": 6,
+    "Safety Ring": 1,
+    "Royal Syrup": 5,
+    "Safety Badge": 1,
+    "Troopa Pin": 1,
+    "Fifty Coins": 1,
+    "Fire Bomb": 3,
+    "Jinx Belt": 1,
+    "Quartz Charm": 1,
+    "Attack Scarf": 1,
+    "Super Suit": 1,
+    "Ghost Medal": 1,
+    "Rare Scarf": 1,
+    "Feather": 1,
+    "Signal Ring": 1,
+    "Fright Bomb": 1,
+    "Ice Bomb": 1,
+    "Sonic Cymbal": 1,
+    "Super Slap": 1,
+    "Star Gun": 1,
+    "Ultra Hammer": 1,
+    "Dry Bones Flag": 1,
+    "Rare Frog Coin": 1,
+    "Cricket Pie": 1,
+    "Greaper Flag": 1,
+    "Cricket Jam": 1,
+    "Alto Card": 3,
+    "Big Boo Flag": 1,
+    "Bambino Bomb": 1,
+    "Elder Key": 1,
+    "Room Key": 1,
+    "Bright Card": 1,
+    "Shed Key": 1,
+    "Temple Key": 1,
+    "Seed": 1,
+    "Castle Key 1": 1,
+    "Castle Key 2": 1,
+    "Fertilizer": 1,
+}

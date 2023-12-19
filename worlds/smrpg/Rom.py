@@ -11,15 +11,44 @@ base_memory_address = 0xE00000
 rom_name_location = 0x007FC0
 md5_hash = "d0b68d68d9efc0558242f5476d1c5b81"
 items_received_address = 0xE03FF0
-items_sendable_address_1 = 0xE03062 # Is the Map/Star Piece menu available?
-items_sendable_address_2 = 0xF51D04 # Current music
-items_sendable_address_3 = 0xE03076 # Is a star active?
+items_sendable_address_1 = 0xE03062  # Is the Map/Star Piece menu available?
+items_sendable_address_2 = 0xF51D04  # Current music
+items_sendable_address_3 = 0xE03076  # Is a star active?
 # Silence, battle musics, victory musics, and star music are all forbidden
 nonsendable_music_values = [0x00, 0x03, 0x06, 0x08, 0x09, 0x0C, 0x19, 0x1D, 0x23, 0x36, 0x3B, 0x3C, 0x44, 0x45]
 bit_positions = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
 items_inventory_address = 0xF6F882
 gear_inventory_address = 0xF6F864
 keys_inventory_address = 0xF6F8A0
+coins_address = 0xF6F8AF
+frog_coins_address = 0xF6F8B3
+max_flowers_address = 0xF6F8B2
+current_flowers_address = 0xF6F8B1
+
+max_coins = 9999
+max_frog_coins = 999
+max_flowers = 99
+
+characters = ["Mario", "Mallow", "Geno", "Bowser", "Toadstool"]
+
+hit_points = { # (Current, Max)
+    "Mario": (0xF6F801, 0xF6F803),
+    "Mallow": (0xF6F851, 0xF6F853),
+    "Geno": (0xF6F83D, 0xF6F83F),
+    "Bowser": (0xF6F829, 0xF6F82B),
+    "Toadstool": (0xF6F815, 0xF6F817),
+}
+
+class SMRPGDeltaPatch(APDeltaPatch):
+    hash = md5_hash
+    game = "Super Mario RPG Legend of the Seven Stars"
+    patch_file_ending = ".apsmrpg"
+    result_file_ending = ".sfc"
+
+    @classmethod
+    def get_source_data(cls) -> bytes:
+        return get_base_rom_bytes()
+
 
 class MemoryLocation():
     def __init__(self, address, bit, set_when_checked):
@@ -27,10 +56,16 @@ class MemoryLocation():
         self.bit = bit_positions[bit]
         self.set_when_checked = set_when_checked
 
+
 class ItemCategory(Enum):
     item = auto()
     gear = auto()
     key = auto()
+    coin = auto()
+    frog_coin = auto()
+    flower = auto()
+    recovery = auto()
+
 
 class ItemData():
     def __init__(self, id, category: ItemCategory):
@@ -53,8 +88,8 @@ location_data: Dict[str, MemoryLocation] = dict({
     "Bandit's Way Croco": MemoryLocation(treasure_chest_base_address + 10, 2, False),
     "Kero Sewers Pandorite Room": MemoryLocation(treasure_chest_base_address + 1, 6, False),
     "Kero Sewers Star Chest": MemoryLocation(treasure_chest_base_address + 1, 5, False),
-    #"Kero Sewers Recovery Chest": MemoryLocation(treasure_chest_base_address + 15, 4, False),
-    #"Kero Sewers Cricket Chest": MemoryLocation(treasure_chest_base_address + 15, 5, False),
+    # "Kero Sewers Recovery Chest": MemoryLocation(treasure_chest_base_address + 15, 4, False),
+    # "Kero Sewers Cricket Chest": MemoryLocation(treasure_chest_base_address + 15, 5, False),
     "Rose Way Platform": MemoryLocation(treasure_chest_base_address + 2, 3, False),
     "Rose Town Store 1": MemoryLocation(treasure_chest_base_address + 3, 1, False),
     "Rose Town Store 2": MemoryLocation(treasure_chest_base_address + 3, 2, False),
@@ -119,9 +154,9 @@ location_data: Dict[str, MemoryLocation] = dict({
     "Belome Temple After Fortune 2": MemoryLocation(treasure_chest_base_address + 20, 3, False),
     "Belome Temple After Fortune 3": MemoryLocation(treasure_chest_base_address + 20, 5, False),
     "Belome Temple After Fortune 4": MemoryLocation(treasure_chest_base_address + 20, 4, False),
-    #"Belome Temple Before Belome 1": MemoryLocation(treasure_chest_base_address + 20, 7, False),
-    #"Belome Temple Before Belome 2": MemoryLocation(treasure_chest_base_address + 20, 6, False),
-    #"Belome Temple Before Belome 3": MemoryLocation(treasure_chest_base_address + 21, 0, False),
+    # "Belome Temple Before Belome 1": MemoryLocation(treasure_chest_base_address + 20, 7, False),
+    # "Belome Temple Before Belome 2": MemoryLocation(treasure_chest_base_address + 20, 6, False),
+    # "Belome Temple Before Belome 3": MemoryLocation(treasure_chest_base_address + 21, 0, False),
     "Monstro Town Entrance": MemoryLocation(treasure_chest_base_address + 14, 5, False),
     "Bean Valley 1": MemoryLocation(treasure_chest_base_address + 14, 0, False),
     "Bean Valley 2": MemoryLocation(treasure_chest_base_address + 13, 7, False),
@@ -211,7 +246,7 @@ location_data: Dict[str, MemoryLocation] = dict({
     "Invasion Guard": MemoryLocation(base_memory_address + 0x3082, 5, True),
     "Croco 1 Reward": MemoryLocation(base_memory_address + 0x304D, 5, True),
     "Pandorite Reward": MemoryLocation(base_memory_address + 0x3057, 5, True),
-    "Midas River First Time": MemoryLocation(base_memory_address + 0x3043, 1, False),
+    "Midas River First Time": MemoryLocation(base_memory_address + 0x3043, 1, True),
     "Rose Town Toad": MemoryLocation(base_memory_address + 0x3084, 0, True),
     "Gaz": MemoryLocation(base_memory_address + 0x3085, 7, True),
     "Treasure Seller 1": MemoryLocation(base_memory_address + 0x3088, 1, True),
@@ -262,10 +297,10 @@ location_data: Dict[str, MemoryLocation] = dict({
     "Hidon": MemoryLocation(base_memory_address + 0x3057, 7, True),
     "Johnny": MemoryLocation(base_memory_address + 0x3058, 7, True),
     "Yaridovich": MemoryLocation(base_memory_address + 0x3086, 0, True),
-    "Belome 2": MemoryLocation(base_memory_address + 0x307C, 7, True),
+    "Belome 2": MemoryLocation(base_memory_address + 0x307C, 5, True),
     "Jagger": MemoryLocation(base_memory_address + 0x308A, 2, True),
-    "Jinx 1": MemoryLocation(base_memory_address + 0x308A, 3, True),
-    "Jinx 2": MemoryLocation(base_memory_address + 0x308A, 4, True),
+    # "Jinx 1": MemoryLocation(base_memory_address + 0x308A, 3, True),
+    # "Jinx 2": MemoryLocation(base_memory_address + 0x308A, 4, True),
     "Jinx 3 (Boss)": MemoryLocation(base_memory_address + 0x308A, 5, True),
     "Culex": MemoryLocation(base_memory_address + 0x3093, 4, True),
     "Box Boy": MemoryLocation(base_memory_address + 0x3064, 6, True),
@@ -433,23 +468,23 @@ item_data: Dict[str, ItemData] = {
     "Moldy Shroom": ItemData(0x9D, ItemCategory.item),
     "Seed": ItemData(0x9E, ItemCategory.item),
     "Fertilizer": ItemData(0x9F, ItemCategory.item),
-    "Big Boo Flag": ItemData(0xA1, ItemCategory.item),
-    "DryBonesFlag": ItemData(0xA2, ItemCategory.item),
-    "Greaper Flag": ItemData(0xA3, ItemCategory.item),
-    "Cricket Jam": ItemData(0xA6, ItemCategory.item),
-    "Bright Card": ItemData(0xAE, ItemCategory.item),
+    "Big Boo Flag": ItemData(0xA1, ItemCategory.key),
+    "DryBonesFlag": ItemData(0xA2, ItemCategory.key),
+    "Greaper Flag": ItemData(0xA3, ItemCategory.key),
+    "Cricket Jam": ItemData(0xA6, ItemCategory.key),
+    "Bright Card": ItemData(0xAE, ItemCategory.key),
     "Mushroom 2": ItemData(0xAF, ItemCategory.item),
-    "Star Egg": ItemData(0xB0, ItemCategory.item)
+    "Star Egg": ItemData(0xB0, ItemCategory.item),
+    "Five Coins": ItemData(5, ItemCategory.coin),
+    "Eight Coins": ItemData(8, ItemCategory.coin),
+    "Ten Coins": ItemData(10, ItemCategory.coin),
+    "Fifty Coins": ItemData(50, ItemCategory.coin),
+    "One Hundred Coins": ItemData(100, ItemCategory.coin),
+    "One Hundred Fifty Coins": ItemData(150, ItemCategory.coin),
+    "Frog Coin": ItemData(1, ItemCategory.frog_coin),
+    "Flower": ItemData(1, ItemCategory.flower),
+    "Recovery Mushroom": ItemData(0, ItemCategory.recovery)
 }
-
-class SMRPGDeltaPatch(APDeltaPatch):
-    hash = md5_hash
-    game = "Super Mario RPG: Legend of the Seven Stars"
-    patch_file_ending = ".apsmrpg"
-
-    @classmethod
-    def get_source_data(cls) -> bytes:
-        return get_base_rom_bytes()
 
 
 def get_base_rom_bytes(file_name: str = "") -> bytes:

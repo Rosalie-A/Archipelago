@@ -14,6 +14,7 @@ from .Client import SMRPGClient
 from .Options import smrpg_options, build_flag_string
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule, add_item_rule
+from .Rom import SMRPGDeltaPatch
 
 from .smrpg_web_randomizer.randomizer.management.commands import make_seed
 
@@ -40,11 +41,15 @@ class SMRPGWorld(World):
     game = "Super Mario RPG Legend of the Seven Stars"
     topology_present = False
     data_version = 1
-    base_id = 85000
+    base_id = 850000
     web = SMRPGWeb()
 
     item_name_to_id = {name: data.code for name, data in item_table.items()}
     location_name_to_id = {name: location.id for name, location in location_table.items()}
+
+    item_name_groups = {
+        "bosses": {"Defeated!", "Star Piece"}
+    }
 
     for k, v in item_name_to_id.items():
         item_name_to_id[k] = v + base_id
@@ -107,6 +112,25 @@ class SMRPGWorld(World):
                          lambda state: state.has("Castle Key 1", self.player)
                                        and state.has("Castle Key 2", self.player))
 
+            if location.region in Locations.world_two_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 2))
+            if location.region in Locations.world_three_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 4))
+            if location.region in Locations.world_four_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 6))
+            if location.region in Locations.world_five_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 9))
+            if location.region in Locations.world_six_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 12))
+            if location.region in Locations.world_seven_regions:
+                add_rule(self.multiworld.get_location(key, self.player),
+                         lambda state: state.has_group("bosses", self.player, 15))
+
             if key in Locations.additional_bambino_locks:
                 add_rule(self.multiworld.get_location(key, self.player),
                          lambda state: state.has("Bambino Bomb", self.player))
@@ -137,13 +161,12 @@ class SMRPGWorld(World):
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.classification != ItemClassification.progression)
 
-            for index, location in enumerate(Locations.bowsers_keep_doors):
-                if index < self.multiworld.BowsersKeepDoors[self.player]:
-                    add_item_rule(self.multiworld.get_location(key, self.player),
-                                  lambda item: item.classification != ItemClassification.progression)
-
             add_item_rule(self.multiworld.get_location(key, self.player),
                           lambda item: item.name not in Items.boss_items)
+        for index, location2 in enumerate(Locations.bowsers_keep_doors):
+            if index < self.multiworld.BowsersKeepDoors[self.player]:
+                add_item_rule(self.multiworld.get_location(location2, self.player),
+                              lambda item: item.classification != ItemClassification.progression)
 
     def generate_basic(self):
         boss_locations = deepcopy(Locations.star_piece_locations)
@@ -155,38 +178,31 @@ class SMRPGWorld(World):
             else:
                 self.multiworld.get_location(location, self.player).place_locked_item(
                     self.create_item("Defeated!"))
+        star_locations = deepcopy(Locations.star_allowed_locations)
+        stars = self.multiworld.random.sample(star_locations, 9)
+        for location in star_locations:
+            if location in stars:
+                self.multiworld.get_location(location, self.player).place_locked_item(
+                    self.create_item("Invincibility Star"))
         smithy = self.multiworld.get_location("Smithy", self.player)
         smithy.place_locked_item(self.create_item("Star Road Restored!"))
         self.multiworld.completion_condition[self.player] = lambda state: state.has("Star Road Restored!", self.player)
 
     def create_items(self):
-        for item in Items.singleton_items:
-            self.multiworld.itempool.append(self.create_item(item))
-        pool_size = len(self.multiworld.get_unfilled_locations(self.player)) \
-                    - len(Items.key_items) \
-                    - len(Locations.star_piece_locations)
-        filler = int(pool_size // 1.5)
-        weapons = pool_size // 8
-        armors = pool_size // 8
-        accessories = pool_size // 8
-        misc_pool = pool_size - filler - weapons - armors - accessories
-        for i in range(filler):
-            self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.filler)))
-        for i in range(weapons):
-            self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.weapons)))
-        for i in range(armors):
-            self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.armor)))
-        for i in range(accessories):
-            self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.accessories)))
-        for i in range(misc_pool):
-            self.multiworld.itempool.append(self.create_item(self.multiworld.random.choice(Items.all_mundane_items)))
+        for item, amount in Items.original_item_list.items():
+            for i in range(amount):
+                self.multiworld.itempool.append(self.create_item(item))
 
     def generate_output(self, output_directory: str):
-        self.rom_name_text = f'SMRPG{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:11}'
+        self.rom_name_text = f'MRPG{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:11}'
         self.rom_name_text = self.rom_name_text[:20]
         self.rom_name = bytearray(self.rom_name_text, 'utf-8')
         self.rom_name.extend([0] * (20 - len(self.rom_name)))
         output = dict()
+        outfilebase = 'AP_' + self.multiworld.seed_name
+        outfilepname = f'_P{self.player}'
+        outfilepname += f"_{self.multiworld.get_file_safe_player_name(self.player).replace(' ', '_')}"
+        output_file = os.path.join(output_directory, f'{outfilebase}{outfilepname}.sfc')
         for key, location in location_table.items():
             item = self.multiworld.get_location(location.name, self.player).item
             rando_name = item_table[item.name].rando_name if item.player == self.player else "ArchipelagoItem"
@@ -195,11 +211,18 @@ class SMRPGWorld(World):
             mode="open",
             flags=build_flag_string(self.options.as_dict(*smrpg_options.keys())),
             seed=self.multiworld.seed % 2 ** 32,
-            rom="smrpg.smc",
-            output_file="worlds/smrpg/randomized.sfc",
+            rom="smrpg.sfc",
+            output_file=output_file,
             ap_data=output,
             rom_name=self.rom_name
         )
+        patch = SMRPGDeltaPatch(os.path.splitext(output_file)[0] + SMRPGDeltaPatch.patch_file_ending,
+                                player=self.player,
+                                player_name=self.multiworld.player_name[self.player],
+                                patched_path=output_file)
+        patch.write()
+        os.unlink(output_file)
+        os.unlink(output_file + ".spoiler")
 
     def modify_multidata(self, multidata: dict):
         import base64

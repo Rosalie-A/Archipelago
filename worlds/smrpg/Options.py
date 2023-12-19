@@ -165,7 +165,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
 def build_flag_string(options: typing.Dict[str, typing.Any]):
     key_flags = build_key_flags(options)
     character_flags = build_character_flags(options)
-    treasure_flags = ""
+    treasure_flags = "Tc4k"
     shop_flags = build_shop_flags(options)
     battle_flags = "X2"
     enemy_flags = build_enemy_flags(options)

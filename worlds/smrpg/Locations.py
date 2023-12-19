@@ -410,7 +410,10 @@ no_reward_locations = [
     "Super Jumps 100", "Three Musty Fears", "Troopa Climb", "Dodo Reward", "Nimbus Land Inn",
     "Nimbus Land Prisoners", "Nimbus Land Signal Ring", "Nimbus Land Cellar",
     "Factory Toad Gift", "Goomba Thumping 1", "Goomba Thumping 2", "Cricket Pie Reward",
-    "Cricket Jam Reward"
+    "Cricket Jam Reward", "Mario's Bed", "Croco 1", "Rare Frog Coin Reward", "Melody Bay Song 1",
+    "Melody Bay Song 2", "Melody Bay Song 3", "Rose Town Sign", "Yo'ster Isle Goal", "Croco 2",
+    "Booster Tower Ancestors", "Booster Tower Checkerboard", "Knife Guy", "Seaside Town Key",
+    "Monstro Town Key", "Cricket Jam Chest", "Seed", "Nimbus Land Castle Key", "Birdo", "Fertilizer",
 ]
 
 no_coin_locations = [
@@ -422,9 +425,40 @@ no_coin_locations = [
 
 star_allowed_locations = [
     "Bandit's Way Dog Jump", "Bandit's Way Star Chest", "Barrel Volcano Star Room", "Kero Sewers Star Chest",
-    "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3", "Moleville Mines Star Chest"
-                                                                                     "Nimbus Castle Star Chest",
-    "Sea Star Chest"
+    "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3", "Moleville Mines Star Chest",
+    "Nimbus Castle Star Chest", "Sea Star Chest"
+]
+
+world_one_regions = [
+    SMRPGRegions.marios_pad, SMRPGRegions.mushroom_way, SMRPGRegions.mushroom_kingdom, SMRPGRegions.bandits_way
+]
+
+world_two_regions = [
+    SMRPGRegions.kero_sewers, SMRPGRegions.midas_river, SMRPGRegions.tadpole_pond, SMRPGRegions.rose_way,
+    SMRPGRegions.rose_town, SMRPGRegions.forest_maze, SMRPGRegions.pipe_vault, SMRPGRegions.yoster_isle
+]
+
+world_three_regions = [
+    SMRPGRegions.moleville, SMRPGRegions.moleville_mines_back, SMRPGRegions.booster_pass, SMRPGRegions.booster_tower,
+    SMRPGRegions.booster_hill, SMRPGRegions.marrymore
+]
+
+world_four_regions = [
+    SMRPGRegions.star_hill, SMRPGRegions.seaside_town, SMRPGRegions.sea,
+    SMRPGRegions.sunken_ship, SMRPGRegions.sunken_ship_back
+]
+
+world_five_regions = [
+    SMRPGRegions.lands_end, SMRPGRegions.monstro_town, SMRPGRegions.belome_temple, SMRPGRegions.bean_valley
+]
+
+world_six_regions = [
+    SMRPGRegions.nimbus_land, SMRPGRegions.nimbus_castle_front, SMRPGRegions.nimbus_castle_middle,
+    SMRPGRegions.nimbus_castle_back, SMRPGRegions.barrel_volcano
+]
+
+world_seven_regions = [
+    SMRPGRegions.bowsers_keep, SMRPGRegions.factory
 ]
 
 culex_locations = ["Culex", "Culex Reward"]

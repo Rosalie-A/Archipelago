@@ -13,6 +13,7 @@ from . import Rom, Locations
 
 snes_logger: Logger = logging.getLogger("SNES")
 
+base_id = 850000
 
 class SMRPGClient(SNIClient):
     game = "Super Mario RPG Legend of the Seven Stars"
@@ -24,7 +25,7 @@ class SMRPGClient(SNIClient):
         from SNIClient import snes_read
 
         rom_name: bytes = await snes_read(ctx, Rom.rom_name_location, 20)
-        if rom_name is None or rom_name[:5] != b"SMRPG":
+        if rom_name is None or rom_name[:4] != b"MRPG":
             return False
 
         ctx.game = self.game
@@ -64,7 +65,7 @@ class SMRPGClient(SNIClient):
         for key, value in Rom.location_data.items():
             location_name = key
             location_address = value.address
-            location_id = Locations.location_table[location_name].id
+            location_id = Locations.location_table[location_name].id + base_id
             location_data = await snes_read(ctx, location_address, 1)
             location_byte = location_data
             if location_byte is not None and location_id not in ctx.locations_checked:
@@ -78,8 +79,9 @@ class SMRPGClient(SNIClient):
                         f'{len(ctx.missing_locations) + len(ctx.checked_locations)})')
                     await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [location_id]}])
 
+
     async def received_items_check(self, ctx):
-        from SNIClient import snes_read
+        from SNIClient import snes_read, snes_buffered_write
         items_received_data = await snes_read(ctx, Rom.items_received_address, 2)
         if items_received_data is None:
             return
@@ -92,16 +94,47 @@ class SMRPGClient(SNIClient):
         item_data = Rom.item_data[item_name]
         item_inventory_address = 0
         max_index = 0
+        write_item = False
+        write_reward = False
+        write_recovery = False
+        item_written = False
+        amount = 0
+        max_value = 0
         if item_data.category == Rom.ItemCategory.item:
             item_inventory_address = Rom.items_inventory_address
             max_index = 29
+            write_item = True
         elif item_data.category == Rom.ItemCategory.gear:
             item_inventory_address = Rom.gear_inventory_address
             max_index = 30
+            write_item = True
         elif item_data.category == Rom.ItemCategory.key:
             item_inventory_address = Rom.keys_inventory_address
             max_index = 16
-        item_written = await self.write_item_to_inventory(ctx, item_data.id, item_inventory_address, max_index)
+            write_item = True
+        elif item_data.category == Rom.ItemCategory.coin:
+            amount = item_data.id
+            max_value = Rom.max_coins
+            item_inventory_address = Rom.coins_address
+            write_reward = True
+        elif item_data.category == Rom.ItemCategory.frog_coin:
+            amount = item_data.id
+            max_value = Rom.max_frog_coins
+            item_inventory_address = Rom.frog_coins_address
+            write_reward = True
+        elif item_data.category == Rom.ItemCategory.flower:
+            amount = item_data.id
+            max_value = Rom.max_flowers
+            item_inventory_address = Rom.max_flowers_address
+            write_reward = True
+        elif item_data.category == Rom.ItemCategory.recovery:
+            write_recovery = True
+        if write_item:
+            item_written = await self.write_item_to_inventory(ctx, item_data.id, item_inventory_address, max_index)
+        if write_reward:
+            item_written = await self.add_reward_to_count(ctx, amount, item_inventory_address, max_value)
+        if write_recovery:
+            item_written = await self.recover_characters(ctx)
         if item_written:
             self.increment_items_received(ctx, items_received_amount)
 
@@ -125,6 +158,33 @@ class SMRPGClient(SNIClient):
                 snes_buffered_write(ctx, inventory_address + index, item_id.to_bytes(1, 'little'))
                 return True
         return False
+
+    async def add_reward_to_count(self, ctx, amount, destination, max_value, coins = False):
+        from SNIClient import snes_buffered_write, snes_read
+        byte_count = 2 if coins else 1
+        current_value_data = await snes_read(ctx, destination, byte_count)
+        if current_value_data is None:
+            return
+        current_value = int.from_bytes(current_value_data[0:byte_count], "little")
+        current_value += amount
+        current_value = min(current_value, max_value)
+        snes_buffered_write(ctx, destination, current_value.to_bytes(byte_count, 'little'))
+        return True
+
+    async def recover_characters(self, ctx):
+        from SNIClient import snes_read, snes_buffered_write
+        for character in Rom.characters:
+            max_hp_data = await snes_read(ctx, Rom.hit_points[character][1], 2)
+            if max_hp_data is None:
+                return
+            max_hp = int.from_bytes(max_hp_data, "little")
+            snes_buffered_write(ctx, Rom.hit_points[character][0], max_hp.to_bytes(2, "little"))
+        max_flowers_data = await snes_read(ctx, Rom.max_flowers_address, 1)
+        if max_flowers_data is None:
+            return
+        max_flowers = int.from_bytes(max_flowers_data, "little")
+        snes_buffered_write(ctx, Rom.current_flowers_address, max_flowers.to_bytes(1, "little"))
+        return True
 
     async def check_if_items_sendable(self, ctx):
         from SNIClient import snes_read
