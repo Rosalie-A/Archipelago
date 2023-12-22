@@ -425,9 +425,9 @@ no_coin_locations = [
 ]
 
 star_allowed_locations = [
-    "Bandit's Way Dog Jump", "Bandit's Way Star Chest", "Barrel Volcano Star Room", "Kero Sewers Star Chest",
-    "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3", "Moleville Mines Star Chest",
-    "Nimbus Castle Star Chest", "Sea Star Chest"
+    "Bandit's Way Star Chest", "Barrel Volcano Star Room", "Kero Sewers Star Chest",
+    "Land's End Star Chest 1", "Land's End Star Chest 2", "Land's End Star Chest 3",
+    "Moleville Mines Star Chest", "Nimbus Castle Star Chest", "Sea Star Chest"
 ]
 
 world_one_regions = [

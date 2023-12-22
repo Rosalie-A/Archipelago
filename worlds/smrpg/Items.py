@@ -141,7 +141,6 @@ original_item_list = {
     "Lazy Shell Armor": 1,
     "Lazy Shell Weapon": 1,
     "Finger Shot": 1,
-    "You Missed!": 1,
     "Red Essence": 5,
     "Flower Jar": 3,
     "Lucky Jewel": 1,

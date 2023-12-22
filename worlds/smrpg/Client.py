@@ -29,8 +29,6 @@ class SMRPGClient(SNIClient):
             return False
 
         ctx.game = self.game
-        # While this set of flags indicates a fully remote setup, it's worth noting we'll
-        # be doing a hybrid approach, with only some "local" items being sent by the server.
         ctx.items_handling = 0b101
         ctx.rom = rom_name
         return True
@@ -62,16 +60,20 @@ class SMRPGClient(SNIClient):
 
     async def location_check(self, ctx):
         from SNIClient import snes_buffered_write, snes_flush_writes, snes_read
+        if not await self.check_if_items_sendable(ctx):
+            return
+        location_chunk_data = await snes_read(ctx, Rom.min, Rom.max - Rom.min + 32)
+        if location_chunk_data is None:
+            return
         for key, value in Rom.location_data.items():
             location_name = key
-            location_address = value.address
+            location_address = value.address - Rom.min
             location_id = Locations.location_table[location_name].id + base_id
-            location_data = await snes_read(ctx, location_address, 1)
-            location_byte = location_data
-            if location_byte is not None and location_id not in ctx.locations_checked:
-                location_byte = location_byte[0] & value.bit
-                if ((location_byte > 0) and value.set_when_checked) \
-                        or ((location_byte == 0) and not value.set_when_checked):
+            location_data = location_chunk_data[location_address]
+            if location_id not in ctx.locations_checked:
+                location_data = location_data & value.bit
+                if ((location_data > 0) and value.set_when_checked) \
+                        or ((location_data == 0) and not value.set_when_checked):
                     ctx.locations_checked.add(location_id)
                     snes_logger.info(
                         f'New Check: {location_name} '
@@ -87,6 +89,8 @@ class SMRPGClient(SNIClient):
             return
         items_received_amount = int.from_bytes(items_received_data, "little")
         if items_received_amount >= len(ctx.items_received):
+            return
+        if not await self.check_if_items_sendable(ctx):
             return
         item = ctx.items_received[items_received_amount]
         item_id = item.item
@@ -132,13 +136,21 @@ class SMRPGClient(SNIClient):
         if write_item:
             item_written = await self.write_item_to_inventory(ctx, item_data.id, item_inventory_address, max_index)
         if write_reward:
-            item_written = await self.add_reward_to_count(ctx, amount, item_inventory_address, max_value)
+            item_written = await self.add_reward_to_count(
+                ctx, amount, item_inventory_address, max_value, item_data.category != Rom.ItemCategory.flower)
         if write_recovery:
             item_written = await self.recover_characters(ctx)
         if item_written:
+            snes_logger.info(f"Received {item_name}")
             self.increment_items_received(ctx, items_received_amount)
 
     async def check_victory(self, ctx):
+        from SNIClient import snes_read
+        current_music = await snes_read(ctx, Rom.items_sendable_address_2, 1)
+        if current_music is None:
+            return
+        if current_music[0] in Rom.victory_music_values:
+            ctx.locations_checked.add(Locations.location_table["Smithy"].id)
         if Locations.location_table["Smithy"].id in ctx.locations_checked:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
@@ -191,12 +203,15 @@ class SMRPGClient(SNIClient):
         items_sendable_data_1 = await snes_read(ctx, Rom.items_sendable_address_1, 1)
         items_sendable_data_2 = await snes_read(ctx, Rom.items_sendable_address_2, 1)
         items_sendable_data_3 = await snes_read(ctx, Rom.items_sendable_address_3, 1)
+        items_sendable_data_4 = await snes_read(ctx, Rom.items_sendable_address_4, 1)
         if items_sendable_data_1 is None \
                 or items_sendable_data_2 is None \
-                or items_sendable_data_3 is None:
+                or items_sendable_data_3 is None \
+                or items_sendable_data_4 is None:
             return False
         if items_sendable_data_1[0] == 0 \
                 or items_sendable_data_2[0] in Rom.nonsendable_music_values \
-                or items_sendable_data_3[0] != 0:
+                or items_sendable_data_3[0] != 0 \
+                or items_sendable_data_4[0] != 0:
             return False
         return True

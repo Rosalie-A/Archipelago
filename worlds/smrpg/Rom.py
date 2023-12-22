@@ -14,8 +14,10 @@ items_received_address = 0xE03FF0
 items_sendable_address_1 = 0xE03062  # Is the Map/Star Piece menu available?
 items_sendable_address_2 = 0xF51D04  # Current music
 items_sendable_address_3 = 0xE03076  # Is a star active?
+items_sendable_address_4 = 0xF53021  # In a battle?
 # Silence, battle musics, victory musics, and star music are all forbidden
-nonsendable_music_values = [0x00, 0x03, 0x06, 0x08, 0x09, 0x0C, 0x19, 0x1D, 0x23, 0x36, 0x3B, 0x3C, 0x44, 0x45]
+nonsendable_music_values = [0x00, 0x03, 0x06, 0x08, 0x09, 0x0C, 0x19, 0x1D, 0x23, 0x36, 0x37, 0x3B, 0x3C, 0x44, 0x45]
+victory_music_values = [0x40, 0x46, 0x47, 0x48, 0x49]
 bit_positions = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
 items_inventory_address = 0xF6F882
 gear_inventory_address = 0xF6F864
@@ -322,9 +324,17 @@ location_data: Dict[str, MemoryLocation] = dict({
     "Smithy": MemoryLocation(base_memory_address + 0x304A, 2, True),
 })
 
+min = 0xFFFFFFFF
+max = 0
+for location in location_data.keys():
+    if location_data[location].address < min:
+        min = location_data[location].address
+    if location_data[location].address > max:
+        max = location_data[location].address
+
 item_data: Dict[str, ItemData] = {
     "Hammer": ItemData(0x05, ItemCategory.gear),
-    "FroggieStick": ItemData(0x06, ItemCategory.gear),
+    "Froggie Stick": ItemData(0x06, ItemCategory.gear),
     "Nok Nok Shell": ItemData(0x07, ItemCategory.gear),
     "Punch Glove": ItemData(0x08, ItemCategory.gear),
     "Finger Shot": ItemData(0x09, ItemCategory.gear),
@@ -412,16 +422,16 @@ item_data: Dict[str, ItemData] = {
     "Mushroom": ItemData(0x60, ItemCategory.item),
     "Mid Mushroom": ItemData(0x61, ItemCategory.item),
     "Max Mushroom": ItemData(0x62, ItemCategory.item),
-    "Honey Syruo": ItemData(0x63, ItemCategory.item),
-    "Maple Syruo": ItemData(0x64, ItemCategory.item),
-    "Royal Syruo": ItemData(0x65, ItemCategory.item),
+    "Honey Syrup": ItemData(0x63, ItemCategory.item),
+    "Maple Syrup": ItemData(0x64, ItemCategory.item),
+    "Royal Syrup": ItemData(0x65, ItemCategory.item),
     "Pick Me Up": ItemData(0x66, ItemCategory.item),
     "Able Juice": ItemData(0x67, ItemCategory.item),
     "Bracer": ItemData(0x68, ItemCategory.item),
     "Energizer": ItemData(0x69, ItemCategory.item),
     "Yoshi-Ade": ItemData(0x6A, ItemCategory.item),
     "Red Essence": ItemData(0x6B, ItemCategory.item),
-    "KerokeroCola": ItemData(0x6C, ItemCategory.item),
+    "Kerokero Cola": ItemData(0x6C, ItemCategory.item),
     "Yoshi Cookie": ItemData(0x6D, ItemCategory.item),
     "Pure Water": ItemData(0x6E, ItemCategory.item),
     "Sleepy Bomb": ItemData(0x6F, ItemCategory.item),
@@ -439,9 +449,9 @@ item_data: Dict[str, ItemData] = {
     "See Ya": ItemData(0x7B, ItemCategory.item),
     "Temple Key": ItemData(0x7C, ItemCategory.key),
     "Goodie Bag": ItemData(0x7D, ItemCategory.item),
-    "EarlierTimes": ItemData(0x7E, ItemCategory.item),
+    "Earlier Times": ItemData(0x7E, ItemCategory.item),
     "Freshen Up": ItemData(0x7F, ItemCategory.item),
-    "RareFrogCoin": ItemData(0x80, ItemCategory.key),
+    "Rare Frog Coin": ItemData(0x80, ItemCategory.key),
     "Wallet": ItemData(0x81, ItemCategory.item),
     "Cricket Pie": ItemData(0x82, ItemCategory.key),
     "Rock Candy": ItemData(0x83, ItemCategory.item),
@@ -466,10 +476,10 @@ item_data: Dict[str, ItemData] = {
     "Wilt Shroom": ItemData(0x9B, ItemCategory.item),
     "Rotten Shroom": ItemData(0x9C, ItemCategory.item),
     "Moldy Shroom": ItemData(0x9D, ItemCategory.item),
-    "Seed": ItemData(0x9E, ItemCategory.item),
-    "Fertilizer": ItemData(0x9F, ItemCategory.item),
+    "Seed": ItemData(0x9E, ItemCategory.key),
+    "Fertilizer": ItemData(0x9F, ItemCategory.key),
     "Big Boo Flag": ItemData(0xA1, ItemCategory.key),
-    "DryBonesFlag": ItemData(0xA2, ItemCategory.key),
+    "Dry Bones Flag": ItemData(0xA2, ItemCategory.key),
     "Greaper Flag": ItemData(0xA3, ItemCategory.key),
     "Cricket Jam": ItemData(0xA6, ItemCategory.key),
     "Bright Card": ItemData(0xAE, ItemCategory.key),

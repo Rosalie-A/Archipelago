@@ -121,18 +121,19 @@ class RandomizeEquipment(Choice):
     KO protection items.
     """
     display_name = "Randomize Equipment"
-    option_mild = 0
-    option_moderate = 1
-    option_severe = 2
-    default = 0
+    option_none = 0
+    option_mild = 1
+    option_moderate = 2
+    option_severe = 3
+    default = 1
 
 
-class SuperJumpsNotRequired(DefaultOnToggle):
+class SuperJumpsInLogic(Toggle):
     """
-    Toggled on, this prevents progression items from being at the reward for thirty and one hundred Super Jumps.
-    Toggled off, those locations may be required.
+    Toggled on, this allows progression items to be at the rewards for thirty and one hundred Super Jumps.
+    Toggled off, those locations will never be required (but could hold something useful)
     """
-    display_name = "Super Jumps Not Required"
+    display_name = "Super Jumps In Logic"
 
 
 class FreeShops(Toggle):
@@ -157,7 +158,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
     "StartingCharacter": StartingCharacter,
     "RandomizeCharacterPalettes": RandomizeCharacterPalettes,
     "RandomizeEquipment": RandomizeEquipment,
-    "SuperJumpsNotRequired": SuperJumpsNotRequired,
+    "SuperJumpsInLogic": SuperJumpsInLogic,
     "FreeShops": FreeShops
 }
 
@@ -165,7 +166,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
 def build_flag_string(options: typing.Dict[str, typing.Any]):
     key_flags = build_key_flags(options)
     character_flags = build_character_flags(options)
-    treasure_flags = "Tc4k"
+    treasure_flags = "Tca" # Special Archipelago flag
     shop_flags = build_shop_flags(options)
     battle_flags = "X2"
     enemy_flags = build_enemy_flags(options)
@@ -202,7 +203,7 @@ def build_character_flags(options: typing.Dict[str, typing.Any]):
         character_flags += "pl"
     if options["StartingCharacterCount"] == StartingCharacterCount.option_one:
         character_flags += " -nfc"
-    if options["StartingCharacter"] not in starting_character_lookup.keys():
+    if options["StartingCharacter"] in starting_character_lookup.keys():
         character_flags += f" {starting_character_lookup[options['StartingCharacter']]}"
     if options["RandomizeCharacterPalettes"] == RandomizeCharacterPalettes.option_true:
         character_flags += " -palette"

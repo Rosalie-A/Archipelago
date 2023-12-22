@@ -1,12 +1,14 @@
 import logging
 import os
 import threading
+import typing
 from copy import deepcopy
 from typing import NamedTuple, Union, Dict, Any
 
 import bsdiff4
 
 import Utils
+import settings
 from BaseClasses import Item, Location, Region, Entrance, MultiWorld, ItemClassification, Tutorial
 from .Items import item_table
 from .Locations import location_table, SMRPGRegions
@@ -18,6 +20,14 @@ from .Rom import SMRPGDeltaPatch
 
 from .smrpg_web_randomizer.randomizer.management.commands import make_seed
 
+class SMRPGSettings(settings.Group):
+    class RomFile(settings.SNESRomPath):
+        """File name of the SMRPG US rom"""
+        description = "Super Mario RPG (USA) ROM File"
+        copy_to = "Super Mario RPG - Legend of the Seven Stars (USA).sfc "
+        md5s = [SMRPGDeltaPatch.hash]
+
+    rom_file: RomFile = RomFile(RomFile.copy_to)
 
 class SMRPGWeb(WebWorld):
     theme = "ice"
@@ -40,6 +50,7 @@ class SMRPGWorld(World):
     option_definitions = smrpg_options
     game = "Super Mario RPG Legend of the Seven Stars"
     topology_present = False
+    settings: typing.ClassVar[SMRPGSettings]
     data_version = 1
     base_id = 850000
     web = SMRPGWeb()
@@ -163,7 +174,7 @@ class SMRPGWorld(World):
                               lambda item: item.classification != ItemClassification.progression)
 
             if key in Locations.super_jump_locations \
-                    and self.multiworld.SuperJumpsNotRequired[self.player] == Options.SuperJumpsNotRequired.option_true:
+                    and self.multiworld.SuperJumpsInLogic[self.player] == Options.SuperJumpsInLogic.option_false:
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.classification != ItemClassification.progression)
 
@@ -219,6 +230,8 @@ class SMRPGWorld(World):
         smithy = self.multiworld.get_location("Smithy", self.player)
         smithy.place_locked_item(self.create_item("Star Road Restored!"))
         self.multiworld.completion_condition[self.player] = lambda state: state.has("Star Road Restored!", self.player)
+        unfilled_boxes = [x for x in self.multiworld.get_unfilled_locations(self.player) if x.name not in Locations.no_reward_locations]
+        self.multiworld.random.choice(unfilled_boxes).place_locked_item(self.create_item("You Missed!"))
 
     def create_items(self):
         for item, amount in Items.original_item_list.items():
@@ -242,8 +255,8 @@ class SMRPGWorld(World):
         make_seed.Command().handle(
             mode="open",
             flags=build_flag_string(self.options.as_dict(*smrpg_options.keys())),
-            seed=self.multiworld.seed % 2 ** 32,
-            rom="smrpg.sfc",
+            seed=((self.multiworld.seed % 2 ** 32) + self.player),
+            rom=SMRPGWorld.settings.rom_file,
             output_file=output_file,
             ap_data=output,
             rom_name=self.rom_name
