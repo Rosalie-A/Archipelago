@@ -191,6 +191,7 @@ class SMRPGWorld(World):
 
     def generate_basic(self):
         boss_locations = set(deepcopy(Locations.star_piece_locations))
+        boss_locations = [x[0] for x in boss_locations]
         exclude_keep = False
         exclude_factory = True
         if self.multiworld.StarPiecesInBowsersKeep[self.player] == Options.StarPiecesInBowsersKeep.option_false:
@@ -211,6 +212,7 @@ class SMRPGWorld(World):
                 self.multiworld.get_location(location, self.player).place_locked_item(
                     self.create_item("Defeated!"))
         boss_locations = deepcopy(Locations.star_piece_locations)
+        boss_locations = [x[0] for x in boss_locations]
         if exclude_keep:
             for location in boss_locations:
                 if Locations.location_table[location].region == Locations.SMRPGRegions.bowsers_keep:
@@ -227,7 +229,7 @@ class SMRPGWorld(World):
             if location in stars:
                 self.multiworld.get_location(location, self.player).place_locked_item(
                     self.create_item("Invincibility Star"))
-        smithy = self.multiworld.get_location("Smithy", self.player)
+        smithy = self.multiworld.get_location("Boss - Smithy Spot", self.player)
         smithy.place_locked_item(self.create_item("Star Road Restored!"))
         self.multiworld.completion_condition[self.player] = lambda state: state.has("Star Road Restored!", self.player)
         unfilled_boxes = [x for x in self.multiworld.get_unfilled_locations(self.player) if x.name not in Locations.no_reward_locations]

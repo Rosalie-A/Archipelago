@@ -47,6 +47,16 @@ class IncludeCulex(DefaultOnToggle):
     display_name = "Include Culex"
 
 
+class ExperienceMultiplier(Choice):
+    """
+    Multiplies the amount of experience points gained from battling enemies.
+    """
+    display_name = "Experience Multiplier"
+    option_single = "1x"
+    option_double = "2x"
+    option_triple = "3x"
+    default = "double"
+
 class RandomizeEnemies(Choice):
     """
     Randomize all enemies. Mild randomizes their drops and formations. Moderate includes enemy stats and attack
@@ -150,6 +160,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
     "BowsersKeepDoors": BowsersKeepDoors,
     "ShuffleBowsersKeepDoors": ShuffleBowsersKeepDoors,
     "IncludeCulex": IncludeCulex,
+    "ExperienceMultiplier": ExperienceMultiplier,
     "RandomizeEnemies": RandomizeEnemies,
     "RandomizeBosses": RandomizeBosses,
     "RandomizeCharacterStats": RandomizeCharacterStats,
@@ -168,7 +179,7 @@ def build_flag_string(options: typing.Dict[str, typing.Any]):
     character_flags = build_character_flags(options)
     treasure_flags = "Tca" # Special Archipelago flag
     shop_flags = build_shop_flags(options)
-    battle_flags = "X2"
+    battle_flags = build_battle_flags(options)
     enemy_flags = build_enemy_flags(options)
     equipment_flags = build_equipment_flags(options)
     challenge_flags = "P1 Nbmq"
@@ -216,6 +227,13 @@ def build_shop_flags(options: typing.Dict[str, typing.Any]):
         shop_flags += " -freeshops"
     return shop_flags
 
+def build_battle_flags(options: typing.Dict[str, typing.Any]):
+    battle_flags = ""
+    if options["ExperienceMultiplier"] == ExperienceMultiplier.option_double:
+        battle_flags += "X2"
+    if options["ExperienceMultiplier"] == ExperienceMultiplier.option_triple:
+        battle_flags += "X3"
+    return battle_flags
 
 def build_enemy_flags(options: typing.Dict[str, typing.Any]):
     enemy_flags = ""

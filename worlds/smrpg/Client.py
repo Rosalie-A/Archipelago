@@ -165,6 +165,18 @@ class SMRPGClient(SNIClient):
         current_inventory_data = await snes_read(ctx, inventory_address, max_index)
         if current_inventory_data is None:
             return
+        if item_id == Rom.item_data["Alto Card"].id:
+            has_alto = False
+            has_tenor = False
+            for index, item_byte in enumerate(current_inventory_data):
+                if item_byte == Rom.item_data["Alto Card"].id:
+                    has_alto = True
+                if item_byte == Rom.item_data["Tenor Card"].id:
+                    has_tenor = True
+            if has_alto:
+                item_id = Rom.item_data["Tenor Card"].id
+            if has_tenor:
+                item_id = Rom.item_data["Soprano Card"].id
         for index, item_byte in enumerate(current_inventory_data):
             if item_byte == 255:
                 snes_buffered_write(ctx, inventory_address + index, item_id.to_bytes(1, 'little'))
