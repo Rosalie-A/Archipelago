@@ -328,7 +328,7 @@ for location in star_piece_locations:
 star_piece_locations.remove(location_to_remove)
 
 additional_bambino_locks: List[str] = [
-    "Key Item - Melody Bay Song 2", "Key Item - Melody Bay Song 3", "Boss - Culex", "Event - Culex Reward"
+    "Key Item - Melody Bay Song 2", "Key Item - Melody Bay Song 3", "Boss - Culex Spot", "Event - Culex Reward"
 ]
 
 missable_locations = [
@@ -391,7 +391,9 @@ world_seven_regions = [
 
 key_item_locations = {
     "Temple Key": [
-        "Event - Belome Temple Treasure 1", "Event - Belome Temple Treasure 2", "Event - Belome Temple Treasure 3"
+        "Event - Belome Temple Treasure 1",
+        "Event - Belome Temple Treasure 2",
+        "Event - Belome Temple Treasure 3"
     ],
     "Rare Frog Coin": ["Key Item - Rare Frog Coin Reward (Cricket Pie)"],
     "Cricket Pie": ["Event - Cricket Pie Reward"],

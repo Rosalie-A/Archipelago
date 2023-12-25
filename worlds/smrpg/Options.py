@@ -137,6 +137,19 @@ class RandomizeEquipment(Choice):
     option_severe = 3
     default = 1
 
+class ItemPool(Choice):
+    """
+    Adjusts the items available. Vanilla shuffles the vanilla item rewards around. Shuffled types will randomize
+    items to be the same type of item (consumbles -> consumables, weapons -> weapons). Shuffled inventories randomizes
+    items within their general category (items -> items, gear -> gear). Chaotic will fully randomize each item.
+    """
+    display_name = "Item Pool"
+    option_vanilla = 0
+    option_shuffled_types = 1
+    option_shuffled_inventories = 2
+    option_chaotic = 3
+    default = 0
+
 
 class SuperJumpsInLogic(Toggle):
     """
@@ -169,6 +182,7 @@ smrpg_options: typing.Dict[str, type(Option)] = {
     "StartingCharacter": StartingCharacter,
     "RandomizeCharacterPalettes": RandomizeCharacterPalettes,
     "RandomizeEquipment": RandomizeEquipment,
+    "ItemPool": ItemPool,
     "SuperJumpsInLogic": SuperJumpsInLogic,
     "FreeShops": FreeShops
 }
@@ -227,6 +241,7 @@ def build_shop_flags(options: typing.Dict[str, typing.Any]):
         shop_flags += " -freeshops"
     return shop_flags
 
+
 def build_battle_flags(options: typing.Dict[str, typing.Any]):
     battle_flags = ""
     if options["ExperienceMultiplier"] == ExperienceMultiplier.option_double:
@@ -234,6 +249,7 @@ def build_battle_flags(options: typing.Dict[str, typing.Any]):
     if options["ExperienceMultiplier"] == ExperienceMultiplier.option_triple:
         battle_flags += "X3"
     return battle_flags
+
 
 def build_enemy_flags(options: typing.Dict[str, typing.Any]):
     enemy_flags = ""
@@ -251,6 +267,7 @@ def build_enemy_flags(options: typing.Dict[str, typing.Any]):
             enemy_flags += "c"
     return enemy_flags
 
+
 def build_equipment_flags(options: typing.Dict[str, typing.Any]):
     """
     Randomize equipment. Mild randomizes who can equip each piece of gear. Moderate randomizes stats and buffs. Severe
@@ -265,6 +282,7 @@ def build_equipment_flags(options: typing.Dict[str, typing.Any]):
     if options["RandomizeEquipment"] == RandomizeEquipment.option_severe:
         equipment_flags += "Qsba!"
     return equipment_flags
+
 
 def build_tweaks_flags(options: typing.Dict[str, typing.Any]):
     tweaks_flags= "W -showequips"

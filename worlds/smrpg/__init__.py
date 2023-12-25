@@ -1,5 +1,6 @@
 import logging
 import os
+import random
 import threading
 import typing
 from copy import deepcopy
@@ -241,9 +242,70 @@ class SMRPGWorld(World):
         self.multiworld.random.choice(unfilled_boxes).place_locked_item(self.create_item("You Missed!"))
 
     def create_items(self):
-        for item, amount in Items.original_item_list.items():
-            for i in range(amount):
-                self.multiworld.itempool.append(self.create_item(item))
+        if self.multiworld.ItemPool[self.player] == Options.ItemPool.option_vanilla:
+            for item, amount in Items.original_item_list.items():
+                for i in range(amount):
+                    self.multiworld.itempool.append(self.create_item(item))
+        if self.multiworld.ItemPool[self.player] == Options.ItemPool.option_shuffled_types:
+            for item, amount in Items.original_item_list.items():
+                for i in range(amount):
+                    self.multiworld.itempool.append(self.create_item(self.randomize_item_in_type(item)))
+        if self.multiworld.ItemPool[self.player] == Options.ItemPool.option_shuffled_inventories:
+            for item, amount in Items.original_item_list.items():
+                for i in range(amount):
+                    self.multiworld.itempool.append(self.create_item(self.randomize_item_in_inventory(item)))
+        if self.multiworld.ItemPool[self.player] == Options.ItemPool.option_chaotic:
+            for item, amount in Items.original_item_list.items():
+                if item not in Items.singleton_items:
+                    for i in range(amount):
+                        self.multiworld.itempool.append(
+                            self.create_item(self.multiworld.random.choice(Items.all_mundane_items)))
+                else:
+                    for i in range(amount):
+                        self.multiworld.itempool.append(self.create_item(item))
+
+    def randomize_item_in_type(self, item: str):
+        item_type = None
+        if item in Items.consumables:
+            item_type = Items.consumables
+        if item in Items.chest_rewards:
+            item_type = Items.chest_rewards
+        if item in Items.weapons:
+            item_type = Items.weapons
+        if item in Items.armor:
+            item_type = Items.armor
+        if item in Items.accessories:
+            item_type = Items.accessories
+        if item in Items.key_items:
+            item_type = Items.key_items
+        if item_type is None:
+            if item in Items.singleton_items:
+                return item
+            else:
+                print(item)
+                raise ValueError(f"{item} is a problem. Fix this.")
+        if item_type == Items.key_items:
+            return item # We're not randomizing key items
+        return random.choice(item_type)
+
+    def randomize_item_in_inventory(self, item: str):
+        item_type = None
+        if item in Items.filler:
+            item_type = Items.filler
+        if item in Items.equipment:
+            item_type = Items.equipment
+        if item in Items.key_items:
+            item_type = Items.key_items
+        if item_type is None:
+            if item in Items.singleton_items:
+                return item
+            else:
+                print(item)
+                raise ValueError(f"{item} is a problem. Fix this.")
+        if item_type == Items.key_items:
+            return item # We're not randomizing key items
+        return random.choice(item_type)
+
 
     def generate_output(self, output_directory: str):
         self.rom_name_text = f'MRPG{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:11}'

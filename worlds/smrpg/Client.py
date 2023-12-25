@@ -150,8 +150,8 @@ class SMRPGClient(SNIClient):
         if current_music is None:
             return
         if current_music[0] in Rom.victory_music_values:
-            ctx.locations_checked.add(Locations.location_table["Smithy"].id)
-        if Locations.location_table["Smithy"].id in ctx.locations_checked:
+            ctx.locations_checked.add(Locations.location_table["Boss - Smithy Spot"].id)
+        if Locations.location_table["Boss - Smithy Spot"].id in ctx.locations_checked:
             await ctx.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
             ctx.finished_game = True
 
