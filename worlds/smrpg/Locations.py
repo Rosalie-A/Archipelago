@@ -340,7 +340,7 @@ missable_locations = [
 
 no_key_locations = [*missable_locations]
 
-no_reward_locations = [*events_data, key_items_data]
+no_reward_locations = [*[event[0] for event in events_data], *[key[0] for key in key_items_data]]
 
 no_coin_locations = [
     "Chest - Bean Valley Beanstalk", "Chest - Bean Valley Box Boy Room",

@@ -52,10 +52,10 @@ class ExperienceMultiplier(Choice):
     Multiplies the amount of experience points gained from battling enemies.
     """
     display_name = "Experience Multiplier"
-    option_single = "1x"
-    option_double = "2x"
-    option_triple = "3x"
-    default = "double"
+    option_single = 0
+    option_double = 1
+    option_triple = 2
+    default = 1
 
 class RandomizeEnemies(Choice):
     """

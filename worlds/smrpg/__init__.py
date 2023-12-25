@@ -165,8 +165,13 @@ class SMRPGWorld(World):
                               lambda item: item.name not in Items.coin_rewards)
 
             if key in Locations.no_reward_locations:
+                print(key)
                 add_item_rule(self.multiworld.get_location(key, self.player),
                               lambda item: item.name not in Items.chest_rewards)
+
+            if key in Locations.missable_locations:
+                add_item_rule(self.multiworld.get_location(key, self.player),
+                              lambda item: item.classification != ItemClassification.progression)
 
             if key in Locations.culex_locations \
                     and self.multiworld.IncludeCulex[self.player] == Options.IncludeCulex.option_false:
