@@ -404,7 +404,7 @@ item_data: Dict[str, ItemData] = {
     "Safety Ring": ItemData(0x4D, ItemCategory.gear),
     "Amulet": ItemData(0x4E, ItemCategory.gear),
     "Scrooge Ring": ItemData(0x4F, ItemCategory.gear),
-    "Exp. Booster": ItemData(0x50, ItemCategory.gear),
+    "Exp Booster": ItemData(0x50, ItemCategory.gear),
     "Attack Scarf": ItemData(0x51, ItemCategory.gear),
     "Rare Scarf": ItemData(0x52, ItemCategory.gear),
     "B'tub Ring": ItemData(0x53, ItemCategory.gear),
