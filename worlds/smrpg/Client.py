@@ -1,6 +1,7 @@
 import typing
 import logging
 from logging import Logger
+from asyncio import Queue, QueueEmpty, QueueFull
 
 from NetUtils import ClientStatus, color
 from worlds.AutoSNIClient import SNIClient
@@ -28,6 +29,8 @@ class SMRPGClient(SNIClient):
         if rom_name is None or rom_name[:4] != b"MRPG":
             return False
 
+        self._q = Queue()
+
         ctx.game = self.game
         ctx.items_handling = 0b101
         ctx.rom = rom_name
@@ -39,6 +42,7 @@ class SMRPGClient(SNIClient):
             return
         await self.location_check(ctx)
         await self.received_items_check(ctx)
+        await self._cycle_item_checks(ctx)
         await self.check_victory(ctx)
         await snes_flush_writes(ctx)
 
@@ -81,6 +85,24 @@ class SMRPGClient(SNIClient):
                         f'{len(ctx.missing_locations) + len(ctx.checked_locations)})')
                     await ctx.send_msgs([{"cmd": 'LocationChecks', "locations": [location_id]}])
 
+    async def _cycle_item_checks(self, ctx):
+        for _ in range(len(self._q.qsize())):
+            try:
+                item_received_data, item_received_amount = self._q.get_nowait()
+            except QueueEmpty:
+                return
+
+            try:
+                await self.do_item_check(ctx, item_received_data, item_received_amount)
+                continue
+            except IndexError:
+                pass
+
+            try:
+                self._q.put((item_received_data, item_received_amount))
+            except QueueFull:
+                # This would be unrecoverable, probably, but also shouldn't happen
+                pass
 
     async def received_items_check(self, ctx):
         from SNIClient import snes_read, snes_buffered_write
@@ -92,6 +114,10 @@ class SMRPGClient(SNIClient):
             return
         if not await self.check_if_items_sendable(ctx):
             return
+        # NOTE: this will block if there's no space, but we should have infinite length
+        self._q.put((item_received_data, item_received_amount))
+
+    async def do_item_check(self, ctx, item_received_data, item_received_amount):
         item = ctx.items_received[items_received_amount]
         item_id = item.item
         item_name = ctx.item_names[item_id]
@@ -143,6 +169,8 @@ class SMRPGClient(SNIClient):
         if item_written:
             snes_logger.info(f"Received {item_name}")
             self.increment_items_received(ctx, items_received_amount)
+        else:
+            raise IndexError(f"Tried to write item {item_name} to an invalid inventory slot.")
 
     async def check_victory(self, ctx):
         from SNIClient import snes_read
