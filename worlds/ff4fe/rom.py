@@ -3,6 +3,7 @@ import io
 import json
 import os
 import random
+import struct
 import typing
 
 from typing import TYPE_CHECKING, Optional, BinaryIO
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
     from . import FF4FEWorld
 
 ROM_NAME = 0x007FC0
+ROM_CHECKSUM = 0x007FDE
+ROM_INVERSE_CHECKSUM = 0x007FDC
 sentinel_addresses = [
     0xF506B1, 0xF506D9, 0xF50650, 0xF50140, 0xF50685
 ]
@@ -91,6 +94,10 @@ class FF4FEPatchExtension(APPatchExtension):
             rom_data = bytearray(file.read())
             rom_data[ROM_NAME:ROM_NAME+20] = bytes(rom_name, encoding="utf-8")
             rom_data[junk_tier_byte:junk_tier_byte + 1] = bytes([junk_tier])
+            checksum = sum(rom_data) & 0xFFFF
+            rom_data[ROM_CHECKSUM:ROM_CHECKSUM + 2] = struct.pack("<H", checksum)
+            rom_data[ROM_INVERSE_CHECKSUM:ROM_INVERSE_CHECKSUM + 2] = struct.pack("<H", (~checksum) & 0xFFFF)
+
         return rom_data
 
 
