@@ -1,3 +1,67 @@
 firefighter
 fire starter
 fire mediator
+aircraft maintenance technician
+appliance service technician
+arborist technician
+architectural sheet metal worker
+asphalt paving/laydown technician
+auto body and collision technician
+automotive service technician
+baker
+boilermaker
+boom truck operator
+bricklayer
+cabinet maker
+carpenter
+climbing arborist
+concrete finisher
+construction craft worker
+cook
+diesel engine mechanic
+drywall finisher
+electrician
+embalmer
+floor covering installer
+funeral director
+gasfitter
+glazier
+hairstylist
+heavy duty equipment technician
+heavy equipment operator
+landscape horticulturist
+industrial mechanic
+instrumentation and control technician
+insulator
+ironworker
+lather
+locksmith
+machinist
+marine mechanical technician
+marine service technician
+meatcutter
+metal fabricator
+mobile crane operator
+motorcycle technician
+painter and decorator
+parts technician
+piledriver and bridgeworker
+plumber
+powerline technician
+recreational vehicle service technician
+refrigeration and air conditioning mechanic
+residential building maintenance manager
+residential steep roofer
+roofer
+saw filer
+security system technician
+sheet metal worker
+sprinkler fitter
+steamfitter / pipefitter
+tilesetter
+tower crane operator
+transport trailer technician
+truck and transport mechanic
+utility arborist
+water well driller
+welder
