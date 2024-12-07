@@ -272,7 +272,7 @@ ordr,flag,world,area,map,index,x,y,contents,jcontents,fight,exclude,spoilerarea,
 270,0x11C,Underworld,DwarfCastle,#DwarfCastleWestTower3F,2,11,7,#item.Ether1,,,,Dwarf Castle,West tower 3F,right
 271,0x11D,Underworld,DwarfCastle,#DwarfCastleWestTower3F,3,6,11,#item.BlBelt,,,,Dwarf Castle,West tower 3F,bottom
 272,0x11E,Underworld,DwarfCastle,#DwarfCastleTower2F,0,8,10,500 gp,#item.Bacchus,,,Dwarf Castle,West tower 2F,pot
-273,0x11F,Underworld,DwarfCastle,#DwarfCastleTower2F,1,21,24,500 gp,#item.Bacchus,,,Dwarf Castle,East tower 2F,pot
+273,0x11F,Underworld,DwarfCastle,#DwarfCastleTower2F,1,21,24,500 gp,#item.Bacchus,,,Dwarf Castle,East tower 4F,pot
 274,0x120,Underworld,UpperBabilAfterFall,#BabilFloorLugae,0,6,3,#item.Cure2,,,,Tower of Bab-il (upper),Trapdoor landing,chest
 275,0x121,Underworld,UpperBabilAfterFall,#BabilFloorAirship,0,28,11,#item.Cure2,,,,Tower of Bab-il (upper),Falcon level,chest
 276,0x122,Underworld,LowerBabil,#Babil1F,0,5,10,#item.IceArrow,,,,Tower of Bab-il (lower),1F,left top
