@@ -8,7 +8,6 @@ from NetUtils import ClientStatus
 
 import worlds._bizhawk as bizhawk
 from worlds._bizhawk.client import BizHawkClient
-from worlds.noita.locations import amount
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext
