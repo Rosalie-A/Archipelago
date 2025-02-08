@@ -1,7 +1,7 @@
 import logging
 from collections import deque
 from copy import deepcopy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from MultiServer import Client
 from NetUtils import ClientStatus
@@ -26,6 +26,9 @@ gp_location_middle = 0x1D
 gp_location_high = 0x1E
 weapons_arrays_starts = [0x118, 0x158, 0x198, 0x1D8]
 armors_arrays_starts = [0x11C, 0x15C, 0x19C, 0x1DC]
+status_a_location = 0x102
+status_b_location = 0x0FC
+status_c_location = 0x0A3
 
 key_items = ["Lute", "Crown", "Crystal", "Herb", "Key", "Tnt", "Adamant", "Slab", "Ruby", "Rod",
              "Floater", "Chime", "Tail", "Cube", "Bottle", "Oxyale", "EarthOrb", "FireOrb", "WaterOrb", "AirOrb"]
@@ -80,6 +83,7 @@ class FF1Client(BizHawkClient):
         self.consumable_stack_amounts = None
         self.weapons_queue = deque()
         self.armor_queue = deque()
+        self.guard_character = 0x00
 
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
@@ -129,20 +133,27 @@ class FF1Client(BizHawkClient):
             # The connector didn't respond. Exit handler and return to main loop to reconnect
             pass
 
-    async def check_status_okay_to_process(self, ctx):
+    async def check_status_okay_to_process(self, ctx: "BizHawkClientContext"):
         """
             local A = u8(0x102) -- Party Made
             local B = u8(0x0FC)
             local C = u8(0x0A3)
             return A ~= 0x00 and not (A== 0xF2 and B == 0xF2 and C == 0xF2)
         """
-        status_a = await self.read_sram_value(ctx, 0x102)
-        status_b = await self.read_sram_value(ctx, 0x0FC)
-        status_c = await self.read_sram_value(ctx, 0x0A3)
+        status_a = await self.read_sram_value(ctx, status_a_location)
+        status_b = await self.read_sram_value(ctx, status_b_location)
+        status_c = await self.read_sram_value(ctx, status_c_location)
+
+        # First character's name's first character will never have FF
+        # so this will cause all guarded read/writes to fail properly
+        self.guard_character = status_a if status_a != 0x00 else 0xFF
+
         return (status_a != 0x00) and not (status_a == 0xF2 and status_b == 0xF2 and status_c == 0xF2)
 
-    async def location_check(self, ctx):
-        locations_data = await self.read_sram_values(ctx, locations_array_start, locations_array_length)
+    async def location_check(self, ctx: "BizHawkClientContext"):
+        locations_data = await self.read_sram_values_guarded(ctx, locations_array_start, locations_array_length)
+        if locations_data is None:
+            return
         locations_checked = []
         if len(locations_data) > 0xFE and locations_data[0xFE] & 0x02 != 0 and not ctx.finished_game:
             await ctx.send_msgs([
@@ -178,62 +189,74 @@ class FF1Client(BizHawkClient):
 
 
 
-    async def received_items_check(self, ctx):
-        items_received_count = await self.read_sram_value(ctx, items_obtained)
+    async def received_items_check(self, ctx: "BizHawkClientContext"):
+        write_list: List[tuple[int, List[int], str]] = []
+        items_received_count = await self.read_sram_value_guarded(ctx, items_obtained)
+        if items_received_count is None:
+            return
         if items_received_count < len(ctx.items_received):
             current_item = ctx.items_received[items_received_count]
             current_item_id = current_item.item
             current_item_name = ctx.item_names.lookup_in_game(current_item_id, ctx.game)
             if current_item_name in key_items:
                 location = current_item_id - 0xE0
-                await self.write_sram(ctx, location, 1)
+                write_list.append((location, [1], self.sram))
             elif current_item_name in movement_items:
                 location = current_item_id - 0x1E0
                 if current_item_name != "Canal":
-                    await self.write_sram(ctx, location, 1)
+                    write_list.append((location, [1], self.sram))
                 else:
-                    await self.write_sram(ctx, location, 0)
+                    write_list.append((location, [0], self.sram))
             elif current_item_name in no_overworld_items:
                 if current_item_name == "Sigil":
                     location = 0x28
                 else:
                     location = 0x12
-                await self.write_sram(ctx, location, 1)
+                write_list.append((location, [1], self.sram))
             elif current_item_name in gold_items:
                 gold_amount = int(current_item_name[4:])
-                current_gold = int.from_bytes(await self.read_sram_values(ctx, gp_location_low, 3), "little")
+                current_gold = int.from_bytes(await self.read_sram_values_guarded(ctx, gp_location_low, 3), "little")
+                if current_gold is None:
+                    return
                 new_gold = min(gold_amount + current_gold, 999999)
                 lower_byte = new_gold % (2 ** 8)
                 middle_byte = (new_gold // (2 ** 8)) % (2 ** 8)
                 upper_byte = new_gold // (2 ** 16)
-                await self.write_sram(ctx, gp_location_low, lower_byte)
-                await self.write_sram(ctx, gp_location_middle, middle_byte)
-                await self.write_sram(ctx, gp_location_high, upper_byte)
+                write_list.append((gp_location_low, [lower_byte], self.sram))
+                write_list.append((gp_location_middle, [middle_byte], self.sram))
+                write_list.append((gp_location_high, [upper_byte], self.sram))
             elif current_item_name in consumables:
                 location = current_item_id - 0xE0
-                current_value = await self.read_sram_value(ctx, location)
+                current_value = await self.read_sram_value_guarded(ctx, location)
+                if current_value is None:
+                    return
                 amount_to_add = self.consumable_stack_amounts[current_item_name]
                 new_value = min(current_value + amount_to_add, 99)
-                await self.write_sram(ctx, location, new_value)
+                write_list.append((location, [new_value], self.sram))
             elif current_item_name in extended_consumables:
                 ext_name = ext_consumables_lookup[current_item_name]
                 location = ext_consumables_locations[ext_name]
-                current_value = await self.read_sram_value(ctx, location)
+                current_value = await self.read_sram_value_guarded(ctx, location)
+                if current_value is None:
+                    return
                 amount_to_add = self.consumable_stack_amounts[ext_name]
                 new_value = min(current_value + amount_to_add, 99)
-                await self.write_sram(ctx, location, new_value)
+                write_list.append((location, [new_value], self.sram))
             elif current_item_name in weapons:
                 self.weapons_queue.appendleft(current_item_id - 0x11B)
             elif current_item_name in armor:
                 self.armor_queue.appendleft(current_item_id - 0x143)
-            await self.write_sram(ctx, items_obtained, items_received_count + 1)
+            write_list.append((items_obtained, [items_received_count + 1], self.sram))
+            await self.write_sram_values_guarded(ctx, write_list)
 
-    async def process_weapons_queue(self, ctx):
+    async def process_weapons_queue(self, ctx: "BizHawkClientContext"):
         empty_slots = deque()
-        char1_slots = await self.read_sram_values(ctx, weapons_arrays_starts[0], 4)
-        char2_slots = await self.read_sram_values(ctx, weapons_arrays_starts[1], 4)
-        char3_slots = await self.read_sram_values(ctx, weapons_arrays_starts[2], 4)
-        char4_slots = await self.read_sram_values(ctx, weapons_arrays_starts[3], 4)
+        char1_slots = await self.read_sram_values_guarded(ctx, weapons_arrays_starts[0], 4)
+        char2_slots = await self.read_sram_values_guarded(ctx, weapons_arrays_starts[1], 4)
+        char3_slots = await self.read_sram_values_guarded(ctx, weapons_arrays_starts[2], 4)
+        char4_slots = await self.read_sram_values_guarded(ctx, weapons_arrays_starts[3], 4)
+        if char1_slots is None or char2_slots is None or char3_slots is None or char4_slots is None:
+            return
         for i, slot in enumerate(char1_slots):
             if slot == 0:
                 empty_slots.appendleft(weapons_arrays_starts[0] + i)
@@ -249,14 +272,16 @@ class FF1Client(BizHawkClient):
         while len(empty_slots) > 0 and len(self.weapons_queue) > 0:
             current_slot = empty_slots.pop()
             current_weapon = self.weapons_queue.pop()
-            await self.write_sram(ctx, current_slot, current_weapon)
+            await self.write_sram_guarded(ctx, current_slot, current_weapon)
 
-    async def process_armor_queue(self, ctx):
+    async def process_armor_queue(self, ctx: "BizHawkClientContext"):
         empty_slots = deque()
-        char1_slots = await self.read_sram_values(ctx, armors_arrays_starts[0], 4)
-        char2_slots = await self.read_sram_values(ctx, armors_arrays_starts[1], 4)
-        char3_slots = await self.read_sram_values(ctx, armors_arrays_starts[2], 4)
-        char4_slots = await self.read_sram_values(ctx, armors_arrays_starts[3], 4)
+        char1_slots = await self.read_sram_values_guarded(ctx, armors_arrays_starts[0], 4)
+        char2_slots = await self.read_sram_values_guarded(ctx, armors_arrays_starts[1], 4)
+        char3_slots = await self.read_sram_values_guarded(ctx, armors_arrays_starts[2], 4)
+        char4_slots = await self.read_sram_values_guarded(ctx, armors_arrays_starts[3], 4)
+        if char1_slots is None or char2_slots is None or char3_slots is None or char4_slots is None:
+            return
         for i, slot in enumerate(char1_slots):
             if slot == 0:
                 empty_slots.appendleft(armors_arrays_starts[0] + i)
@@ -272,27 +297,38 @@ class FF1Client(BizHawkClient):
         while len(empty_slots) > 0 and len(self.armor_queue) > 0:
             current_slot = empty_slots.pop()
             current_armor = self.armor_queue.pop()
-            await self.write_sram(ctx, current_slot, current_armor)
+            await self.write_sram_guarded(ctx, current_slot, current_armor)
 
-    async def read_ram_values(self, ctx, location, size):
-        return (await bizhawk.read(ctx.bizhawk_ctx, [(location, size, self.wram)]))[0]
 
-    async def read_ram_value(self, ctx, location):
-        value = ((await bizhawk.read(ctx.bizhawk_ctx, [(location, 1, self.wram)]))[0])
-        return int.from_bytes(value)
-
-    async def read_sram_values(self, ctx, location, size):
-        return (await bizhawk.read(ctx.bizhawk_ctx, [(location, size, self.sram)]))[0]
-
-    async def read_sram_value(self, ctx, location):
+    async def read_sram_value(self, ctx: "BizHawkClientContext", location: int):
         value = ((await bizhawk.read(ctx.bizhawk_ctx, [(location, 1, self.sram)]))[0])
-        return int.from_bytes(value)
+        return int.from_bytes(value, "little")
 
-    async def read_rom(self, ctx, location, size):
+    async def read_sram_values_guarded(self, ctx: "BizHawkClientContext", location: int, size: int):
+        value = await bizhawk.guarded_read(ctx.bizhawk_ctx,
+                                           [(location, size, self.sram)],
+                                           [(status_a_location, [self.guard_character], self.sram)])
+        if value is None:
+            return None
+        return value[0]
+
+    async def read_sram_value_guarded(self, ctx: "BizHawkClientContext", location: int):
+        value = await bizhawk.guarded_read(ctx.bizhawk_ctx,
+                                           [(location, 1, self.sram)],
+                                           [(status_a_location, [self.guard_character], self.sram)])
+        if value is None:
+            return None
+        return int.from_bytes(value[0], "little")
+
+    async def read_rom(self, ctx: "BizHawkClientContext", location: int, size: int):
         return (await bizhawk.read(ctx.bizhawk_ctx, [(location, size, self.rom)]))[0]
 
-    async def write(self, ctx, location, value):
-        return await bizhawk.write(ctx.bizhawk_ctx, [(location, [value], self.wram)])
+    async def write_sram_guarded(self, ctx: "BizHawkClientContext", location: int, value: int):
+        return await bizhawk.guarded_write(ctx.bizhawk_ctx,
+                                           [(location, [value], self.sram)],
+                                           [(status_a_location, [self.guard_character], self.sram)])
 
-    async def write_sram(self, ctx, location, value):
-        return await bizhawk.write(ctx.bizhawk_ctx, [(location, [value], self.sram)])
+    async def write_sram_values_guarded(self, ctx: "BizHawkClientContext", write_list):
+        return await bizhawk.guarded_write(ctx.bizhawk_ctx,
+                                           write_list,
+                                           [(status_a_location, [self.guard_character], self.sram)])
