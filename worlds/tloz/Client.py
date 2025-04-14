@@ -196,6 +196,16 @@ class TLOZClient(BizHawkClient):
                         middle_shop_slots = middle_shop_slots | bit
                     if "Right" in shop:
                         right_shop_slots = right_shop_slots | bit
+        bit = Rom.take_any
+        for slot in Locations.take_any_locations:
+            slot_id = Locations.location_table[slot] + base_id
+            if slot_id in ctx.checked_locations:
+                if "Left" in slot:
+                    left_shop_slots = left_shop_slots | bit
+                if "Middle" in slot:
+                    middle_shop_slots = middle_shop_slots | bit
+                if "Right" in slot:
+                    right_shop_slots = right_shop_slots | bit
         left_shop_write = (Rom.left_shop_slots, [left_shop_slots], self.wram)
         middle_shop_write = (Rom.middle_shop_slots, [middle_shop_slots], self.wram)
         right_shop_write = (Rom.right_shop_slots, [right_shop_slots], self.wram)
