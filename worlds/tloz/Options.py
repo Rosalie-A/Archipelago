@@ -1,6 +1,6 @@
-import typing
 from dataclasses import dataclass
-from Options import Option, DefaultOnToggle, Choice, PerGameCommonOptions, Toggle
+from Options import DefaultOnToggle, Choice, PerGameCommonOptions, Toggle, ItemSet
+from .Items import item_names, default_shop_items
 
 
 class ExpandedPool(DefaultOnToggle):
@@ -64,9 +64,10 @@ class EntranceShuffle(Choice):
     will be shuffled with each other
     Open means that only dungeon entrances and open caves will be shuffled with each other.
     Major Open is a combination combines and shuffles both Major and Open locations.
-    All means all entrances will be shuffled amongst each other. Starting Sword Cave will be in an open location
-    and have a weapon.
-    Warp Caves will be included as major locations if the Randomize Warp Caves setting is turned on
+    All means all entrances will be shuffled amongst each other.
+    Warp Caves will be included as major locations if the Randomize Warp Caves setting is turned on.
+    On Open, Major Open, and All, Starting Sword Cave will be in an open location and have a weapon,
+    and the Blue Ring Shop will be in an open location.
     """
     display_name = "Entrance Shuffle"
     option_off = 0
@@ -81,6 +82,13 @@ class RandomizeWarpCaves(Toggle):
     """Include the Take Any Road caves in entrance randomization"""
     display_name = "Randomize Warp Caves"
 
+class ShopItems(ItemSet):
+    """Items that are guarnateed to be in an open shop somewhere. If more items than the number of open shop slots
+    (nine on vanilla entrances, three if shops are shuffled) are picked, then a random remainder will be excluded.
+    All items except Triforce Fragments are valid options."""
+    valid_keys = item_names
+    default = default_shop_items
+
 
 
 @dataclass
@@ -92,9 +100,11 @@ class TlozOptions(PerGameCommonOptions):
     DefenseLogic: DefenseLogic
     EntranceShuffle: EntranceShuffle
     RandomizeWarpCaves: RandomizeWarpCaves
+    ShopItems: ShopItems
 
 
-def is_sword_cave_shuffled(option_value) -> bool:
+def is_open_cave_shuffled(option_value) -> bool:
     # A couple of things care if Starting Sword Cave is in the shuffle. This centralizes the check for that.
+    # This also applies for the Blue Ring Shop.
     check_list = [EntranceShuffle.option_open, EntranceShuffle.option_major_open, EntranceShuffle.option_all]
     return option_value in check_list

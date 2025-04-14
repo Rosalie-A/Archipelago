@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from BaseClasses import CollectionState
 from worlds.AutoWorld import World
-from .Options import is_sword_cave_shuffled
+from .Options import is_open_cave_shuffled
 
 option_off = 0
 option_dungeons = 1
@@ -184,13 +184,21 @@ def create_entrance_randomizer_set(world: World):
     for screen, destination in new_destinations.items():
         overworld_entrances[screen] = (overworld_entrances[screen][0], destination)
     starting_sword_cave = [screen for screen, dest in overworld_entrances.items() if dest[1] == "Starting Sword Cave"][0]
+    blue_ring_shop = [screen for screen, dest in overworld_entrances.items() if dest[1] == "Blue Ring Shop"][0]
 
-    while (starting_sword_cave not in open_entrances and is_sword_cave_shuffled(world.options.EntranceShuffle.value)):
-        world.random.shuffle(screens)
-        world.random.shuffle(destinations)
-        new_destinations = {screen[0]: screen[1] for screen in zip(screens, destinations)}
-        for screen, destination in new_destinations.items():
-            overworld_entrances[screen] = (overworld_entrances[screen][0], destination)
-        starting_sword_cave = [screen for screen, dest in overworld_entrances.items() if dest[1] == "Starting Sword Cave"][0]
+    def is_shuffle_okay():
+        return starting_sword_cave in open_entrances and blue_ring_shop in open_entrances
+
+    if is_open_cave_shuffled(world.options.EntranceShuffle.value):
+        while not is_shuffle_okay():
+            world.random.shuffle(screens)
+            world.random.shuffle(destinations)
+            new_destinations = {screen[0]: screen[1] for screen in zip(screens, destinations)}
+            for screen, destination in new_destinations.items():
+                overworld_entrances[screen] = (overworld_entrances[screen][0], destination)
+            starting_sword_cave = [screen for screen, dest in overworld_entrances.items() if dest[1] == "Starting Sword Cave"][0]
+            blue_ring_shop = [screen for screen, dest in overworld_entrances.items() if dest[1] == "Blue Ring Shop"][0]
 
     return overworld_entrances
+
+

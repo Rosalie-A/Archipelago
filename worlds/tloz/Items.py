@@ -46,7 +46,6 @@ item_table: Dict[str, ItemData] = {
     "Rupee": ItemData(130, filler),
     "Clock": ItemData(131, filler),
     "Fairy": ItemData(132, filler)
-
 }
 
 item_game_ids = {
@@ -144,3 +143,7 @@ item_prices = {
     "Clock": 0,
     "Fairy": 10
 }
+
+item_names = [name for name in item_table.keys()]
+item_names.remove("Triforce Fragment")
+default_shop_items = ["Small Key", "Bomb", "Water of Life (Red)", "Arrow"]
