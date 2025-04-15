@@ -83,8 +83,8 @@ class RandomizeWarpCaves(Toggle):
     display_name = "Randomize Warp Caves"
 
 class ShopItems(ItemSet):
-    """Items that are guarnateed to be in an open shop somewhere. If more items than the number of open shop slots
-    (nine on vanilla entrances, three if shops are shuffled) are picked, then a random remainder will be excluded.
+    """Items that are guarnateed to be in a shop somewhere. If more items than the number of shop slots
+    (fourteen) are picked, then a random remainder will be excluded. Small Keys are always included in an open shop.
     All items except Triforce Fragments are valid options."""
     valid_keys = item_names
     default = default_shop_items

@@ -42,7 +42,7 @@ major_dungeon_items = {
 
 minor_dungeon_items = {
     "Bomb": 23,
-    "Small Key": 45,
+    "Small Key": 44,
     "Five Rupees": 17
 }
 
@@ -81,8 +81,6 @@ def generate_itempool(tlozworld):
         location.place_locked_item(tlozworld.multiworld.create_item(item, tlozworld.player))
         if item == "Bomb":
             location.item.classification = ItemClassification.progression
-        if item == "Small Key":
-            location.item.classification = ItemClassification.progression
 
 def get_pool_core(world):
     random = world.random
@@ -93,24 +91,21 @@ def get_pool_core(world):
 
     # Guaranteed Shop Items
     guaranteed_shop_items = world.options.ShopItems.value
-    open_slots = shop_locations[0:9] if world.options.EntranceShuffle == EntranceShuffle.option_off \
-        else shop_locations[6:9]
+    open_slots = [location for location in shop_locations if location != "Blue Ring Shop Item Middle"]
     if len(guaranteed_shop_items) > len(open_slots):
         guaranteed_shop_items = random.sample(sorted(guaranteed_shop_items), len(open_slots))
 
     reserved_store_slots = random.sample(open_slots, len(guaranteed_shop_items))
-    if "Small Key" not in guaranteed_shop_items: # Need a buyable key _somewhere_ or else we have a rare softlock possiblity
-        guaranteed_shop_items.append("Small Key")
-        reserved_store_slots.append(shop_locations[10])
     for location, item in zip(reserved_store_slots, guaranteed_shop_items):
         placed_items[location] = item
+    placed_items["Blue Ring Shop Item Middle"] = "Small Key"
 
     # Starting Weapon
     start_weapon_locations = starting_weapon_locations.copy()
     final_starting_weapons = [weapon for weapon in starting_weapons
-                              if weapon not in world.options.non_local_items]
+                              if weapon not in world.options.non_local_items and weapon not in guaranteed_shop_items]
     if not final_starting_weapons:
-        final_starting_weapons = starting_weapons
+        final_starting_weapons = ["Sword"]
     starting_weapon = random.choice(final_starting_weapons)
     if (world.options.StartingPosition == StartingPosition.option_safe
             or is_open_cave_shuffled(world.options.EntranceShuffle.value)): # Major, Major Open, and All
@@ -124,8 +119,7 @@ def get_pool_core(world):
         placed_items[random.choice(start_weapon_locations)] = starting_weapon
     else:
         pool.append(starting_weapon)
-    remaining_starting_weapons = set(starting_weapons) - set(guaranteed_shop_items)
-    for other_weapons in sorted(remaining_starting_weapons):
+    for other_weapons in final_starting_weapons:
         if other_weapons != starting_weapon:
             pool.append(other_weapons)
 
@@ -156,7 +150,8 @@ def get_pool_core(world):
         final_pool.update(minor_items)
         final_pool.update(take_any_items)
         final_pool["Five Rupees"] -= 1
-    guaranteed_shop_items_dict = {item: 1 for item in guaranteed_shop_items}
+    # Starting weapon possibilities have already been bounced out of the pool if they're in a shop.
+    guaranteed_shop_items_dict = {item: 1 for item in guaranteed_shop_items if item not in starting_weapons}
     final_pool.subtract(guaranteed_shop_items_dict)
     for item in final_pool.elements():
         pool.append(item)

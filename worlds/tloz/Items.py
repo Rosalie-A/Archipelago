@@ -146,4 +146,5 @@ item_prices = {
 
 item_names = [name for name in item_table.keys()]
 item_names.remove("Triforce Fragment")
-default_shop_items = ["Small Key", "Bomb", "Water of Life (Red)", "Arrow"]
+
+default_shop_items = ["Bomb", "Water of Life (Red)", "Arrow"]
