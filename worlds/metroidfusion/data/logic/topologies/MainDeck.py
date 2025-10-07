@@ -150,12 +150,12 @@ LowerArachnusArena.locations = [
 HabitationDeck.locations = [
     FusionLocation("Main Deck -- Habitation Deck -- Animals", True, [
         Level2KeycardRequirement([], [CanReachAnimals]),
-        CanFreezeEnemies(["Level 2 Keycard", "Speed Booster"], [CanDoSimpleWallJump]),
-        CanFreezeEnemies(["Level 2 Keycard", "Wave Beam"], [CanDoSimpleWallJump, HasHiJump])
+        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Speed Booster"], [CanDoSimpleWallJump]),
+        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Wave Beam"], [CanDoSimpleWallJump, HasHiJump])
     ]),
     FusionLocation("Main Deck -- Habitation Deck -- Lower Item", False, [
         Level2KeycardRequirement([], [HasSpaceJump, HasWaveBeam]),
-        CanFreezeEnemies(["Level 2 Keycard"], [HasHiJump, CanDoAdvancedWallJump])
+        CanFreezeEnemiesRequirement(["Level 2 Keycard"], [HasHiJump, CanDoAdvancedWallJump])
     ])
 ]
 
@@ -163,7 +163,7 @@ ReactorZone.locations = [
     FusionLocation("Main Deck -- Silo Catwalk", False, [CanDefeatStabilizerOrToughEnemy]),
     FusionLocation("Main Deck -- Silo Scaffolding", False, [
         PONRRequirement(["Morph Ball"], [CanDefeatStabilizerOrToughEnemy]),
-        CanDefeatStabilizerOrToughEnemy(["Morph Ball"], [CanJumpHigh, CanDoAdvancedWallJump])
+        CanDefeatStabilizerOrToughEnemyRequirement(["Morph Ball"], [CanJumpHigh, CanDoAdvancedWallJump])
     ])
 ]
 
