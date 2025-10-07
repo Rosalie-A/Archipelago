@@ -149,12 +149,12 @@ LowerArachnusArena.locations = [
 
 HabitationDeck.locations = [
     FusionLocation("Main Deck -- Habitation Deck -- Animals", True, [
-        Level2KeycardRequirement([], [CanReachAnimals]),
-        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Speed Booster"], [CanDoSimpleWallJump]),
+        Requirement(["Speed Booster", "Level 2 Keycard"], [HasSpaceJump]),
+        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Speed Booster"], [CanDoAdvancedWallJump, HasHiJump]),
         CanFreezeEnemiesRequirement(["Level 2 Keycard", "Wave Beam"], [CanDoSimpleWallJump, HasHiJump])
     ]),
     FusionLocation("Main Deck -- Habitation Deck -- Lower Item", False, [
-        Level2KeycardRequirement([], [HasSpaceJump, HasWaveBeam]),
+        Requirement(["Level 2 Keycard"], [HasSpaceJump, HasWaveBeam]),
         CanFreezeEnemiesRequirement(["Level 2 Keycard"], [HasHiJump, CanDoAdvancedWallJump])
     ])
 ]
