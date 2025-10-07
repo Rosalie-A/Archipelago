@@ -49,7 +49,9 @@ Sector1FirstStabilizerZone.connections = [
 Sector1SecondStabilizerZone.connections = [
     Connection(Sector1ThirdStabilizerZone, []),
     Connection(Sector1TourianExit, [
-        Requirement(["Screw Attack"], [])
+        CanBallJumpRequirement(["Wave Beam", "Ice Beam"], [CanScrewAttackAndSpaceJump]),
+        CanBallJumpRequirement(["Wave Beam", "Missile Data", "Diffusion Missile"], [CanScrewAttackAndSpaceJump]),
+        PONRRequirement(["Missile Data", "Diffusion Missile", "ScrewAttack", "Space Jump"], [CanBallJump])
     ], one_way=True)
 ]
 
@@ -69,7 +71,11 @@ Sector1AfterChargeCoreZone.connections = [
 ]
 
 Sector1TourianExit.connections = [
-    Connection(Sector1SecondStabilizerZone, [CanScrewAttackAndSpaceJump]),
+    Connection(Sector1SecondStabilizerZone, [
+        CanBallJumpRequirement(["Wave Beam", "Ice Beam"], [CanScrewAttackAndSpaceJump]),
+        CanBallJumpRequirement(["Wave Beam", "Missile Data", "Diffusion Missile"], [CanScrewAttackAndSpaceJump]),
+        PONRRequirement(["Morph Ball", "Wave Beam"], [CanScrewAttackAndSpaceJump])
+    ], one_way=True),
     Connection(Sector1TourianHub, [
         PONRRequirement(
             ["Missile Data", "Morph Ball", "Screw Attack"],
