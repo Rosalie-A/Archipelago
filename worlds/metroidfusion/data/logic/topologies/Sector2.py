@@ -1,6 +1,5 @@
 from ..Connection import Connection
 from ..Requirement import PONRRequirement
-from ..Requirements import CanBombOrPowerBomb
 from ..VariableConnection import VariableConnection
 from ..Requirements import *
 from ..FusionLocation import FusionLocation
@@ -15,10 +14,8 @@ Sector2Hub.connections = [
     Connection(Sector2TubeLeft, [HasScrewAttack]),
     Connection(Sector2TubeRight, [HasScrewAttack]),
     Connection(Sector2LeftSide, [
-        PONRRequirement(["Morph Ball"], [CanDestroyBombBlocks]),
-        Requirement(["Morph Ball", "Hi-Jump"], [CanDestroyBombBlocks]),
-        Requirement(["Morph Ball", "Bomb Data"], [CanDestroyBombBlocks]),
-    ]),
+        PONRRequirement(["Morph Ball"], [CanDestroyBombBlocks])
+    ], one_way=True),
     Connection(Sector2ZazabiZoneUpper, [CanBombOrPowerBomb]),
     Connection(Sector2NettoriZone, [
         CanPowerBombAndJumpHigh,
@@ -35,25 +32,31 @@ Sector2TubeRight.connections = [
 ]
 
 Sector2LeftSide.connections = [
+    Connection(Sector2Hub, [
+        Requirement(["Morph Ball", "Hi-Jump"], [CanDestroyBombBlocks]),
+        CanBombRequirement([], [CanPowerBomb, HasScrewAttack]),
+        #Loop around through Cathedral
+        CanBombRequirement([], [HasSpaceJump, CanDoSimpleWallJumpWithHiJump])
+    ]),
     Connection(Sector2ZazabiZone, [CanBombOrPowerBomb], one_way=True)
 ]
 
 Sector2ZazabiZone.connections = [
     Connection(Sector2LeftSide, [
-        Requirement(["Space Jump"], [CanBombOrPowerBomb])
+        #Loop around through Cathedral
+        CanBombOrPowerBombRequirement(["Space Jump"], []),
+        CanBombOrPowerBombRequirement(["Screw Attack"], [HasSpaceJump, CanDoSimpleWallJumpWithHiJump])
     ]),
     Connection(Sector2NettoriZone, [HasSpaceJump]),
     Connection(Sector2ZazabiZoneUpper, [
-        Requirement([], [HasSpaceJump]),
-        Requirement(["Hi-Jump"], [CanFightBoss]),
+        HasSpaceJump,
+        CanDoSimpleWallJumpWithHiJump])
     ])
 ]
 
 Sector2ZazabiZoneUpper.connections = [
     Connection(Sector2ZazabiZone, [
         PONRRequirement(["Nothing"], []),
-        Requirement(["Hi-Jump"], [CanFightBoss]),
-        Requirement(["Space Jump"], []),
     ], one_way=True)
 ]
 
@@ -89,27 +92,31 @@ Sector2LeftSide.locations = [
 
 Sector2ZazabiZone.locations = [
     FusionLocation("Sector 2 (TRO) -- Cultivation Station", False, [
-        CanBacktrackToCultivationStation
+        CanBombOrPowerBombRequirement([], [CanJumpHigh, CanFreezeEnemies])
     ]),
     FusionLocation("Sector 2 (TRO) -- Oasis", False, [CanJumpHigh]),
-    FusionLocation("Sector 2 (TRO) -- Oasis Storage", False, [CanReachOasisStorage]),
+    FusionLocation("Sector 2 (TRO) -- Oasis Storage", False, [
+        CanPowerBomb,
+        Requirement(["Hi-Jump"], [CanBomb]),
+        Requirement(["Morph Ball", "Screw Attack"], [CanJumpHighUnderwater])
+    ]),
     FusionLocation("Sector 2 (TRO) -- Ripper Tower -- Lower Item", False, [
         Requirement(["Morph Ball"], [CanFreezeEnemies])
     ]),
     FusionLocation("Sector 2 (TRO) -- Ripper Tower -- Upper Item", False, [
-        Requirement(["Morph Ball"], [CanFreezeEnemies])
+        PONRRequirement(["Morph Ball"], [CanFreezeEnemies]),
+        CanDestroyBombBlocksRequirement(["Morph Ball"], [CanFreezeEnemies])
     ]),
     FusionLocation("Sector 2 (TRO) -- Zazabi Arena", True, [
         PONRRequirement([], [CanFightBoss]),
-        Requirement(["Hi-Jump"], [CanFightBoss]),
-        Requirement(["Space Jump"], [CanFightBoss]),
+        CanJumpHighRequirement([], [CanFightBoss]),
     ]),
     FusionLocation("Sector 2 (TRO) -- Zazabi Arena Access", False, []),
     FusionLocation("Sector 2 (TRO) -- Zazabi Speedway -- Lower Item", False, [
-        CanAccessZazabiSpeedway
+        Requirement(["Space Jump", "Speed Booster", "Screw Attack"], [CanFightBoss])
     ]),
     FusionLocation("Sector 2 (TRO) -- Zazabi Speedway -- Upper Item", False, [
-        CanAccessZazabiSpeedway
+        Requirement(["Space Jump", "Speed Booster", "Screw Attack"], [CanFightBoss])
     ])
 ]
 
@@ -126,5 +133,8 @@ Sector2NettoriZone.locations = [
         CanFightBossOnAdvanced
     ]),
     FusionLocation("Sector 2 (TRO) -- Overgrown Cache", False, [HasMorph]),
-    FusionLocation("Sector 2 (TRO) -- Puyo Palace", False, [])
+    FusionLocation("Sector 2 (TRO) -- Puyo Palace", False, [
+        PONRRequirement(["Nothing"], []),
+        Requirement([], [CanJumpHigh, CanDoSimpleWallJump])
+    ])
 ]
