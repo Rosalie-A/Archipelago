@@ -47,7 +47,15 @@ OperationsDeckElevatorTop.connections = [
 ]
 
 OperationsDeck.connections = [
-    Connection(LowerArachnusArena, [HasMissile], one_way=True)
+    Connection(VentilationZone, [HasMissile], one_way=True)
+]
+
+UpperArachnusArena.connections = [
+    Connection(LowerArachnusArena, [
+        PONRRequirement([], [HasMissile]),
+        CanBeatToughEnemyRequirement(["Morph Ball"], [CanDefeatSmallGeron]),
+        CanMorphRequirement(["Screw Attack"], [CanJumpHigh, CanDoSimpleWallJump])
+    ], one_way=True)
 ]
 
 HabitationDeckElevatorBottom.connections = [
