@@ -12,28 +12,33 @@ from ..regions.Sector6 import Sector6TubeLeft
 
 Sector4Hub.connections = [
     VariableConnection(SectorHubElevator4Top, []),
-    Connection(Sector4UpperZone, [CanBombOrPowerBomb], one_way=True),
+    Connection(Sector4UpperZone, [
+        PONRRequirement([], [CanBombOrPowerBomb], level_1_e_tanks),
+        CanDrainAQARequirement(["Speed Booster"], [CanBombOrPowerBomb], level_1_e_tanks),
+        CanPowerBombRequirement(["Space Jump"], [], level_1_e_tanks)
+    ], one_way=True),
     Connection(Sector4DataZone, [
         CanDrainAQARequirement(["Missile Data", "Diffusion Missile"], [HasMorph]),
         CanDrainAQARequirement(["Ice Beam", "Wave Beam"], [HasMorph])
     ]),
     Connection(Sector4RightWaterZone, [
-        CanDrainAQARequirement(
-            ["Missile Data", "Diffusion Missile", "Gravity Suit"],
-            [CanBombOrPowerBomb]
-        ),
-        CanDrainAQARequirement(
-            ["Ice Beam", "Wave Beam", "Gravity Suit"],
-            [CanBombOrPowerBomb]
-        )
+        CanDrainAQARequirement(["Morph Ball", "Missile Data", "Diffusion Missile", "Gravity Suit"], [HasSpeedBooster, HasScrewAttack]),
+        CanDrainAQARequirement(["Morph Ball", "Ice Beam", "Wave Beam", "Gravity Suit"], [HasSpeedBooster, HasScrewAttack])
+    ]),
+    Connection(Sector4RightWaterZoneSave, [
+        CanDrainAQARequirement(["Missile Data", "Diffusion Missile", "Gravity Suit"], [CanBomb]),
+        CanDrainAQARequirement(["Ice Beam", "Wave Beam", "Gravity Suit"], [CanBomb]),
+        CanDrainAQARequirement(["Missile Data", "Diffusion Missile", "Hi-Jump"], [HasMorph]),
+        CanDrainAQARequirement(["Ice Beam", "Wave Beam", "Hi-Jump"], [HasMorph])
     ])
 ]
 
 Sector4TubeRight.connections = [
     VariableConnection(Sector6TubeLeft, [HasScrewAttack]),
     Connection(Sector4RightDataZone, [
-        Requirement(["Morph Ball"], [HasMissile])
-    ]),
+        PONRRequirement(["Morph Ball"], [HasMissile]),
+        Requirement(["Missile Data"], [CanBallJump])
+    ], one_way=True),
 ]
 
 Sector4TubeLeft.connections = [
@@ -44,8 +49,17 @@ Sector4TubeLeft.connections = [
 ]
 
 Sector4UpperZone.connections = [
-    Connection(Sector4Hub, [CanDrainAQARequirement([], [])], one_way=True),
-    Connection(Sector4BeforePumpControlZone, [CanBombOrPowerBomb])
+    Connection(Sector4Hub, [
+        PONRRequirement(["Speed Booster"], [CanDrainAQA]),
+        CanDrainAQARequirement(["Speed Booster"], [CanBombOrPowerBomb]),
+        Requirement(["Space Jump"], [CanPowerBomb])
+    ], one_way=True),
+    Connection(Sector4BeforePumpControlZone, [
+        PONRRequirement([], [CanBombOrPowerBomb]),
+        CanBombOrPowerBombRequirement([], [CanJumpHigh, CanDoSimpleWallJump]),
+        CanDrainAQARequirement([], [CanJumpHigh, CanDoBeginnerShinespark])
+    ], one_way=True),
+    Connection(Sector4ReservoirVault, [HasSpaceJump, CanDoSimpleWallJump])
 ]
 
 Sector4BeforePumpControlZone.connections = [
@@ -59,69 +73,138 @@ Sector4BeforePumpControlZone.connections = [
         PONRRequirement(["Hi-Jump"], [CanBombOrPowerBomb]),
         PONRRequirement(["Morph Ball", "Bomb Data", "Gravity Suit"], []),
         Requirement(["Hi-Jump", "Speed Booster"], [CanBombOrPowerBomb]),
-        Requirement(["Morph Ball", "Bomb Data", "Gravity Suit", "Speed Booster"], [])
+        Requirement(["Morph Ball", "Bomb Data", "Gravity Suit"], [HasSpeedBooster, CanDoSimpleWallJump])
     ], one_way=True),
     Connection(Sector4UpperZone, [
-        CanDrainAQARequirement([], [HasMorph])
+        PONRRequirement(["Morph Ball", "Speed Booster"], [CanDrainAQA]),
+        CanBombOrPowerBombRequirement([], [CanJumpHigh, CanDoSimpleWallJump]),
+        CanDrainAQARequirement([], [CanJumpHigh, CanDoBeginnerShinespark])
     ], one_way=True)
 ]
 
 Sector4SerrisZone.connections = [
     Connection(Sector4BeforePumpControlZone, [
-        Requirement(
-            ["Gravity Suit", "Morph Ball", "Bomb Data"],
-            [CanDoSimpleWallJump, HasSpaceJump]
-        ),
-        Requirement(
-            ["Gravity Suit", "Morph Ball", "Power Bomb Data"],
-            [CanDoSimpleWallJump, HasSpaceJump]
-        )
+        CanBallJumpAndBombRequirement(["Gravity Suit"], [CanDoSimpleWallJump, HasSpaceJump])
     ]),
-    Connection(Sector4UpperZone, [HasSpeedBooster], one_way=True)
+    Connection(Sector4ReservoirVault, [HasSpeedBooster], one_way=True)
+]
+
+Sector4ReservoirVault.connections = [
+    Connection(Sector4UpperZone, [], one_way=True)
 ]
 
 Sector4PumpControl.connections = [
-    Connection(Sector4BeforePumpControlZone, [CanBallJump], one_way=True)
+    Connection(Sector4BeforePumpControlZone, [
+        Requirement(["Level 1 Keycard"], [CanBallJump, CanDoBeginnerShinespark])
+    ], one_way=True)
 ]
 
 Sector4UpperWaterZone.connections = [
     Connection(Sector4BeforePumpControlZone, [
-        Level4KeycardRequirement([], [CanJumpHighUnderwater]),
-        Level4KeycardRequirement(["Gravity Suit"], [CanDoBeginnerShinespark])
+        CanDrainAQARequirement(["Level 4 Keycard"], [HasHiJump, HasGravity])
     ]),
     Connection(Sector5NightmareHub, [
-        Requirement(["Gravity Suit", "Speed Booster"], [CanJumpHigh])
+        Requirement(["Gravity Suit", "Speed Booster"], [CanJumpHigh], level_3_e_tanks)
+    ], one_way=True),
+    Connection(Sector4CargoHold, [CanScrewAttackUnderwater]),
+    Connection(Sector4UpperSecurityZone, [
+        PONRRequirement([], [CanSpeedBoosterUnderwater], level_4_energy_tanks),
+        CanBallJumpAndBombRequirement(["Speed Booster", "Gravity Suit", "Level 4 Keycard"], [
+            CanFightMidgameBossRequirement(["Wave Beam", "Ice Beam"], [HasSpaceJump, CanDoSimpleWallJump]),
+            CanFightMidgameBossRequirement(["Missile Data", "Diffusion Missile"], [HasSpaceJump, CanDoSimpleWallJump])
+        ], level_4_energy_tanks),
+        HasMorphRequirement(["Speed Booster"], [CanScrewAttackUnderwater], level_4_e_tanks)
+    ], one_way=True)
+]
+
+Sector4CargoHold.connections= [
+    Connection(Sector4UpperSecurityZone, [
+        Requirement(["Gravity Suit"], [CanBomb], level_4_energy_tanks),
+        Requirement(["Morph Ball"], [HasHiJump], level_4_energy_tanks)
+    ])
+]
+
+Sector4UpperSecurityZone.connections= [
+    Connection(Sector4CargoHold, [
+        PONRRequirement([], [HasMorph])
     ], one_way=True),
     Connection(Sector4SecurityZone, [
-        CanSpeedBoosterUnderwater,
-        Requirement(["Screw Attack", "Gravity Suit"], [CanBallJump])
-    ]),
+        PONRRequirement(["Nothing"], [])
+    ], one_way=True)
 ]
 
 Sector4SecurityZone.connections = [
-    Connection(Sector4RightWaterZone, [CanCrossSector4LowerSecurityToRightWaterZone]),
+    Connection(Sector4RightWaterZoneSave, [
+        CanFightMidgameBossRequirement(["Morph Ball", "Gravity Suit", "Level 4 Keycard"], [
+            HasSpaceJump, CanDoSimpleWallJump, CanDoAdvancedShinespark
+        ], level_4_e_tanks),
+        CanScrewAttackUnderwaterRequirement(["Morph Ball", "Level 4 Keycard"], [
+            HasSpaceJump, CanDoSimpleWallJump, CanDoAdvancedShinespark
+        ], level_4_e_tanks)
+    ]),
     Connection(Sector4LowerSecurityZone, [
         PONRRequirement([], [HasKeycard4]),
-        PONRRequirement([], [CanAscendCheddarBay]),
-        Requirement(["Space Jump"], [HasKeycard4]),
-        Requirement(["Space Jump"], [CanAscendCheddarBay])
-    ]),
-    Connection(Sector4SecurityRoom, [
-        PONRRequirement([], [CanAscendCheddarBay]),
-        Requirement(["Level 4 Keycard", "Space Jump"], [CanAscendCheddarBay]),
+        PONRRequirement(["Missile Data", "Morph Ball"], [
+            HasGravityRequirement([], [CanBomb, HasScrewAttack]),
+            HasHiJumpRequirement([], [CanBomb]),
+            CanPowerBomb
+        ])
     ], one_way=True),
+    Connection(Sector4UpperSecurityZone, [
+        Requirement(["Gravity Suit"], [HasSpaceJump]),
+        CanDoAdvancedShinesparkRequirement(["Level 4 Keycard", "Gravity Suit"], [HasScrewAttack, CanPowerBomb]),
+        CanDoAdvancedShinesparkRequirement(["Level 4 Keycard", "Gravity Suit", "Missile Data"], [CanBomb])
+    ]),
+    #Connection(Sector4UpperWaterZone, [
+        #CanDoExpertShinesparkRequirement(
+            #["Space Jump", "Gravity Suit", "Hi-Jump", "Level 4 Keycard"],
+            #[CanPowerBomb], level_4_energy_tanks)
+    #])
 ]
 
 Sector4LowerSecurityZone.connections = [
-    Connection(Sector4SecurityRoom, [HasKeycard4])
+    Connection(Sector4SecurityRoom, [
+        PONRRequirement(["Level 4 Keycard"], []),
+        PONRRequirement(["Morph Ball"], [
+            CanPowerBomb,
+            CanBeatToughEnemyRequirement([], [CanScrewAttackUnderwater, CanBomb])
+        ])
+    ], one_way=True),
+    Connection(Sector4SecurityZone, [
+        Level4KeyCardRequirement(["Gravity Suit"], [HasSpaceJump, CanDoSimpleWallJump]),
+        CanPowerBombRequirement(["Gravity Suit", "Missile Data"], [HasSpaceJump, CanDoSimpleWallJump]),
+        CanScrewAttackUnderwaterRequirement(["Missile Data", "Morph Ball"], [HasSpaceJump, CanDoSimpleWallJump])
+    ])
+]
+
+Sector4SecurityRoom.connections = [
+    Connection(Sector4LowerSecurityZone, [
+        Level4KeycardRequirement(["Gravity Suit"], [HasSpaceJump, CanDoSimpleWallJump])
+    ])
 ]
 
 Sector4RightWaterZone.connections = [
     Connection(Sector4RightDataZone, [
-        Requirement(["Gravity Suit"], [CanCrossSector4RightWaterCorner])
-    ]),
+        PONRRequirement(["Gravity Suit", "Morph Ball", "Missile Data"], [CanFreezeEnemies, HasSpaceJump]),
+        CanDiffusionMissileRequirement(["Morph Ball"], [HasGravity])
+    ], one_way=True),
     Connection(Sector4TubeLeft, [
-        Requirement(["Gravity Suit"] ,[HasScrewAttack])
+        PONRRequirement(["Screw Attack"], [HasGravity])
+    ], one_way=True),
+    Connection(Sector4RightWaterZoneSave, [
+        HasGravityRequirement([], [HasScrewAttack]),
+        PONRRequirement(["Gravity Suit"], [CanDoBeginnerShinespark])
+    ], one_way=True)
+]
+
+Sector4RightWaterZoneSave.connections = [
+    Connection(Sector4SecurityZone, [
+        PONRRequirement(["Morph Ball", "Level 4 Keycard"], [CanFightMidgameBoss, CanScrewAttackUnderwater], level_4_e_tanks)
+    ], one_way=True),
+    Connection(Sector4RightWaterZone, [
+        PONRRequirement(["Morph Ball", "Hi-Jump", "Gravity Suit", "Speed Booster"], [CanFreezeEnemies]),
+        PONRRequirement(["Morph Ball", "Bomb Data", "Gravity Suit", "Speed Booster"], [CanFreezeEnemies]),
+        HasGravityRequirement([], [HasScrewAttack])
     ], one_way=True)
 ]
 
@@ -132,16 +215,16 @@ Sector4DataZone.connections = [
 ]
 
 Sector4RightDataZone.connections = [
+    Connection(Sector4TubeRight, [CanBallJumpRequirement([], [CanDiffusionMissile])]),
     Connection(Sector4RightWaterZone, [
-        Requirement(["Morph Ball", "Gravity Suit"], [CanDiffusionMissile])
+        PONRRequirement(["Morph Ball"], [CanDiffusionMissile]),
+        HasGravityRequirement(["Morph Ball"], [CanDiffusionMissile])
     ], one_way=True)
 ]
 
 Sector4Hub.locations = [
     FusionLocation("Sector 4 (AQA) -- Drain Pipe", False, [
-        CanDrainAQARequirement(["Morph Ball"], [CanDefeatLargeGeron]),
-        CanDrainAQARequirement(["Morph Ball"], [HasWaveBeam]),
-
+        CanDrainAQARequirement(["Morph Ball"], [CanDefeatMediumGeron, HasWaveBeam])
     ]),
     FusionLocation("Sector 4 (AQA) -- Reservoir East", False, [
         CanDrainAQARequirement([], [CanPowerBomb])
@@ -149,21 +232,33 @@ Sector4Hub.locations = [
 ]
 
 Sector4PumpControl.locations = [
-    FusionLocation("Sector 4 (AQA) -- Pump Control Unit", False, [HasMorph])
+    FusionLocation("Sector 4 (AQA) -- Pump Control Unit", False, [
+        PONRRequirement(["Morph Ball"], [CanDrainAQA]),
+        CanDrainAQARequirement([], [CanBallJump])
+    ])
+]
+
+Sector4BeforePumpControl.locations =[
+    FusionLocation("Sector 4 (AQA) -- C-Cache", False, [
+        Requirement(["Morph Ball"], [CanDestroyBombBlocks]),
+        Requirement(["Level 1 Keycard", "Morph Ball"], [CanDoBeginnerShinespark])
+    ])
 ]
 
 Sector4UpperZone.locations = [
-    FusionLocation("Sector 4 (AQA) -- Broken Bridge", False, []),
-    FusionLocation("Sector 4 (AQA) -- C-Cache", False, []),
+    FusionLocation("Sector 4 (AQA) -- Broken Bridge", False, [HasMorph]),
+    FusionLocation("Sector 4 (AQA) -- Waterway", False, [
+        CanDrainAQARequirement(["Speed Booster"], [HasMorph])
+    ])
+]
+
+Sector4ReservoirVault.locations = [
     FusionLocation("Sector 4 (AQA) -- Reservoir Vault -- Lower Item", False, [
-        Requirement(["Missile Data"], [CanAccessReservoirVault])
+        Requirement(["Missile Data"], [CanBallJumpAndBomb])
     ]),
     FusionLocation("Sector 4 (AQA) -- Reservoir Vault -- Upper Item", False, [
-        CanAccessReservoirVault
-    ]),
-    FusionLocation("Sector 4 (AQA) -- Waterway", False, [
-        CanDrainAQARequirement([], [HasMorph])
-    ]),
+        CanBallJumpAndBomb
+    ])
 ]
 
 Sector4SerrisZone.locations = [
@@ -173,39 +268,46 @@ Sector4SerrisZone.locations = [
     ])
 ]
 
-Sector4UpperWaterZone.locations = [
-    FusionLocation("Sector 4 (AQA) -- Cargo Hold to Sector 5 (ARC)", False, [
-        CanScrewAttackUnderwater,
-        Requirement(["Morph Ball"], [CanSpeedBoosterUnderwater])
-    ]),
-    FusionLocation("Sector 4 (AQA) -- Aquarium Pirate Tank", False, [CanPowerBomb]),
+Sector4CargoHold.locations = [
+    FusionLocation("Sector 4 (AQA) -- Cargo Hold to Sector 5 (ARC)", False, [])
+]
+
+Sector4UpperSecurityZone.locations = [
+    FusionLocation("Sector 4 (AQA) -- Yard Firing Range", False, [])
 ]
 
 Sector4SecurityZone.locations = [
-    FusionLocation("Sector 4 (AQA) -- Cheddar Bay", False, [CanAscendCheddarBay]),
-    FusionLocation("Sector 4 (AQA) -- Yard Firing Range", False, [])
+    FusionLocation("Sector 4 (AQA) -- Cheddar Bay", False, [
+        HasMissileRequirement(["Gravity Suit", "Morph Ball"], [CanBomb, HasScrewAttack]),
+        HasMissileRequirement([], [CanPowerBomb]),
+        HasGravityRequirement(["Level 4 Keycard", "Morph Ball"], [HasScrewAttack, CanPowerBomb])
+    ]),
+    FusionLocation("Sector 4 (AQA) -- Aquarium Pirate Tank", False, [
+        PONRRequirement([], [CanPowerBomb]),
+        CanPowerBombRequirement(["Gravity Suit"], [HasSpaceJump, CanFreezeEnemies])
+    ])
 ]
 
 Sector4LowerSecurityZone.locations = [
     FusionLocation("Sector 4 (AQA) -- Sanctuary Cache", False, [
-        Requirement(["Morph Ball", "Bomb Data"], [CanAccessSanctuaryCache]),
-        Requirement(["Morph Ball", "Hi-Jump"], [CanAccessSanctuaryCache])
+        CanBombRequirement(["Gravity Suit", "Wave Beam"], [CanBeatToughEnemy]),
+        CanBombRequirement(["Gravity Suit", "Power Bomb Data"], [HasMissile]),
+        CanBombOrPowerBombRequirement(["Hi-Jump", "Wave Beam"], [CanBeatToughEnemy]),
+        CanPowerBombRequirement(["Hi-Jump"], [HasMissile])
     ])
 ]
 
 Sector4SecurityRoom.locations = [
-    FusionLocation("Sector 4 (AQA) -- Level 4 Security Room", True, [
-        Requirement(["Space Jump"], [HasKeycard4, CanAscendCheddarBay])
-    ]),
+    FusionLocation("Sector 4 (AQA) -- Level 4 Security Room", True, [])
 ]
 
 Sector4RightWaterZone.locations = [
     FusionLocation("Sector 4 (AQA) -- Aquarium Kago Storage -- Left Item", False, [
-        HasSpeedBooster,
-        HasScrewAttack
+        CanSpeedBoosterUnderwater,
+        CanScrewAttackUnderwater
     ]),
     FusionLocation("Sector 4 (AQA) -- Aquarium Kago Storage -- Right Item", False, [
-        HasSpeedBooster
+        CanSpeedBoosterUnderwater
     ])
 ]
 
