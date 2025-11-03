@@ -13,6 +13,9 @@ class Sector4TubeRight(FusionRegion):
 class Sector4UpperZone(FusionRegion):
     name = "Sector 4 Upper Zone"
 
+class Sector4ReservoirVault(FusionRegion):
+    name = "Sector 4 Reservoir Vault"
+
 class Sector4BeforePumpControlZone(FusionRegion):
     name = "Sector 4 Before Pump Control Zone"
 
@@ -24,6 +27,12 @@ class Sector4PumpControl(FusionRegion):
 
 class Sector4UpperWaterZone(FusionRegion):
     name = "Sector 4 Upper Water Zone"
+
+class Sector4CargoHold(FusionRegion):
+    name = "Sector 4 Cargo Hold"
+
+class Sector4UpperSecurityZone(FusionRegion):
+    name = "Sector 4 Upper Security Zone"
 
 class Sector4SecurityZone(FusionRegion):
     name = "Sector 4 Security Zone"
@@ -37,6 +46,9 @@ class Sector4SecurityRoom(FusionRegion):
 class Sector4RightWaterZone(FusionRegion):
     name = "Sector 4 Right Water Zone"
 
+class Sector4RightWaterZoneSave(FusionRegion):
+    name = "Sector 4 Right Water Zone Save"
+
 class Sector4DataZone(FusionRegion):
     name = "Sector 4 Data Zone"
 
@@ -48,14 +60,18 @@ sector_4_regions = [
     Sector4TubeLeft,
     Sector4TubeRight,
     Sector4UpperZone,
+    Sector4ReservoirVault,
     Sector4BeforePumpControlZone,
     Sector4SerrisZone,
     Sector4PumpControl,
     Sector4UpperWaterZone,
+    Sector4CargoHold,
+    Sector4UpperSecurityZone,
     Sector4SecurityZone,
     Sector4LowerSecurityZone,
     Sector4SecurityRoom,
     Sector4RightWaterZone,
+    Sector4RightWaterZoneSave,
     Sector4DataZone,
     Sector4RightDataZone
 ]
