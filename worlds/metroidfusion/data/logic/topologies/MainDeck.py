@@ -47,7 +47,15 @@ OperationsDeckElevatorTop.connections = [
 ]
 
 OperationsDeck.connections = [
-    Connection(LowerArachnusArena, [HasMissile], one_way=True)
+    Connection(VentilationZone, [HasMissile], one_way=True)
+]
+
+UpperArachnusArena.connections = [
+    Connection(LowerArachnusArena, [
+        PONRRequirement([], [HasMissile]),
+        CanBeatToughEnemyRequirement(["Morph Ball"], [CanDefeatSmallGeron]),
+        CanMorphRequirement(["Screw Attack"], [CanJumpHigh, CanDoSimpleWallJump])
+    ], one_way=True)
 ]
 
 HabitationDeckElevatorBottom.connections = [
@@ -149,13 +157,13 @@ LowerArachnusArena.locations = [
 
 HabitationDeck.locations = [
     FusionLocation("Main Deck -- Habitation Deck -- Animals", True, [
-        Level2KeycardRequirement([], [CanReachAnimals]),
-        CanFreezeEnemies(["Level 2 Keycard", "Speed Booster"], [CanDoSimpleWallJump]),
-        CanFreezeEnemies(["Level 2 Keycard", "Wave Beam"], [CanDoSimpleWallJump, HasHiJump])
+        Requirement(["Speed Booster", "Level 2 Keycard"], [HasSpaceJump]),
+        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Speed Booster"], [CanDoAdvancedWallJump, HasHiJump]),
+        CanFreezeEnemiesRequirement(["Level 2 Keycard", "Wave Beam"], [CanDoSimpleWallJump, HasHiJump])
     ]),
     FusionLocation("Main Deck -- Habitation Deck -- Lower Item", False, [
-        Level2KeycardRequirement([], [HasSpaceJump, HasWaveBeam]),
-        CanFreezeEnemies(["Level 2 Keycard"], [HasHiJump, CanDoAdvancedWallJump])
+        Requirement(["Level 2 Keycard"], [HasSpaceJump, HasWaveBeam]),
+        CanFreezeEnemiesRequirement(["Level 2 Keycard"], [HasHiJump, CanDoAdvancedWallJump])
     ])
 ]
 
@@ -163,7 +171,7 @@ ReactorZone.locations = [
     FusionLocation("Main Deck -- Silo Catwalk", False, [CanDefeatStabilizerOrToughEnemy]),
     FusionLocation("Main Deck -- Silo Scaffolding", False, [
         PONRRequirement(["Morph Ball"], [CanDefeatStabilizerOrToughEnemy]),
-        CanDefeatStabilizerOrToughEnemy(["Morph Ball"], [CanJumpHigh, CanDoAdvancedWallJump])
+        CanDefeatStabilizerOrToughEnemyRequirement(["Morph Ball"], [CanJumpHigh, CanDoAdvancedWallJump])
     ])
 ]
 

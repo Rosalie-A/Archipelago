@@ -13,7 +13,7 @@ from ..regions.Sector6 import Sector6RestrictedZoneElevatorToTourian
 Sector1Hub.connections = [
     VariableConnection(SectorHubElevator1Top, []),
     Connection(Sector1Antechamber, [
-        Level2KeycardRequirement([], [CanScrewAttackAndSpaceJump])
+        Level2KeycardRequirement(["Screw Attack"], [HasSpaceJump, CanDoAdvancedWallJumpWithHiJump])
     ]),
     Connection(Sector1TubeLeft, [
         Level1KeycardRequirement(["Morph Ball", "Screw Attack"], [])
@@ -43,25 +43,27 @@ Sector1TubeLeft.connections = [
 
 Sector1FirstStabilizerZone.connections = [
     Connection(Sector1SecondStabilizerZone, [CanDefeatStabilizerOrToughEnemy]),
-    Connection(Sector1AfterChargeCoreZone, [HasWaveBeam], one_way=True),
+    Connection(Sector1AfterChargeCoreZone, [HasWaveBeam]),
 ]
 
 Sector1SecondStabilizerZone.connections = [
     Connection(Sector1ThirdStabilizerZone, [CanDefeatStabilizerOrToughEnemy]),
     Connection(Sector1TourianExit, [
-        Requirement(["Screw Attack"], [])
+        CanBallJumpRequirement(["Wave Beam", "Ice Beam"], [CanScrewAttackAndSpaceJump]),
+        CanBallJumpRequirement(["Wave Beam", "Missile Data", "Diffusion Missile"], [CanScrewAttackAndSpaceJump]),
+        PONRRequirement(["Missile Data", "Diffusion Missile", "ScrewAttack", "Space Jump"], [CanBallJump])
     ], one_way=True)
 ]
 
 Sector1ThirdStabilizerZone.connections = [
     Connection(Sector1ChargeCoreZone, [
         PONRRequirement(["Morph Ball"], [CanDefeatThirdStabilizer]),
-        Requirement(["Morph Ball", "Missile Data"], [CanDefeatThirdStabilizer])
+        Requirement(["Morph Ball", "Missile Data"])
     ], one_way=True),
 ]
 
 Sector1ChargeCoreZone.connections = [
-    Connection(Sector1AfterChargeCoreZone, [CanFightBeginnerBoss])
+    Connection(Sector1AfterChargeCoreZone, [HasMissile])
 ]
 
 Sector1AfterChargeCoreZone.connections = [
@@ -69,9 +71,13 @@ Sector1AfterChargeCoreZone.connections = [
 ]
 
 Sector1TourianExit.connections = [
-    Connection(Sector1SecondStabilizerZone, [CanScrewAttackAndSpaceJump]),
+    Connection(Sector1SecondStabilizerZone, [
+        CanBallJumpRequirement(["Wave Beam", "Ice Beam"], [CanScrewAttackAndSpaceJump]),
+        CanBallJumpRequirement(["Wave Beam", "Missile Data", "Diffusion Missile"], [CanScrewAttackAndSpaceJump]),
+        PONRRequirement(["Morph Ball", "Wave Beam"], [CanScrewAttackAndSpaceJump])
+    ], one_way=True),
     Connection(Sector1TourianHub, [
-        Requirement(
+        PONRRequirement(
             ["Missile Data", "Morph Ball", "Screw Attack"],
             [HasSpaceJump, CanDoSimpleWallJump],
             level_4_e_tanks)
@@ -81,15 +87,18 @@ Sector1TourianExit.connections = [
 Sector1TourianHub.connections = [
     Connection(Sector1TourianExit, [
         Requirement(
-            ["Screw Attack", "Morph Ball", "Wave Beam"],
-            [HasMissile],
+            ["Missile Data", "Morph Ball", "Screw Attack", "Wave Beam"],
+            [HasSpaceJump, CanDoAdvancedWallJump],
             level_4_e_tanks)
+    ]),
+    Connection(Sector1TourianHubElevatorTop, [
+        Requirement(["Screw Attack"], [CanSpaceJump, CanDoSimpleWallJump])
     ])
 ]
 
 Sector1TourianHubElevatorTop.connections = [
     VariableConnection(Sector6RestrictedZoneElevatorToTourian, []),
-    Connection(Sector1TourianHub, [Requirement([], [], level_4_e_tanks)])
+    Connection(Sector1TourianHub, [PONRRequirement(["Nothing"], [], level_4_e_tanks)], one_way=True)
 ]
 
 Sector1Antechamber.locations = [
@@ -97,11 +106,13 @@ Sector1Antechamber.locations = [
 ]
 
 Sector1FirstStabilizerZone.locations = [
-    FusionLocation("Sector 1 (SRX) -- Atmospheric Stabilizer Northeast", False, []),
+    FusionLocation("Sector 1 (SRX) -- Atmospheric Stabilizer Northeast", False, [
+        PONRRequirement(["Nothing"], []),
+        Requirement([], [CanDefeatStabilizer, CanDoAdvancedShinespark])
+    ]),
     FusionLocation("Sector 1 (SRX) -- Hornoad Hole", False, [HasMorph]),
     FusionLocation("Sector 1 (SRX) -- Wall Jump Tutorial", False, [
-        CanAccessWallJumpTutorialWithSpaceJump,
-        CanAccessWallJumpTutorialWithWallJump
+        CanBallJumpRequirement([], [HasSpaceJump, CanDoSimpleWallJump])
     ])
 ]
 
@@ -125,9 +136,18 @@ Sector1ChargeCoreZone.locations = [
         CanFightBeginnerBoss
     ]),
     FusionLocation("Sector 1 (SRX) -- Charge Core Arena -- Upper Item", False, [
-        Requirement(["Speed Booster"], [CanFightBeginnerBoss])
+        PONRRequirement(["Speed Booster"])
+        Requirement(["Speed Booster"], [HasMissile])
     ]),
-    FusionLocation("Sector 1 (SRX) -- Watering Hole", False, [CanAccessWateringHole])
+    FusionLocation("Sector 1 (SRX) -- Watering Hole", False, [
+        CanBallJumpRequirement(["Gravity Suit", "Speed Booster"], [
+            Requirement(["Plasma Beam"], []),
+            HasChargeBeam,
+            HasScrewAttack,
+            CanDoBeginnerShinesparkRequirement(["Wide Beam"], []),
+            CanDoBeginnerShinesparkRequirement([], [HasWaveBeam, HasMissile, CanPowerBomb]),
+            CanDoAdvancedShinespark
+        ])
 ]
 
 Sector1AfterChargeCoreZone.locations = [
@@ -139,15 +159,20 @@ Sector1AfterChargeCoreZone.locations = [
 Sector1TourianHub.locations = [
     FusionLocation("Sector 1 (SRX) -- Animorphs Cache", False, [
         PONRRequirement([], [CanReachAnimorphs]),
-        Requirement(["Space Jump"], [CanReachAnimorphs]),
+        CanReachAnimorphsRequirement([], [CanSpaceJump, CanDoSimpleWallJumpWithHiJump]),
     ]),
     FusionLocation("Sector 1 (SRX) -- Ridley Arena", True, [
-        Requirement(["Charge Beam", "Wave Beam"], [CanFightLateGameBoss]),
-        Requirement(["Power Bomb Data"], [CanFightLateGameBoss]),
-        Requirement(["Charge Beam", "Wave Beam"], [CanFightLategameBossOnAdvanced]),
-        Requirement(["Power Bomb Data"], [CanFightLategameBossOnAdvanced]),
-        Requirement(["Charge Beam", "Wave Beam"], [CanFightBossOnExpert]),
-        Requirement(["Power Bomb Data"], [CanFightBossOnExpert])
+        Requirement(["Morph Ball", "Bomb Data", "Wave Beam"], [CanFightLateGameBoss]),
+        Requirement(["Morph Ball", "Power Bomb Data"], [CanFightLateGameBoss]),
+        Requirement(["Morph Ball", "Bomb Data", "Wave Beam", "Plasma Beam", "Space Jump"], [CanFightLategameBossOnAdvanced]),
+        Requirement(["Morph Ball", "Power Bomb Data", "Plasma Beam", "Space Jump"], [CanFightLategameBossOnAdvanced]),
+        Requirement(["Morph Ball", "Bomb Data", "Wave Beam", "Space Jump"], [CanFightBossOnExpert]),
+        Requirement(["Morph Ball", "Power Bomb Data", "Space Jump"], [CanFightBossOnExpert]),
+        PONRRequirement(["Morph Ball", "Bomb Data", "Wave Beam"], [CanFightBossOnExpertRequirement([], [CanDoAdvancedWallJump])]),
+        PONRRequirement(["Morph Ball", "Power Bomb Data"], [CanFightBossOnExpertRequirement([], [CanDoAdvancedWallJump])])
     ]),
-    FusionLocation("Sector 1 (SRX) -- Ripper Maze", False, [CanDiffusionMissile])
+    FusionLocation("Sector 1 (SRX) -- Ripper Maze", False, [
+        PONRRequirement(["Missile Data", "Diffusion Missile", "Screw Attack", "Morph Ball"], [HasSpaceJump, CanDoSimpleWallJump]),
+        CanBallJumpRequirement(["Missile Data", "Diffusion Missile", "Screw Attack"], [HasSpaceJump, CanDoSimpleWallJump])
+    ])
 ]
