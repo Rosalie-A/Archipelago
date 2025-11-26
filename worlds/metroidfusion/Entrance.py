@@ -21,4 +21,9 @@ class FusionEntrance(Entrance):
             if len(reachable_locations) == 0:
                 if other.name not in first_location_tops:
                     return False
+        local_options = self.parent_region.multiworld.worlds[self.player].options
+        if not local_options.PointOfNoReturnsInLogic:
+            if self.name == "Sector 6 Restricted Zone Elevator To Tourian Bottom Destination":
+                if other.name == "Habitation Deck Elevator Top Destination":
+                    return False
         return super().can_connect_to(other, dead_end, er_state)

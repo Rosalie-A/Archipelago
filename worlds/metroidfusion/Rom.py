@@ -24,7 +24,7 @@ class MetroidFusionPatchExtension(APPatchExtension):
         logging.info(f"Metroid Fusion APWorld v{patch_dict.get('GenerationVersion', 0)} was used for generation.")
         logging.info(f"Metroid Fusion APWorld v{MetroidFusionWorld.version} used for patching.")
         from .mars_patcher import patcher
-        patcher.validate_patch_data(patch_dict)
+        patcher.validate_patch_data_mf(patch_dict)
         output_file = patch_dict["OutputFile"]
         directory = tempfile.gettempdir()
         with open(os.path.join(directory, "temp.gba"), "wb") as file:

@@ -1,7 +1,8 @@
 import random
 
-from .constants.enemies import ENEMY_TYPES, EnemyType
-from .constants.game_data import sprite_vram_sizes, spriteset_count, spriteset_ptrs
+from .constants.game_data import spriteset_count, spriteset_ptrs
+from .mf.constants.enemies import ENEMY_TYPES, EnemyType
+from .mf.constants.game_data import sprite_vram_sizes
 from .rom import Rom
 
 

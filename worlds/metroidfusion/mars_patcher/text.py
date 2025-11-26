@@ -4,8 +4,9 @@ import pkgutil
 from enum import Enum
 from functools import cache
 
-from .constants.game_data import character_widths, file_screen_text_ptrs
-from .data import get_data_path
+from .constants.game_data import character_widths
+from .mf.constants.game_data import file_screen_text_ptrs
+from .mf.data import get_data_path
 from .rom import Region, Rom
 
 SPACE_CHAR = 0x40
@@ -54,7 +55,7 @@ class MessageType(Enum):
 
 @cache
 def get_char_map(region: Region) -> dict[str, int]:
-    path = os.path.join("data", "char_map_mf.json")
+    path = os.path.join("mf", "data", "char_map_mf.json")
     sections = json.loads(pkgutil.get_data(__name__, path).decode())
     char_map: dict[str, int] = {}
     for section in sections:
@@ -149,10 +150,20 @@ def encode_text(
                         char_val = char_map.get(f"[{tag_str}]")
                         if char_val is None:
                             char_val = char_map["?"]
-                            #raise ValueError(f"Invalid markup tag '{tag_str}'")
+                            # raise ValueError(f"Invalid markup tag '{tag_str}'")
+                    if char_val in NEWLINE_CHARS:
+                        prev_break = len(text)
+                        width_since_break = 0
+                        line_width = 0
+                        if char_val == NEXT:
+                            line_number = 0
+                        else:
+                            line_number += 1
+
                     text.append(char_val)
                     markup_tag = None
                 else:
+                    # Still parsing markup tag
                     markup_tag.append(char)
                 continue
         else:

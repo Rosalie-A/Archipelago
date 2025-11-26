@@ -1,4 +1,4 @@
-# Only change this is the order of minor location in MARS changes otherwise the client will break.
+# Only change this if the order of minor location in MARS changes otherwise the client will break.
 
 location_order = [
 	'Main Deck -- Station Entrance',
@@ -105,4 +105,12 @@ location_order = [
 	'Sector 6 (NOC) -- Pillar Highway',
 	'Sector 6 (NOC) -- Spaceboost Alley -- Lower Item',
 	'Sector 6 (NOC) -- Spaceboost Alley -- Upper Item'
+]
+
+extended_boss_locations = [
+	'Sector 2 (TRO) -- Zazabi Speedway -- Upper Item',
+	'Sector 2 (TRO) -- Zazabi Speedway -- Lower Item',
+	'Sector 6 (NOC) -- X-B.O.X. Garage -- Upper Item',
+	'Sector 6 (NOC) -- X-B.O.X. Garage -- Lower Item',
+	'Main Deck -- Restricted Airlock',
 ]

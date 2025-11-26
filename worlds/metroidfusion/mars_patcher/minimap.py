@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 from .compress import comp_lz77, decomp_lz77
 from .constants.game_data import minimap_ptrs
-from .data import get_data_path
 
 if TYPE_CHECKING:
     from types import TracebackType

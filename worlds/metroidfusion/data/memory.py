@@ -79,6 +79,7 @@ tanks: dict[str, FusionCapacity] = {
 game_mode = 0x0BDE
 ingame_mode = 0x01
 map_mode = 0x03
+game_over_mode = 0x08
 credits_mode = 0x0B
 major_locations_start = 0x06B4
 current_area = 0x2C
