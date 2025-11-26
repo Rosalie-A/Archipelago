@@ -86,8 +86,8 @@ Sector4PumpControl.connections = [
 
 Sector4UpperWaterZone.connections = [
     Connection(Sector4BeforePumpControlZone, [
-        CanJumpHighUnderwater,
-        Requirement(["Gravity Suit"], [CanDoBeginnerShinespark])
+        Level4KeycardRequirement([], [CanJumpHighUnderwater]),
+        Level4KeycardRequirement(["Gravity Suit"], [CanDoBeginnerShinespark])
     ]),
     Connection(Sector5NightmareHub, [
         Requirement(["Gravity Suit", "Speed Booster"], [CanJumpHigh])
@@ -133,7 +133,7 @@ Sector4DataZone.connections = [
 
 Sector4RightDataZone.connections = [
     Connection(Sector4RightWaterZone, [
-        Requirement(["Morph Ball"], [CanDiffusionMissile])
+        Requirement(["Morph Ball", "Gravity Suit"], [CanDiffusionMissile])
     ], one_way=True)
 ]
 

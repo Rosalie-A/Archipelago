@@ -40,9 +40,8 @@ Sector3FieryStorageRight.connections = [
 ]
 
 Sector3FieryStorageLeft.connections = [
-    Connection(Sector3TubeRight, [
-        PONRRequirement([], [HasScrewAttack]),
-        Requirement(["Screw Attack"], [CanJumpHigh, CanDoSimpleWallJump]),
+    Connection(Sector3TubeLeft, [
+        PONRRequirement([], [HasScrewAttack])
     ], one_way=True)
 ]
 
@@ -52,19 +51,32 @@ Sector3MainShaft.connections = [
     Connection(Sector3SovaProcessing, [
         Level2KeycardRequirement(
             ["Varia Suit", "Morph Ball", "Bomb Data"],
-            [HasSpaceJump, HasWaveBeam]
+            [
+                HasSpaceJump,
+                HasWaveBeam,
+                Requirement(["Missile Data"], [CanDoBeginnerShinespark])
+            ]
         ),
         Level2KeycardRequirement(
             ["Varia Suit", "Morph Ball", "Power Bomb Data"],
-            [HasSpaceJump, HasWaveBeam]),
+            [
+                HasSpaceJump,
+                HasWaveBeam,
+                Requirement(["Missile Data"], [CanDoBeginnerShinespark])
+            ]),
         Level2KeycardRequirement(
             ["Varia Suit", "Screw Attack"],
-            [HasSpaceJump, HasWaveBeam]),
+            [
+                HasSpaceJump,
+                HasWaveBeam,
+                Requirement(["Missile Data"], [CanDoBeginnerShinespark])
+            ]),
     ])
 ]
 
 Sector3BobZone.connections = [
     Connection(Sector3BOXZone, [Requirement(["Morph Ball"], [HasKeycard2])]),
+    Connection(Sector3MainShaft, [HasMorph], one_way=True),
     Connection(Sector3Hub, [], one_way=True)
 ]
 
@@ -93,7 +105,7 @@ Sector3UpperAttic.connections = [
     Connection(Sector3TubeRight, [
         Requirement(["Screw Attack"], [CanJumpHigh])
     ]),
-    Connection(Sector3LowerAttic, [CanDestroyBombBlocks], one_way=True)
+    Connection(Sector3LowerAttic, [HasScrewAttack, CanBallJumpAndBomb], one_way=True)
 ]
 
 Sector3SovaProcessing.connections = [
@@ -119,7 +131,7 @@ Sector3TubeLeft.locations = [
 Sector3SecurityZone.locations = [
     FusionLocation("Sector 3 (PYR) -- Level 2 Security Room", True, [
         HasKeycard2,
-        CanAccessL2SecurityRoom
+        CanAccessLevel2SecurityRoom
     ]),
     FusionLocation("Sector 3 (PYR) -- Security Access", False, [CanBeatToughEnemyAndJumpHigh])
 ]

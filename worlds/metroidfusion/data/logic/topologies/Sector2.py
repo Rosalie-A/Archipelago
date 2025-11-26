@@ -1,5 +1,6 @@
 from ..Connection import Connection
 from ..Requirement import PONRRequirement
+from ..Requirements import CanBombOrPowerBomb
 from ..VariableConnection import VariableConnection
 from ..Requirements import *
 from ..FusionLocation import FusionLocation
@@ -14,8 +15,8 @@ Sector2Hub.connections = [
     Connection(Sector2TubeLeft, [HasScrewAttack]),
     Connection(Sector2TubeRight, [HasScrewAttack]),
     Connection(Sector2LeftSide, [
-        PONRRequirement([], [CanDestroyBombBlocks]),
-        Requirement(["Hi-Jump"], [CanDestroyBombBlocks]),
+        PONRRequirement(["Morph Ball"], [CanDestroyBombBlocks]),
+        Requirement(["Morph Ball", "Hi-Jump"], [CanDestroyBombBlocks]),
         Requirement(["Morph Ball", "Bomb Data"], [CanDestroyBombBlocks]),
     ]),
     Connection(Sector2ZazabiZoneUpper, [CanBombOrPowerBomb]),
@@ -50,7 +51,7 @@ Sector2ZazabiZone.connections = [
 
 Sector2ZazabiZoneUpper.connections = [
     Connection(Sector2ZazabiZone, [
-        PONRRequirement([], []),
+        PONRRequirement(["Nothing"], []),
         Requirement(["Hi-Jump"], [CanFightBoss]),
         Requirement(["Space Jump"], []),
     ], one_way=True)
@@ -71,8 +72,8 @@ Sector2Hub.locations = [
         CanJumpHigh, HasScrewAttack, CanFreezeEnemies, CanDoBeginnerShinespark
     ]),
     FusionLocation("Sector 2 (TRO) -- Level 1 Security Room", True, [
-        PONRRequirement([], []),
-        Requirement([], [CanJumpHigh]),
+        PONRRequirement(["Nothing"], []),
+        Requirement([], [HasSpaceJump]),
         Requirement(["Level 1 Keycard"], []),
     ]),
     FusionLocation("Sector 2 (TRO) -- Lobby Cache", False, [
@@ -113,7 +114,10 @@ Sector2ZazabiZone.locations = [
 ]
 
 Sector2ZazabiZoneUpper.locations = [
-    FusionLocation("Sector 2 (TRO) -- Dessgeega Dorm", False, [CanDestroyBombBlocks])
+    FusionLocation("Sector 2 (TRO) -- Dessgeega Dorm", False, [
+        PONRRequirement(["Morph Ball"], [CanDestroyBombBlocks]),
+        CanBombOrPowerBomb
+    ])
 ]
 
 Sector2NettoriZone.locations = [

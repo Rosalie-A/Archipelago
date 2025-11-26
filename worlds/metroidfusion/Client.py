@@ -63,7 +63,7 @@ class MetroidFusionClient(BizHawkClient):
             return False  # Not able to get a response, say no for now
 
         ctx.game = self.game
-        ctx.items_handling = 0b111
+        ctx.items_handling = 0b011
         ctx.want_slot_data = True
         if not self.logged_version:
             from . import MetroidFusionWorld
@@ -117,6 +117,7 @@ class MetroidFusionClient(BizHawkClient):
 
     async def location_check(self, ctx: "BizHawkClientContext"):
         locations_checked = []
+
 
         # Minor locations
         locations_data = await self.read_ram_values_guarded(ctx, memory.minor_locations_start, 16, self.ewram)
@@ -299,9 +300,13 @@ class MetroidFusionClient(BizHawkClient):
         if items_received_count == 0xFFFF:
             items_received_count = 0
         if items_received_count >= len(ctx.items_received):
+            items_received = ctx.slot_data["StartInventory"].copy()
             for item in ctx.items_received:
-                current_item_id = item.item
-                current_item_name = ctx.item_names.lookup_in_game(current_item_id, ctx.game)
+                item_id = item.item
+                item_name = ctx.item_names.lookup_in_game(item_id, ctx.game)
+                items_received.append(item_name)
+            for item in items_received:
+                current_item_name = item
                 if "Beam" in current_item_name:
                     write_list.append((memory.graphics_reload_flag, [1], self.iwram))
                 if current_item_name == "Infant Metroid":
@@ -363,6 +368,7 @@ class MetroidFusionClient(BizHawkClient):
             for address, value in toggle_addresses.items():
                 write_list.append((address, [value], self.iwram))
             missile_max = min(missile_max, 999)
+            energy_max = min(energy_max, 2099)
             write_list.append((memory.FusionInfantMetroid.current_address, [infant_metroid_count], self.iwram))
             write_list.append((memory.tanks["Missile Tank"].max_address, [missile_max % 256], self.iwram))
             write_list.append((memory.tanks["Missile Tank"].max_address + 1, [missile_max // 256], self.iwram))
@@ -416,7 +422,7 @@ class MetroidFusionClient(BizHawkClient):
             self.current_sector = current_sector
             await ctx.send_msgs([{
                 "cmd": "Set",
-                "key": f"current_sector",
+                "key": f"fusion_current_sector_{ctx.slot}_{ctx.team}",
                 "default": 0,
                 "want_reply": False,
                 "operations": [{"operation": "replace", "value": self.current_sector}],
@@ -433,7 +439,7 @@ class MetroidFusionClient(BizHawkClient):
 
     async def check_deathlink(self, ctx: "BizHawkClientContext"):
         current_game_mode_data = await bizhawk.read(ctx.bizhawk_ctx, [(memory.game_mode, 1, self.iwram)])
-        if current_game_mode_data is None or ctx.finished_game:
+        if current_game_mode_data is None:
             return
         else:
             current_game_mode = int.from_bytes(current_game_mode_data[0])
@@ -444,7 +450,7 @@ class MetroidFusionClient(BizHawkClient):
             current_energy = int.from_bytes(current_energy_data, "little")
             if current_game_mode == memory.ingame_mode:
                 if not self.sent_deathlink and current_energy == 0:
-                    if ctx.last_death_link + 5 < time.time():
+                    if ctx.last_death_link + 10 < time.time():
                         self.sent_deathlink = True
                         sector_message = "Main Deck" if self.current_sector == 0 else f"Sector {self.current_sector}"
                         death_message = (f"{ctx.player_names[ctx.slot]} was defeated in {sector_message}'s "

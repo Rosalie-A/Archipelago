@@ -42,12 +42,12 @@ Sector1TubeLeft.connections = [
 ]
 
 Sector1FirstStabilizerZone.connections = [
-    Connection(Sector1SecondStabilizerZone, [CanDefeatStabilizer]),
+    Connection(Sector1SecondStabilizerZone, [CanDefeatStabilizerOrToughEnemy]),
     Connection(Sector1AfterChargeCoreZone, [HasWaveBeam]),
 ]
 
 Sector1SecondStabilizerZone.connections = [
-    Connection(Sector1ThirdStabilizerZone, []),
+    Connection(Sector1ThirdStabilizerZone, [CanDefeatStabilizerOrToughEnemy]),
     Connection(Sector1TourianExit, [
         CanBallJumpRequirement(["Wave Beam", "Ice Beam"], [CanScrewAttackAndSpaceJump]),
         CanBallJumpRequirement(["Wave Beam", "Missile Data", "Diffusion Missile"], [CanScrewAttackAndSpaceJump]),

@@ -30,7 +30,8 @@ for item in all_item_data:
 
 item_names = [item for item in item_table.keys()]
 
-valid_item_names = [*item_names, *[event[3] for event in events]]
+valid_item_names = [*item_names, *[event[3] for event in events], "Wall Jump Boots"]
+
 # Everything not listed here has a quantity of one
 default_item_quantities = {
     "Nothing": 0,
@@ -42,7 +43,7 @@ default_item_quantities = {
     "Infant Metroid": 0
 }
 
-major_abilities = [
+major_upgrades = [
     "Missile Data",
     "Morph Ball",
     "Charge Beam",
@@ -68,7 +69,7 @@ major_abilities = [
 ]
 
 major_jingles = [
-    *major_abilities,
+    *major_upgrades,
     "Infant Metroid"
 ]
 

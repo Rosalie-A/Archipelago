@@ -12,6 +12,7 @@ class Requirement:
     items_needed: list[str] = []
     other_requirements: list[Self] = []
     energy_tanks_needed: int = 0
+    name: str = __name__
 
     def __init__(self, items_needed, other_requirements, energy_tanks_needed = 0):
         """
@@ -27,12 +28,13 @@ class Requirement:
         self.items_needed = items_needed
         self.other_requirements = other_requirements
         self.energy_tanks_needed = energy_tanks_needed
+        self.name: str = self.__class__.__name__
 
     def __repr__(self):
-        return_string = f"{self.__class__}\n"
+        return_string = f"{self.name}\n"
         return_string += f"ItemsNeeded: [{', '.join(self.items_needed)}]\n"
         return_string += (f"OtherRequirements: "
-                          f"[{', '.join([str(requirement) for requirement in self.other_requirements])}]\n")
+                          f"[{', '.join([requirement.name for requirement in self.other_requirements])}]\n")
         return_string += f"EnergyTanks: {self.energy_tanks_needed}"
         return return_string
 
@@ -44,6 +46,8 @@ class Requirement:
         return True
 
 class PONRRequirement(Requirement):
+    """Defines a set of requirements to be used when Point of No Returns are disabled.
+    These should always be more minimal than any surrounding requirements."""
     additional_requirements: tuple[list[str], typing.Literal["and", "or"]]
 
     def __init__(self, items_needed, other_requirements, energy_tanks_needed = 0, additional_requirements = ([], "or")):

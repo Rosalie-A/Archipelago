@@ -32,7 +32,7 @@ all_item_data = [
     ("Power Bomb Tank", ItemClassification.filler, ["Weapons", "Bombs"], 26),
     ("Ice Trap", ItemClassification.trap, [], 27),
     ("Infant Metroid", ItemClassification.progression, ["Metroid"], 28),
-    ("Nothing", ItemClassification.filler, [], 29),
+    ("Nothing", ItemClassification.trap, [], 29),
 ]
 
 events: list[tuple[str, ItemClassification, str, str]] = [

@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import warnings
 from copy import deepcopy, copy
 
 import Utils
@@ -9,19 +8,20 @@ import settings
 import typing
 
 from typing import Dict, Any, TextIO
-from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, EntranceType
+from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, EntranceType, CollectionState
 from entrance_rando import disconnect_entrance_for_randomization, randomize_entrances
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
 from .Entrance import FusionEntrance
 from .Hints import create_hints, HintedPair
 
-from .Items import item_table, default_item_quantities, ap_name_to_mars_name, major_abilities
+from .Items import item_table, default_item_quantities, ap_name_to_mars_name, major_upgrades
 from .Locations import all_locations, MetroidFusionLocation, get_location_data_by_name, build_item_message, \
     location_groups, build_shiny_item_message, ERGroups
 from .Logic import create_logic_rule, create_logic_rule_for_list, LogicObject
 from .Options import MetroidFusionOptions, metroid_fusion_option_groups
 from .Rom import MetroidFusionProcedurePatch
+from .StartingLocations import main_deck_hub, StartingLocation, sector_hub, starting_location_data, operations_deck
 from .data import memory
 from .data.items import events
 from .data.locations import (fusion_regions, left_tubes, right_tubes, sector_elevator_tops, sector_elevator_bottoms,
@@ -96,8 +96,15 @@ class MetroidFusionWorld(World):
     spoiler_region_map: dict[str, str]
     er_map: list[tuple[str, str]] = None
     preplaced_item: str = None
+
+    starting_region: str = None
     starting_location: str = None
+    starting_location_object: StartingLocation
     starting_region: Region
+    starting_major_upgrades: int = 0
+    starting_energy_tanks: int = 0
+    open_sector_elevators: bool = False
+    navigation_room_hint_locks: bool = False
 
     er_group_mappings = {
         ERGroups.TUBE_LEFT: [ERGroups.TUBE_RIGHT],
@@ -109,7 +116,10 @@ class MetroidFusionWorld(World):
     item_name_to_id = {item: item_data.mars_id for item, item_data in item_table.items()}
     location_name_to_id = {location.name: location.ap_id for location in all_locations}
     location_name_groups = location_groups
-    version = 15
+    item_name_groups = {
+        "MajorUpgrades": major_upgrades
+    }
+    version = 17
     debug = False
 
 
@@ -136,7 +146,50 @@ class MetroidFusionWorld(World):
     def create_event(self, name: str) -> "MetroidFusionItem":
         return MetroidFusionItem(name, ItemClassification.progression, None, self.player)
 
+    def parse_game_mode_options(self):
+        if self.options.GameMode == self.options.GameMode.option_vanilla:
+            if self.starting_location is None:
+                self.starting_region = "Main Deck Hub"
+                self.starting_location = "Docking Bay"
+                self.starting_location_object = main_deck_hub
+            self.starting_major_upgrades = 0
+            self.starting_energy_tanks = 0
+            self.open_sector_elevators = False
+            self.navigation_room_hint_locks = False
+        elif self.options.GameMode == self.options.GameMode.option_open_sector_hub:
+            if self.starting_location is None:
+                self.starting_region = "Sector Hub Elevator Bottom"
+                self.starting_location = "Sector Hub"
+                self.starting_location_object = sector_hub
+            self.starting_major_upgrades = 1
+            self.starting_energy_tanks = 1
+            self.open_sector_elevators = True
+            self.navigation_room_hint_locks = True
+        elif self.options.GameMode == self.options.GameMode.option_custom:
+            if self.starting_location is None:
+                if self.options.StartingLocation == self.options.StartingLocation.option_docking_bay:
+                    self.starting_region = "Main Deck Hub"
+                    self.starting_location = "Docking Bay"
+                    self.starting_location_object = main_deck_hub
+                elif self.options.StartingLocation == self.options.StartingLocation.option_operations_deck:
+                    self.starting_region = "Operations Deck"
+                    self.starting_location = "Operations Deck"
+                    self.starting_location_object = operations_deck
+                elif self.options.StartingLocation == self.options.StartingLocation.option_sector_hub:
+                    self.starting_region = "Sector Hub Elevator Bottom"
+                    self.starting_location = "Sector Hub"
+                    self.starting_location_object = sector_hub
+                elif self.options.StartingLocation == self.options.StartingLocation.option_concourse_save_station:
+                    self.starting_region = "Main Deck Hub"
+                    self.starting_location = "Concourse Save Station"
+                    self.starting_location_object = main_deck_hub
+            self.starting_major_upgrades = self.options.StartingMajorUpgrades.value
+            self.starting_energy_tanks = self.options.StartingEnergyTanks.value
+            self.open_sector_elevators = bool(self.options.OpenSectorElevators.value)
+            self.navigation_room_hint_locks = bool(self.options.SectorNavigationRoomHintLocks.value)
+
     def generate_early(self) -> None:
+        self.parse_game_mode_options()
         for origin, destination in default_region_map.items():
             self.region_map[origin.name] = destination.name
         for origin, destination in reverse_region_map.items():
@@ -149,12 +202,8 @@ class MetroidFusionWorld(World):
             region = Region(region_data.name, self.player, self.multiworld)
             self.multiworld.regions.append(region)
 
-        if self.starting_location is None:
-            self.starting_location = "Main Deck Hub"
-            if self.options.GameMode == self.options.GameMode.option_open_sector_hub:
-                self.starting_location = "Sector Hub Elevator Bottom"
-        self.starting_region = self.get_region(self.starting_location)
-        menu.connect(self.starting_region)
+        starting_region = self.get_region(self.starting_region)
+        menu.connect(starting_region)
 
         # Define connections
         for origin_region_data in fusion_regions:
@@ -234,30 +283,42 @@ class MetroidFusionWorld(World):
             from Utils import visualize_regions
             visualize_regions(self.get_region("Menu"), f"fusiondiagram{self.player}.puml")
 
-    def build_early_progression_for_vanilla(self):
-        if self.options.EarlyProgression == self.options.EarlyProgression.option_normal:
-            sphere_1_item_names = ["Morph Ball", "Missile Data"]
-            self.preplaced_item = self.random.choice(sphere_1_item_names)
-        elif self.options.EarlyProgression == self.options.EarlyProgression.option_advanced:
-            sphere_1_item_names = ["Morph Ball", "Missile Data", "Screw Attack"]
-            if self.options.ShinesparkTrickDifficulty >= self.options.ShinesparkTrickDifficulty.option_advanced:
-                sphere_1_item_names.append("Speed Booster")
-            self.preplaced_item = self.random.choice(sphere_1_item_names)
+    def build_early_progression(self):
+        starting_inventory = self.options.start_inventory.value | self.options.start_inventory_from_pool.value
 
-    def build_early_progression_for_osh(self):
-        starting_item = ""
-        if ((len(self.options.start_inventory.value.keys()) == 0)
-                and (len(self.options.start_inventory_from_pool.value.keys()) == 0)):
-            starting_item = self.random.choice(major_abilities)
-            self.options.start_inventory_from_pool.value[starting_item] = 1
-            self.push_precollected(self.create_item(starting_item))
-        if "Energy Tank" not in self.options.start_inventory.value.keys():
-            self.options.start_inventory_from_pool.value["Energy Tank"] = 1
-            self.push_precollected(self.create_item("Energy Tank"))
-        sphere_1_item_names = ["Morph Ball", "Missile Data", "Screw Attack", "Speed Booster"]
-        if starting_item in sphere_1_item_names:
-            sphere_1_item_names.remove(starting_item)
-        self.preplaced_item = self.random.choice(sphere_1_item_names)
+        # Starting major upgrades plus start inventory
+        major_upgrade_count = self.starting_major_upgrades
+        major_upgrade_choices = major_upgrades.copy()
+        for item in starting_inventory.keys():
+            if item in major_upgrade_choices:
+                major_upgrade_choices.remove(item)
+        major_upgrade_count = min(major_upgrade_count, len(major_upgrade_choices))
+        major_upgrades_to_add = self.random.sample(major_upgrade_choices, k=major_upgrade_count)
+        for upgrade in major_upgrades_to_add:
+            self.options.start_inventory_from_pool.value[upgrade] = 1
+            self.push_precollected(self.create_item(upgrade))
+
+        ponr = self.options.PointOfNoReturnsInLogic
+        sphere_0_items = self.starting_location_object.get_sphere_0(ponr).copy()
+        if len(sphere_0_items) > 0:
+            starting_inventory = self.options.start_inventory.value | self.options.start_inventory_from_pool.value
+            sphere_0_item_set = self.random.sample(sphere_0_items, k=self.starting_location_object.sphere_0_item_count)
+            for sphere_0_item in sphere_0_item_set:
+                if sphere_0_item not in starting_inventory.keys():
+                    self.options.start_inventory_from_pool.value[sphere_0_item] = 1
+                    self.push_precollected(self.create_item(sphere_0_item))
+        if self.options.EarlyProgression != self.options.EarlyProgression.option_none:
+            sphere_1_items = self.starting_location_object.get_sphere_1(ponr).copy()
+            sphere_1_items.extend(self.starting_location_object.get_additional_items(self.options))
+            self.preplaced_item = self.random.choice(sphere_1_items)
+            self.multiworld.local_early_items[self.player][self.preplaced_item] = 1
+
+        # Starting energy tanks plus start inventory
+        if "Energy Tank" not in starting_inventory.keys():
+            if self.options.StartingEnergyTanks > 0:
+                self.options.start_inventory_from_pool.value["Energy Tank"] = self.options.StartingEnergyTanks.value
+                for i in range(self.options.StartingEnergyTanks.value):
+                    self.push_precollected(self.create_item("Energy Tank"))
 
     def build_metroid_boss_list(self):
         if self.options.InfantMetroidLocations == self.options.InfantMetroidLocations.option_bosses_encouraged:
@@ -278,11 +339,8 @@ class MetroidFusionWorld(World):
 
     def create_items(self):
         itempool = []
-        if self.options.GameMode == self.options.GameMode.option_vanilla:
-            self.build_early_progression_for_vanilla()
-        elif self.options.GameMode == self.options.GameMode.option_open_sector_hub:
-            self.build_early_progression_for_osh()
-        self.multiworld.local_early_items[self.player][self.preplaced_item] = 1
+        self.build_early_progression()
+
         item_quantities = deepcopy(default_item_quantities)
         infant_metroids_in_pool = self.options.InfantMetroidsInPool.value
         if self.options.InfantMetroidLocations == self.options.InfantMetroidLocations.option_only_bosses:
@@ -317,9 +375,11 @@ class MetroidFusionWorld(World):
             location_data = get_location_data_by_name(location.name)
             logic_object = LogicObject(self.player, self.options)
             if self.debug:
-                    print(f"\n{location.name} requirements:")
-            logic_object.requirements, logic_object.energy_tanks = create_logic_rule_for_list(location_data.requirements, self.options, self.debug)
+                print(f"\n{location.name} requirements:")
+            logic_object.requirements, logic_object.energy_tanks = create_logic_rule_for_list(
+                location_data.requirements, self.options, self.debug)
             add_rule(ap_location, logic_object.logic_rule)
+
         infant_metroids_required = self.options.InfantMetroidsRequired.value
         infant_metroids_in_pool = self.options.InfantMetroidsInPool.value
         if self.options.InfantMetroidLocations == self.options.InfantMetroidLocations.option_only_bosses:
@@ -382,17 +442,18 @@ class MetroidFusionWorld(World):
 
     def create_navigation_text(self, hint_text: list[str], required_metroids: int):
         briefing_text_addition_start = ""
-        if len(self.options.start_inventory) > 0:
-            starting_inventory = []
-            for item, quantity in self.options.start_inventory.items():
-                for i in range(quantity):
-                    starting_inventory.append(item)
-        if len(self.options.start_inventory_from_pool) > 0:
-            starting_inventory = []
-            for item, quantity in self.options.start_inventory_from_pool.items():
-                for i in range(quantity):
-                    starting_inventory.append(item)
-            starting_inventory_string = ", ".join(starting_inventory)
+        starting_inventory_strings = []
+        starting_inventory_items = [item.name for item in self.multiworld.precollected_items[self.player]]
+        starting_inventory_counter = {item: starting_inventory_items.count(item) for item in starting_inventory_items}
+        if len(starting_inventory_counter) > 0:
+            for item, quantity in starting_inventory_counter.items():
+                item_string = item
+                if quantity > 1:
+                    item_string += f" x {quantity}"
+                starting_inventory_strings.append(item_string)
+        starting_inventory_strings.sort()
+        if len(starting_inventory_strings) > 0:
+            starting_inventory_string = ", ".join(starting_inventory_strings)
             briefing_text_addition_start = f"Your starting gear is: {starting_inventory_string}. "
         briefing_text_addition_end = ""
         if self.options.EnableHints:
@@ -507,17 +568,51 @@ class MetroidFusionWorld(World):
         }
     ]
 
+    def build_starting_location_dict(self) -> dict[str, int]:
+        return starting_location_data[self.starting_location]
+
     @staticmethod
-    def build_starting_location_dict():
-        return {
-            "Area": 0,
-            "Room": 24,
-            "BlockX": 24,
-            "BlockY": 18
-        }
+    def build_credits_text() -> list[dict]:
+        return [
+            {
+                "LineType": "White2",
+                "Text": "",
+                "BlankLines": 2
+            },
+            {
+                "LineType": "Blue",
+                "Text": "Archipelago Integration",
+                "BlankLines": 1
+            },
+            {
+                "LineType": "White2",
+                "Text": "Rosalie",
+                "BlankLines": 1
+            },
+            {
+                "LineType": "White2",
+                "Text": "CRIT MAGNET",
+                "BlankLines": 1
+            },
+            {
+                "LineType": "White2",
+                "Text": "JaggerG",
+                "BlankLines": 1
+            },
+            {
+                "LineType": "White2",
+                "Text": "Palm__",
+                "BlankLines": 2
+            },
+            {
+                "LineType": "White1",
+                "Text": "And the AP community",
+                "BlankLines": 4
+            },
+        ]
 
     def build_nav_locks_dict(self):
-        if self.options.GameMode == self.options.GameMode.option_vanilla:
+        if not self.navigation_room_hint_locks:
             return {
                 "MainDeckWest": "OPEN",
                 "MainDeckEast": "OPEN",
@@ -531,7 +626,7 @@ class MetroidFusionWorld(World):
                 "AuxiliaryPower": "OPEN",
                 "RestrictedLabs": "OPEN"
             }
-        elif self.options.GameMode == self.options.GameMode.option_open_sector_hub:
+        else:
             return {
                 "MainDeckWest": "OPEN",
                 "MainDeckEast": "OPEN",
@@ -624,6 +719,47 @@ class MetroidFusionWorld(World):
             if origin in self.spoiler_region_map.keys():
                 spoiler_handle.write(f"--{origin} <-> {self.spoiler_region_map[origin]}\n")
 
+    def build_starting_items_dict(self):
+        starting_inventory = [item.name for item in self.multiworld.precollected_items[self.player]]
+        energy = 99
+        missiles = 0
+        power_bombs = 0
+        security_levels = [0]
+        abilities = []
+        for item in starting_inventory:
+            if item == "Energy Tank":
+                energy += 100
+            elif item == "Missile Tank":
+                missiles += self.options.MissileTankAmmo.value
+            elif item == "Power Bomb Tank":
+                power_bombs += self.options.PowerBombTankAmmo.value
+            elif item == "Level 1 Keycard":
+                security_levels.append(1)
+            elif item == "Level 2 Keycard":
+                security_levels.append(2)
+            elif item == "Level 3 Keycard":
+                security_levels.append(3)
+            elif item == "Level 4 Keycard":
+                security_levels.append(4)
+            elif item in major_upgrades:
+                if item == "Missile Data":
+                    missiles += self.options.MissileDataAmmo.value
+                elif item == "Power Bomb Data":
+                    power_bombs += self.options.PowerBombDataAmmo.value
+                abilities.append(ap_name_to_mars_name[item])
+            else:
+                logging.warning(f"{item} not supported as a starting item.")
+
+
+        return {
+            "Energy": energy,
+            "Abilities": abilities,
+            "SecurityLevels": security_levels,
+            "DownloadedMaps": [0, 1, 2, 3, 4, 5, 6],
+            "Missiles": missiles,
+            "PowerBombs": power_bombs
+        }
+
     def generate_output(self, output_directory: str):
         patch_dict = dict()
         patch_dict["SeedHash"] = str(self.multiworld.seed)[:8]
@@ -645,25 +781,28 @@ class MetroidFusionWorld(World):
             else:
                 item_name = "None" # Remote items shouldn't give anything ingame.
                 message = build_item_message(location.item.name, self.multiworld.player_name[location.item.player])
-                #Check if the item is in the list of eligible offworld items we can use a Fusion sprite for.
+                # Check if the item is in the list of eligible offworld items we can use a Fusion sprite for.
                 game = self.multiworld.worlds[location.item.player].game
                 if game in offworld_sprites.keys():
                     if location.item.name in offworld_sprites[game].keys():
                         item_sprite = offworld_sprites[game][location.item.name].value
-            if item_sprite is None: # If we don't have a sprite yet, we use the question mark icon.
-                item_sprite = SpriteNames.Anonymous.value
+            if item_sprite is None: # If no offworld sprite, we use one based on classification
+                if location.item.classification & ItemClassification.progression:
+                    item_sprite = SpriteNames.Anonymous.value
+                else:
+                    item_sprite = SpriteNames.Empty.value
             # For fun, local visible missile and power bomb tanks have a 1/1024 chance to be shiny.
             if location.item.player == self.player and not location_data.major:
                 if item_sprite == SpriteNames.MissileTank.value:
                     chance = self.random.randint(1, 1024)
                     if chance == 1:
                         item_sprite = SpriteNames.ShinyMissileTank.value
-                        message = build_shiny_item_message(item_name)
+                        message = build_shiny_item_message(location.item.name)
                 if item_sprite == SpriteNames.PowerBombTank.value:
                     chance = self.random.randint(1, 1024)
                     if chance == 1:
                         item_sprite = SpriteNames.ShinyPowerBombTank.value
-                        message = build_shiny_item_message(item_name)
+                        message = build_shiny_item_message(location.item.name)
             json_data = location_data.to_json(item_name, item_sprite, location.item.classification)
             if message is not None:
                 json_data["ItemMessages"] = message
@@ -685,6 +824,7 @@ class MetroidFusionWorld(World):
         patch_dict["UnexploredMap"] = True
         patch_dict["RoomNames"] = room_names
         patch_dict["TitleText"] = [{"Text": "         Archipelago", "LineNum": 12}]
+        patch_dict["CreditsText"] = self.build_credits_text()
 
         if self.options.PaletteRandomization:
             patch_dict["Palettes"] = self.create_palette_rando(self.multiworld.seed)
@@ -696,9 +836,8 @@ class MetroidFusionWorld(World):
                 infant_metroids_required)
         else:
             patch_dict["NavigationText"] = self.create_navigation_text([], infant_metroids_required)
-        if len(self.options.start_inventory) > 0:
-            pass
-            #patch_dict["StartingItems"] = self.build_starting_items_dict()
+        if len(self.options.start_inventory.value) > 0 or len(self.options.start_inventory_from_pool.value) > 0:
+            patch_dict["StartingItems"] = self.build_starting_items_dict()
         patch_dict["TankIncrements"] = {
             "MissileTank": self.options.MissileTankAmmo.value,
             "PowerBombTank": self.options.PowerBombTankAmmo.value,
@@ -707,9 +846,10 @@ class MetroidFusionWorld(World):
             "PowerBombData": self.options.PowerBombDataAmmo.value
         }
 
-        if self.options.GameMode == self.options.GameMode.option_open_sector_hub:
+        if self.open_sector_elevators:
             patch_dict["DoorLocks"] = self.build_door_dict()
-            patch_dict["StartingLocation"] = self.build_starting_location_dict()
+
+        patch_dict["StartingLocation"] = self.build_starting_location_dict()
 
         patch_dict["NavStationLocks"] = self.build_nav_locks_dict()
 
@@ -777,23 +917,18 @@ class MetroidFusionWorld(World):
             "MissileTankAmmo": self.options.MissileTankAmmo.value,
             "PowerBombDataAmmo": self.options.PowerBombDataAmmo.value,
             "PowerBombTankAmmo": self.options.PowerBombTankAmmo.value,
-            "TrickyShinesparks": self.options.TrickyShinesparksInRegionLogic.value,
+            "PONRsInLogic": self.options.PointOfNoReturnsInLogic.value,
             "ShinesparkDifficulty": self.options.ShinesparkTrickDifficulty.value,
             "WallJumpDifficulty": self.options.WallJumpTrickDifficulty.value,
             "CombatDifficulty": self.options.CombatDifficulty.value,
             "GameMode": self.options.GameMode.value,
+            "StartingLocation": self.options.StartingLocation.value,
+            "OpenSectorElevators": self.options.OpenSectorElevators.value,
+            "SectorTubeShuffle": self.options.SectorTubeShuffle.value,
+            "ElevatorShuffle": self.options.ElevatorShuffle.value,
             "DeathLink": self.options.death_link.value,
-            "UTOptions": self.options.as_dict(
-                "GameMode",
-                "InfantMetroidsInPool",
-                "InfantMetroidsRequired",
-                "EarlyProgression",
-                "TrickyShinesparksInRegionLogic",
-                "SimpleWallJumpsInRegionLogic",
-                "SectorTubeShuffle",
-                "ElevatorShuffle"
-            ),
-            "UTStartingLocation": self.starting_location,
+            "StartInventory": [item.name for item in self.multiworld.precollected_items[self.player]],
+            "UTStartingLocation": self.starting_region,
             "UTEntrances": self.er_map
         }
 
