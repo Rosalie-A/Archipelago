@@ -10,7 +10,9 @@ import Utils
 from BaseClasses import ItemClassification
 from worlds.Files import APDeltaPatch, APProcedurePatch, APTokenMixin, APPatchExtension
 
-NA10CHECKSUM = '337bd6f1a1163df31bf2633665589ab0'
+NA10CHECKSUM = 'd9a1631d5c32d35594b9484862a26cba'
+NES2HEADER = bytes([ 0x4E, 0x45, 0x53, 0x1A, 0x08, 0x00, 0x12, 0x08, 0x00, 0x00, 0x70, 0x07, 0x00, 0x00, 0x00, 0x01])
+
 rom_name_location = 0x00
 rom_name_length = 0x20
 header_length = 0x10
@@ -132,13 +134,15 @@ def get_base_rom_bytes(file_name: str = "") -> bytes:
     base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
     if not base_rom_bytes:
         file_name = get_base_rom_path(file_name)
-        base_rom_bytes = bytes(Utils.read_snes_rom(open(file_name, "rb")))
-
+        base_rom_bytes = bytes(Utils.read_snes_rom(open(file_name, "rb"), strip_header=False))
+        if len(base_rom_bytes) == 131088: # Headered rom length
+            base_rom_bytes = base_rom_bytes[16:]
         basemd5 = hashlib.md5()
         basemd5.update(base_rom_bytes)
         if NA10CHECKSUM != basemd5.hexdigest():
             raise Exception('Supplied Base Rom does not match known MD5 for NA (1.0) release. '
                             'Get the correct game and version, then dump it')
+        base_rom_bytes = NES2HEADER + base_rom_bytes
         get_base_rom_bytes.base_rom_bytes = base_rom_bytes
     return base_rom_bytes
 
@@ -162,7 +166,7 @@ class TLOZPatchExtension(APPatchExtension):
         # Removing a bit from the boss roars flags, so we can have more dungeon items. This allows us to
         # go past 0x1F items for dungeon items.
         base_patch = get_data(__name__, "z1_base_patch.bsdiff4")
-        rom_data = bsdiff4.patch(rom.read(), base_patch)
+        rom_data = bsdiff4.patch(rom, base_patch)
         rom_data = bytearray(rom_data)
         # Set every item to the new nothing value, but keep room flags. Type 2 boss roars should
         # become type 1 boss roars, so we at least keep the sound of roaring where it should be.
