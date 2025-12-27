@@ -155,7 +155,7 @@ class TLOZPatchExtension(APPatchExtension):
         # Removing a bit from the boss roars flags, so we can have more dungeon items. This allows us to
         # go past 0x1F items for dungeon items.
         base_patch = get_data(__name__, "z1_base_patch.bsdiff4")
-        rom_data = bsdiff4.patch(rom, base_patch)
+        rom_data = bsdiff4.patch(rom.read(), base_patch)
         rom_data = bytearray(rom_data)
         # Set every item to the new nothing value, but keep room flags. Type 2 boss roars should
         # become type 1 boss roars, so we at least keep the sound of roaring where it should be.
