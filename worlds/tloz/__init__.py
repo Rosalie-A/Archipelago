@@ -18,7 +18,7 @@ from .Locations import location_table, level_locations, major_locations, shop_lo
     standard_level_locations, shop_price_location_ids, secret_money_ids, location_ids, food_locations, \
     take_any_locations, sword_cave_locations, shop_categories, cave_data_location_start
 from .Options import TlozOptions
-from .Rom import TLoZDeltaPatch, get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
+from .Rom import get_base_rom_path, first_quest_dungeon_items_early, first_quest_dungeon_items_late, \
     cave_type_flags, warp_cave_offset, starting_sword_cave_location_byte, white_sword_pond_location_byte, \
     magical_sword_grave_location_byte, letter_cave_location_byte, TLOZProcedurePatch
 from .Rules import set_rules
@@ -33,7 +33,6 @@ class TLoZSettings(settings.Group):
         """File name of the Zelda 1"""
         description = "The Legend of Zelda (U) ROM File"
         copy_to = "Legend of Zelda, The (U) (PRG0) [!].nes"
-        md5s = [TLoZDeltaPatch.hash]
 
     class RomStart(str):
         """
