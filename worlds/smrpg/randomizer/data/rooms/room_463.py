@@ -1,0 +1,196 @@
+# R463_BOWSERS_KEEP_6DOOR_PUZZLE_ROOM_1B_BARRELCOUNTING
+# pyright: reportWildcardImportFromLibrary=false
+from smrpgpatchbuilder.datatypes.levels.classes import ObjectType, EventInitiator, PostBattleBehaviour, Direction, EdgeDirection, ExitType, BufferType, BufferSpace, VramStore, ShadowSize
+from smrpgpatchbuilder.datatypes.levels.classes import Buffer, Partition, DestinationProps, RoomExit, MapExit, Event, BattlePackNPC, RegularNPC, ChestNPC, BattlePackClone, RegularClone, ChestClone
+from ...types.room import Room
+from ...types.ally import SpriteAnimationState
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.directions import *
+from . import npcs
+from ..variables.room_names import *
+from ..variables.overworld_area_names import *
+from ..variables.music_names import *
+from ..variables.event_script_names import *
+from ..variables.action_script_names import *
+room = Room(
+    partition=Partition(
+        ally_sprite_buffer_size=1,
+        allow_extra_sprite_buffer=True,
+        extra_sprite_buffer_size=1,
+        buffers = [
+            Buffer(
+                buffer_type=BufferType.EMPTY_3,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            ),
+            Buffer(
+                buffer_type=BufferType.THREE_SPRITES_PER_ROW,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            ),
+            Buffer(
+                buffer_type=BufferType.THREE_SPRITES_PER_ROW,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            )
+        ],
+        full_palette_buffer=True
+    ),
+    music=M0066_BOWSER_SCASTLE_2NDTIME,
+    entrance_event=E3354_KEEP_BARREL_COUNT_LOADER,
+    objects=[
+        RegularNPC( # 0
+            npc=npcs.DR_TOPPER_GREEN_NPC,
+            initiator=EventInitiator.NONE,
+            event_script=E0256_RETURN,
+            action_script=A0003_SEQUENCE_LOOPING_ON,
+            visible=True,
+            x=8,
+            y=49,
+            z=4,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=False,
+            cant_enter_doors=False,
+            byte2_bit5=False,
+            set_sequence_playback=True,
+            cant_float=False,
+            cant_walk_up_stairs=False,
+            cant_walk_under=False,
+            cant_pass_walls=True,
+            cant_jump_through=False,
+            cant_pass_npcs=False,
+            byte3_bit5=False,
+            cant_walk_through=False,
+            byte3_bit7=False,
+            slidable_along_walls=True,
+            cant_move_if_in_air=True,
+            byte7_upper2=3),
+        RegularNPC( # 1
+            npc=npcs.YELLOW_STEPPING_BLOCK_NPC_4,
+            initiator=EventInitiator.NONE,
+            event_script=E0256_RETURN,
+            action_script=A0278_KEEP_TOPPER_GAME_PLATFORM,
+            visible=False,
+            x=6,
+            y=50,
+            z=10,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=False,
+            cant_enter_doors=False,
+            byte2_bit5=False,
+            set_sequence_playback=True,
+            cant_float=False,
+            cant_walk_up_stairs=False,
+            cant_walk_under=False,
+            cant_pass_walls=True,
+            cant_jump_through=False,
+            cant_pass_npcs=True,
+            byte3_bit5=False,
+            cant_walk_through=True,
+            byte3_bit7=False,
+            slidable_along_walls=True,
+            cant_move_if_in_air=True,
+            byte7_upper2=3),
+        RegularNPC( # 2
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            initiator=EventInitiator.NONE,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=6,
+            y=44,
+            z=2,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=False,
+            cant_enter_doors=False,
+            byte2_bit5=False,
+            set_sequence_playback=True,
+            cant_float=False,
+            cant_walk_up_stairs=False,
+            cant_walk_under=False,
+            cant_pass_walls=False,
+            cant_jump_through=False,
+            cant_pass_npcs=True,
+            byte3_bit5=False,
+            cant_walk_through=True,
+            byte3_bit7=False,
+            slidable_along_walls=True,
+            cant_move_if_in_air=True,
+            byte7_upper2=3),
+        RegularClone( # 3
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=6,
+            y=46,
+            z=1,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 4
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=6,
+            y=45,
+            z=1,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 5
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=5,
+            y=44,
+            z=2,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 6
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=12,
+            y=39,
+            z=10,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 7
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=10,
+            y=37,
+            z=11,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 8
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=11,
+            y=38,
+            z=11,
+            z_half=False,
+            direction=SOUTHWEST),
+        RegularClone( # 9
+            npc=npcs.ROLLING_BARREL_NPC_3,
+            event_script=E0256_RETURN,
+            action_script=A0279_KEEP_BARREL_COUNTING_OPTIONAL_BARREL,
+            visible=True,
+            x=11,
+            y=35,
+            z=12,
+            z_half=False,
+            direction=SOUTHWEST),
+    ],
+    extra_sprite_actions=[
+        SpriteAnimationState.MUTE,
+    ]
+)

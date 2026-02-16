@@ -1,0 +1,86 @@
+{% extends 'randomizer/layouts/default.html' %}
+
+{% block content %}
+    <h1>Flag & Mode Explanations</h1>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Mechanical changes to Super Mario RPG</h3>
+        </div>
+        <div class="card-body">
+            <h4>File Select Changes</h4>
+            <ul>
+                <li>The character that appears on the file select screen is your starting character.</li>
+                <li>You have the ability to play as your starting character in the overworld.</li>
+                <li>The names of the four save slots are randomized (no longer MARIO1, MARIO2, etc).</li>
+                <li>The combination of the character and save slot names serves as a verification hash value to
+                    confirm that racers all have the same seed.
+                </li>
+            </ul>
+            <h4>General Gameplay Changes</h4>
+            <ul>
+                <li>Mario does not have to be in your active party. You can switch any two party members.</li>
+                <li>The maximum number of coins you can hold is increased to 9999.  Item prices in shops can also go
+                    above 999 as a result of this.
+                </li>
+                <li>Several normal items have been converted to live in your Special Items pocket (such as the Seed, Fertilizer, and Wallet) to prevent you from accidentally selling it and locking yourself out of checks.</li>
+            </ul>
+            <h4>Equipment & Psychopath</h4>
+            <ul>
+            <li>Equipment descriptions as seen in game menus will explain what the equipment piece does. <a href="{% url 'randomizer:guide' %}#equipment">Here is an explanation on the symbols used to describe stats and buffs.</a></li>
+            <li>The Psychopath spell, when <a target="_blank" href="http://pidgezero.one/timings/index.html#Psychopath">properly timed</a>, will explain elements the enemy is weak to, elements it is immune to, and status effects that it is weak to. <a href="{% url 'randomizer:guide' %}#spells-yours">Here is an explanation on the symbols used.</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Seed</h3>
+        </div>
+        <div class="card-body">
+            <p>Seed is a number used to randomize the game. If you want to generate the same game as somebody else
+                for racing, you can enter an exact seed here. If you just want a fresh experience, leave this blank
+                and the site will generate it automatically.</p>
+        </div>
+    </div>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Settings</h3>
+        </div>
+        <div class="card-body">
+            <p>The settings you choose will significantly change your randomizer experience. They are broken into categories.</p>
+
+            {% for category in categories %}
+                <h2>{{ category.name }}</h2>
+                    {% if category.subcategories %}
+                        {% for subcategory in category.subcategories %}
+                            <div class="card border-secondary my-2">
+                                <div class="card-header bg-secondary text-white">
+                                    <h5 class="card-title">{{ subcategory.name }}</h5>
+                                </div>
+                                <div class="card-body">
+                                    {% for flag in subcategory.flags %}
+                                        <div class="mb-3">
+                                            <h6 class="fw-bold">{{ flag.name }} (<code>{{ flag.id }}</code>)</h6>
+                                            {% if flag.description %}
+                                                <div class="ms-3">{{ flag.description|safe }}</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if category.flags %}
+                        {% for flag in category.flags %}
+                            <div class="mb-3">
+                                <h6 class="fw-bold">{{ flag.name }} <code>{{ flag.id }}</code></h6>
+                                {% if flag.description %}
+                                    <div class="ms-3">{{ flag.description|safe }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

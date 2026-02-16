@@ -1,0 +1,30 @@
+#A0964_FACTORY_3RD_BOSS_RIGHT_HAMMER
+# pyright: reportWildcardImportFromLibrary=false
+
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts.commands import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.area_objects import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.coords import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.directions import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts.arguments import *
+from ....variables.action_script_names import *
+from ....variables.event_script_names import *
+from ....variables.overworld_sfx_names import *
+from ....variables.room_names import *
+from ....variables.variable_names import *
+from ....packets import *
+from ....items import *
+
+script = ActionScript([
+	A_ShadowOn(),
+	A_SetWalkingSpeed(FASTEST),
+	A_WalkSouthwestPixels(6),
+	A_Pause(1, identifier="ACTION_964_pause_3"),
+	A_JmpIfBitClear(TEMP_7043_2, ["ACTION_964_pause_3"]),
+	A_SetSpriteSequence(index=3, looping=False, identifier="factory_3rd_boss_right_hammer_attack"),
+	A_Pause(32, identifier="factory_3rd_boss_right_hammer_attack_pause_32"),
+	A_SetBit(TEMP_7043_5),
+	A_Pause(4),
+	A_ClearBit(TEMP_7043_2),
+	A_Jmp(["ACTION_964_pause_3"])
+])

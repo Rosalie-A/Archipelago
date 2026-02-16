@@ -1,0 +1,26 @@
+#A0977_NOTE_WITHOUT_KNIFE
+# pyright: reportWildcardImportFromLibrary=false
+
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts.commands import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.area_objects import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.coords import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.directions import *
+from smrpgpatchbuilder.datatypes.overworld_scripts.action_scripts.arguments import *
+from ....variables.action_script_names import *
+from ....variables.event_script_names import *
+from ....variables.overworld_sfx_names import *
+from ....variables.room_names import *
+from ....variables.variable_names import *
+from ....packets import *
+from ....items import *
+
+script = ActionScript([
+	A_JmpIfBitSet(NOTE_DIRECTION, ["ACTION_977_set_sprite_sequence_3"]),
+	A_SetSpriteSequence(index=1, is_sequence=True, looping=True),
+	A_Jmp(["ACTION_977_set_priority_4"]),
+	A_SetSpriteSequence(index=1, is_sequence=True, looping=True, mirror_sprite=True, identifier="ACTION_977_set_sprite_sequence_3"),
+	A_SetPriority(3, identifier="ACTION_977_set_priority_4"),
+	A_ClearBit(NOTE_DIRECTION),
+	A_ReturnQueue()
+])

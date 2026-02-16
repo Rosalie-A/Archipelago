@@ -1,0 +1,175 @@
+# R094_ROSE_TOWN_TREASURE_HOUSE_1F
+# pyright: reportWildcardImportFromLibrary=false
+from smrpgpatchbuilder.datatypes.levels.classes import ObjectType, EventInitiator, PostBattleBehaviour, Direction, EdgeDirection, ExitType, BufferType, BufferSpace, VramStore, ShadowSize
+from smrpgpatchbuilder.datatypes.levels.classes import Buffer, Partition, DestinationProps, RoomExit, MapExit, Event, BattlePackNPC, RegularNPC, ChestNPC, BattlePackClone, RegularClone, ChestClone
+from ...types.room import Room
+from ...types.ally import SpriteAnimationState
+from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.directions import *
+from . import npcs
+from ..variables.room_names import *
+from ..variables.overworld_area_names import *
+from ..variables.music_names import *
+from ..variables.event_script_names import *
+from ..variables.action_script_names import *
+room = Room(
+    partition=Partition(
+        ally_sprite_buffer_size=1,
+        allow_extra_sprite_buffer=True,
+        extra_sprite_buffer_size=1,
+        buffers = [
+            Buffer(
+                buffer_type=BufferType.TREASURE_CHEST,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            ),
+            Buffer(
+                buffer_type=BufferType.FOUR_SPRITES_PER_ROW,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            ),
+            Buffer(
+                buffer_type=BufferType.EMPTY_3,
+                main_buffer_space=BufferSpace.BYTES_0,
+                index_in_main_buffer=True
+            )
+        ],
+        full_palette_buffer=True
+    ),
+    music=M0018_ROSETOWN,
+    entrance_event=E0575_ROSE_TOWN_LIBERATED_COUPLES_HOUSE_LOADER,
+    exits=[
+        RoomExit(
+            x=16,
+            y=67,
+            z=0,
+            f=EdgeDirection.SOUTHEAST,
+            length=2,
+            height=0,
+            nw_se_edge_active=True,
+            ne_sw_edge_active=False,
+            byte_2_bit_2=False,
+            destination=R084_ROSE_TOWN_OUTSIDE,
+            show_message=False,
+            dst_x=13,
+            dst_y=26,
+            dst_z=4,
+            dst_z_half=False,
+            dst_f=SOUTHEAST,
+            x_bit_7=False),
+        RoomExit(
+            x=16,
+            y=59,
+            z=1,
+            f=EdgeDirection.SOUTHEAST,
+            length=1,
+            height=2,
+            nw_se_edge_active=True,
+            ne_sw_edge_active=True,
+            byte_2_bit_2=False,
+            destination=R098_ROSE_TOWN_TREASURE_HOUSE_2F,
+            show_message=False,
+            dst_x=17,
+            dst_y=91,
+            dst_z=1,
+            dst_z_half=True,
+            dst_f=NORTHWEST,
+            x_bit_7=False),
+    ],
+    objects=[
+        ChestNPC( # 0
+            npc=npcs.TREASURE_CHEST_NPC,
+            initiator=EventInitiator.HIT_FROM_BELOW,
+            event_script=E0576_ROSE_TOWN_TREASURE_HOUSE_CHEST_1,
+            action_script=A0014_FLOATING_CHEST,
+            lower_70a7=2,
+            upper_70a7=0,
+            visible=True,
+            x=14,
+            y=59,
+            z=3,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=False,
+            cant_enter_doors=True,
+            byte2_bit5=True,
+            set_sequence_playback=True,
+            cant_float=False,
+            cant_walk_up_stairs=True,
+            cant_walk_under=True,
+            cant_pass_walls=True,
+            cant_jump_through=False,
+            cant_pass_npcs=False,
+            byte3_bit5=False,
+            cant_walk_through=True,
+            byte3_bit7=False,
+            slidable_along_walls=False,
+            cant_move_if_in_air=True,
+            byte7_upper2=3),
+        ChestNPC( # 1
+            npc=npcs.TREASURE_CHEST_NPC,
+            initiator=EventInitiator.HIT_FROM_BELOW,
+            event_script=E0577_ROSE_TOWN_TREASURE_HOUSE_CHEST_2,
+            action_script=A0014_FLOATING_CHEST,
+            lower_70a7=2,
+            upper_70a7=0,
+            visible=True,
+            x=15,
+            y=57,
+            z=3,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=False,
+            cant_enter_doors=True,
+            byte2_bit5=True,
+            set_sequence_playback=True,
+            cant_float=False,
+            cant_walk_up_stairs=True,
+            cant_walk_under=True,
+            cant_pass_walls=True,
+            cant_jump_through=False,
+            cant_pass_npcs=False,
+            byte3_bit5=False,
+            cant_walk_through=True,
+            byte3_bit7=False,
+            slidable_along_walls=False,
+            cant_move_if_in_air=True,
+            byte7_upper2=3),
+        RegularNPC( # 2
+            npc=npcs.ROSE_TOWN_TREASURE_HOLDER_NPC,
+            initiator=EventInitiator.PRESS_A_FROM_ANY_SIDE,
+            event_script=E0534_ROSE_TOWN_DAD,
+            action_script=A0128_WALK_RANDOM_DIRECTIONS,
+            visible=True,
+            x=16,
+            y=62,
+            z=0,
+            z_half=False,
+            direction=SOUTHWEST,
+            face_on_trigger=True,
+            cant_enter_doors=False,
+            byte2_bit5=False,
+            set_sequence_playback=True,
+            cant_float=True,
+            cant_walk_up_stairs=True,
+            cant_walk_under=False,
+            cant_pass_walls=True,
+            cant_jump_through=False,
+            cant_pass_npcs=True,
+            byte3_bit5=True,
+            cant_walk_through=True,
+            byte3_bit7=True,
+            slidable_along_walls=True,
+            cant_move_if_in_air=False,
+            byte7_upper2=3),
+        RegularClone( # 3
+            npc=npcs.KID_RED_STRIPED_HAT_NPC,
+            event_script=E0535_ROSE_TOWN_SON,
+            action_script=A0128_WALK_RANDOM_DIRECTIONS,
+            visible=True,
+            x=13,
+            y=64,
+            z=0,
+            z_half=False,
+            direction=SOUTHEAST),
+    ]
+)

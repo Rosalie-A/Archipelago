@@ -1,0 +1,91 @@
+# 208 - PUNCHINELLOEnemy
+# pyright: reportWildcardImportFromLibrary=false
+
+from smrpgpatchbuilder.datatypes.monster_scripts import *
+from smrpgpatchbuilder.datatypes.monster_scripts.commands import *
+from smrpgpatchbuilder.datatypes.monster_scripts.arguments.types.classes import DoNothing
+from ...variables.battle_event_names import *
+from ...variables.battle_variable_names import *
+from ...items.items import *
+from ...spells.spells import *
+from ...enemies.enemies import *
+from ...enemy_attacks.attacks import *
+from smrpgpatchbuilder.datatypes.monster_scripts.arguments import *
+
+script = MonsterScript([
+	IfVarBitsClear(BV7EE000, [0]),
+	IfLastMonsterStanding(),
+	RunObjectSequence(0),
+	CallTarget(MONSTER_2_CALL),
+	RunObjectSequence(0),
+	CallTarget(MONSTER_3_CALL),
+	RunObjectSequence(0),
+	CallTarget(MONSTER_4_CALL),
+	RunObjectSequence(0),
+	CallTarget(MONSTER_5_CALL),
+	Wait1TurnandRestartScript(),
+	IfVarBitsSet(BV7EE000, [1]),
+	IfLastMonsterStanding(),
+	CallTarget(MONSTER_2_CALL),
+	CallTarget(MONSTER_3_CALL),
+	CallTarget(MONSTER_4_CALL),
+	CallTarget(MONSTER_5_CALL),
+	Wait1TurnandRestartScript(),
+	IfVarBitsSet(BV7EE000, [2]),
+	IfLastMonsterStanding(),
+	ClearVar(BV7EE002),
+	CallTarget(MONSTER_2_CALL),
+	CallTarget(MONSTER_3_CALL),
+	CallTarget(MONSTER_4_CALL),
+	Wait1TurnandRestartScript(),
+	Set7EE005ToRandomNumber(upper_bound=7),
+	IfVarLessThan(BV7EE005_DESIGNATED_RANDOM_NUM_VAR, 1),
+	CastSpell(SandStormSpell),
+	ClearVar(BV7EE005_DESIGNATED_RANDOM_NUM_VAR),
+	Wait1TurnandRestartScript(),
+	Attack(Attack1),
+	StartCounterCommands(),
+	IfHPBelow(800),
+	IfLastMonsterStanding(),
+	IfVarBitsClear(BV7EE004, [1]),
+	SetVarBits(BV7EE004, [1]),
+	SetVarBits(BV7EE000, [0, 1]),
+	RunBattleEvent(BE0009_PUNCHINELLO_INTERLUDES_AND_PREPARES_TO_SUMMON_BOB_OMBS),
+	Wait1TurnandRestartScript(),
+	IfHPBelow(800),
+	IfVarBitsClear(BV7EE004, [1]),
+	RunBattleEvent(BE0094_PUNCHINELLO_S_BOMBS_EXPLODE_IF_STILL_ALIVE),
+	RemoveTarget(ALL_ALLIES_EXCLUDING_SELF),
+	SetVarBits(BV7EE004, [1]),
+	SetVarBits(BV7EE000, [0, 1]),
+	RunBattleEvent(BE0009_PUNCHINELLO_INTERLUDES_AND_PREPARES_TO_SUMMON_BOB_OMBS),
+	Wait1TurnandRestartScript(),
+	IfHPBelow(400),
+	IfLastMonsterStanding(),
+	IfVarBitsClear(BV7EE004, [0]),
+	SetVarBits(BV7EE004, [0]),
+	SetVarBits(BV7EE000, [2]),
+	ClearVarBits(BV7EE000, [1]),
+	RunBattleEvent(BE0010_PUNCHINELLO_INTERLUDES_AND_PREPARES_TO_SUMMON_MEZZO_BOMBS),
+	Wait1TurnandRestartScript(),
+	IfHPBelow(400),
+	IfVarBitsClear(BV7EE004, [0]),
+	RunBattleEvent(BE0094_PUNCHINELLO_S_BOMBS_EXPLODE_IF_STILL_ALIVE),
+	RemoveTarget(ALL_ALLIES_EXCLUDING_SELF),
+	SetVarBits(BV7EE004, [0]),
+	SetVarBits(BV7EE000, [2]),
+	ClearVarBits(BV7EE000, [1]),
+	RunBattleEvent(BE0010_PUNCHINELLO_INTERLUDES_AND_PREPARES_TO_SUMMON_MEZZO_BOMBS),
+	Wait1TurnandRestartScript(),
+	IfHPBelow(0),
+	IfLastMonsterStanding(),
+	RunObjectSequence(3),
+	RemoveTarget(SELF),
+	Wait1TurnandRestartScript(),
+	IfHPBelow(0),
+	RunBattleEvent(BE0094_PUNCHINELLO_S_BOMBS_EXPLODE_IF_STILL_ALIVE),
+	RemoveTarget(ALL_ALLIES_EXCLUDING_SELF),
+	RunObjectSequence(3),
+	RemoveTarget(SELF),
+	Wait1TurnandRestartScript()
+])

@@ -1,0 +1,9 @@
+"""Miscellaneous constants supporting the development of monster scripts."""
+
+TOTAL_MONSTERS = 256
+TOTAL_ATTACKS = 129
+POINTER_TABLE_START = 0x3930AA
+BANK_RANGE_1_START = 0x3932AA
+BANK_RANGE_1_END = 0x3959F4
+BANK_RANGE_2_START = 0x39F400
+BANK_RANGE_2_END = 0x3A0000

@@ -1,0 +1,89 @@
+# SPR0679_EXOR_STATUE
+
+from smrpgpatchbuilder.datatypes.graphics.classes import CompleteSprite, AnimationPack, AnimationPackProperties, AnimationSequence, AnimationSequenceFrame, Mold, Tile, Clone
+from randomizer.data.variables.sprite_palette_names import SPAL792_EXOR_STATUE
+
+sprite = CompleteSprite(
+    animation=AnimationPack(
+        0,
+        length=31,
+        unknown=0x0002,
+        properties=AnimationPackProperties(
+            vram_size=2048,
+            molds=[
+                Mold(
+                    0,
+                    gridplane=True,
+                    tiles=[
+                        Tile(
+                            mirror=False,
+                            invert=False,
+                            format=3,
+                            length=17,
+                            subtile_bytes=[
+                                bytearray(
+                                    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                                ),
+                                bytearray(
+                                    b"6\x0b;\x04\x1b\x04\x03\x1c\x01\x0e\t\x06\x03\x04\x00\x07\x00\x00\x04\x00\x04\x00\x0c\x00\x06\x00\x06\x00\x08\x00\x01\x00"
+                                ),
+                                bytearray(
+                                    b"#\x90\xf1\x18\x85|\x0f\xf0.\xf1 \xfe\xa2}\x00\xe0`\x00\x08\x008\x00p\x00\xd0\x00\xd9\x00\x1f\x00\xb0\x00"
+                                ),
+                                bytearray(
+                                    b"\x80\x80\x80\x80@\x80\x00\x80\x00\x80\x80\x80\x00\x00\x00\x00\x00\x00\x00\x00@\x00@\x00\x80\x00\x00\x00\x00\x00\x00\x00"
+                                ),
+                                bytearray(
+                                    b"\x00\x00\x00\x00\x00\x00\x16\x0e?\x077\x01+\x08/\x0c\x00\x00\x00\x00\x00\x00\x01?\x03\x0c\x01N\x00}\x00\\"
+                                ),
+                                bytearray(
+                                    b"\x01\x03\x02\x03\x00\x03\x02\x03\x82\x81\xc3\xe4\xe5\xf4\xff\xfb\x00\x00\x01\x00\x03\x00\x01\x02\xc2G\xe1\x03\xd8'\xe3\x1c"
+                                ),
+                                bytearray(
+                                    b"\xe0\xa0\xc0\xf0\xe0\x10\x000\x000\xd0\x10\x900\xe0\xf80\x00\xb0\x00\x10\x00\xf0\xc0\xf0\xc0\x80\xf0 \xf0\xc88"
+                                ),
+                                bytearray(
+                                    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                                ),
+                                bytearray(
+                                    b"7\x1e/^\x1b\x1fe\rh\x088\x0c\x1c\x06\n\x14\x18^\x10>\x04\x7f*}$|\x06\x08\n\x00\x04\x00"
+                                ),
+                                bytearray(
+                                    b"\xf7{?\xfc7\xd7\xa3\xdb\xff\xf0\x7f@\x1f\x00>@y\x0e\xf0\x0f\xdb\x0cB\r\x07\xcf'_\x07\x1f\x16?"
+                                ),
+                                bytearray(
+                                    b"\xfe?\xfe\xfe\xccxM\xb7O\xbf\xfc<\xbc<<<\xbf\xc1\xff\x01s\x81\xb2\x010\x07\x80\x8c\x00\xfc\x00\xfc"
+                                ),
+                                bytearray(
+                                    b'\x00\x00\x00\x00\x80\x84\x98\x82\xfc\x01o\x13{\x1b\x7f\x1b\x00\x00\x00\x00\x08\xe4\x18\xfe\x99\x9f\x02_"\x7f\x02\x7f'
+                                ),
+                                bytearray(
+                                    b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+                                ),
+                                bytearray(
+                                    b"^!=\x039\x0f\x01\x07\x03\x03\x01\x07\x05\x06\x03\x03\x00\x0f\x00\x0f\x00\x0f\x1a\x03\x04\x03\x00\x01\x01\x00\x00\x00"
+                                ),
+                                bytearray(
+                                    b"|\xbcX\xb8\xc0 \xdc<\xa0\xf0\xf1\xe0\xe0\xf0\x00\xe0\x00\xfc \x18<\x18$\x1c\x10\xb0\x10\x80\x10\x00\xe0\x00"
+                                ),
+                                bytearray(
+                                    b"{\x1f]\x1fo\x1f\xdf\x1f\x96~\x80\\\x00\x18\x00\x00\x02\x7fB\x7f@\x7f\x00\x7f(\x16|\x00\x98\x00\x00\x00"
+                                ),
+                            ],
+                            is_16bit=False,
+                            y_plus=0,
+                            y_minus=0,
+                            x=0,
+                            y=0),
+                    ]),
+            ],
+            sequences=[
+                AnimationSequence(
+                    frames=[
+                        AnimationSequenceFrame(duration=16, mold_id=0),
+                    ]
+                ),
+            ])),
+    palette_id=SPAL792_EXOR_STATUE,
+    palette_offset=0,
+    unknown_num=0)
