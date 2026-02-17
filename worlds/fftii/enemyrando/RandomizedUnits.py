@@ -1398,6 +1398,10 @@ class MaleMime(RandomizedUnit):
     sprite_set = SpriteSet.GENERIC_MALE
     gender = UnitGender.MALE
     difficulty = 8
+    secondary = ActionAbility.NONE
+    reaction = ReactionAbility.NONE
+    support = SupportAbility.NONE
+    movement = MovementAbility.NONE
 
 
 class FemaleMime(RandomizedUnit):
@@ -1405,6 +1409,10 @@ class FemaleMime(RandomizedUnit):
     sprite_set = SpriteSet.GENERIC_FEMALE
     gender = UnitGender.FEMALE
     difficulty = 8
+    secondary = ActionAbility.NONE
+    reaction = ReactionAbility.NONE
+    support = SupportAbility.NONE
+    movement = MovementAbility.NONE
 #endregion
 
 #region Special humans
@@ -1437,6 +1445,9 @@ class DelitaSquire(RandomizedUnit):
     sprite_set = SpriteSet.DELITA_C1
     gender = UnitGender.MALE
 
+class DelitaSquireHard(DelitaSquire):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 class DelitaHolyKnight(RandomizedUnit):
     job = Job.HOLY_KNIGHT_DELITA
@@ -1444,11 +1455,19 @@ class DelitaHolyKnight(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 4
 
+class DelitaHolyKnightHard(DelitaHolyKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 class DelitaArcKnight(RandomizedUnit):
     job = Job.ARC_KNIGHT_DELITA
     sprite_set = SpriteSet.DELITA_C4
     gender = UnitGender.MALE
     difficulty = 4
+
+class DelitaArcKnightHard(DelitaArcKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 110
 
 
 class Algus(RandomizedUnit):
@@ -1456,8 +1475,16 @@ class Algus(RandomizedUnit):
     sprite_set = SpriteSet.ALGUS
     gender = UnitGender.MALE
 
+class AlgusHard(Algus):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
+
 class AlgusWithCrossbow(Algus):
     support = SupportAbility.EQUIP_CROSSBOW
+
+class AlgusWithCrossbowHard(AlgusWithCrossbow):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class ZalbagArcKnight(RandomizedUnit):
@@ -1466,16 +1493,28 @@ class ZalbagArcKnight(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 4
 
+class ZalbagArcKnightHard(ZalbagArcKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 class LuneKnight(RandomizedUnit):
     job = Job.LUNE_KNIGHT
     sprite_set = SpriteSet.DYCEDARG
     gender = UnitGender.MALE
     difficulty = 4
 
+class LuneKnightHard(LuneKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 class Princess(RandomizedUnit):
     job = Job.PRINCESS
     sprite_set = SpriteSet.OVELIA
     gender = UnitGender.FEMALE
+
+class PrincessHard(Princess):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class HolySwordsman(RandomizedUnit):
@@ -1483,6 +1522,10 @@ class HolySwordsman(RandomizedUnit):
     sprite_set = SpriteSet.ORLANDU
     gender = UnitGender.MALE
     difficulty = 8
+
+class HolySwordsmanHard(HolySwordsman):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
 
 class HolySwordsmanWithExcalibur(HolySwordsman):
     right_hand: Items = Items.EXCALIBUR
@@ -1495,10 +1538,18 @@ class Dragoner(RandomizedUnit):
     gender = UnitGender.FEMALE
     difficulty = 4
 
+class DragonerHard(Dragoner):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 class HolyPriest(RandomizedUnit):
     job = Job.HOLY_PRIEST
     sprite_set = SpriteSet.ZALMO
     gender = UnitGender.MALE
+
+class HolyPriestHard(HolyPriest):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class DarkKnight(RandomizedUnit):
@@ -1507,6 +1558,10 @@ class DarkKnight(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 4
 
+class DarkKnightHard(DarkKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 
 class Astrologist(RandomizedUnit):
     job = Job.ASTROLOGIST
@@ -1514,11 +1569,19 @@ class Astrologist(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 8
 
+class AstrologistHard(Astrologist):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
+
 
 class EngineerMustadio(RandomizedUnit):
     job = Job.ENGINEER_MUSTADIO
     sprite_set = SpriteSet.MUSTADIO
     gender = UnitGender.MALE
+
+class EngineerMustadioHard(EngineerMustadio):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class HellKnight(RandomizedUnit):
@@ -1526,12 +1589,20 @@ class HellKnight(RandomizedUnit):
     sprite_set = SpriteSet.MALAK
     gender = UnitGender.MALE
 
+class HellKnightHard(HellKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
+
 
 class ArcKnightElmdor(RandomizedUnit):
     job = Job.ARC_KNIGHT_ELMDOR
     sprite_set = SpriteSet.ELMDOR
     gender = UnitGender.MALE
     difficulty = 8
+
+class ArcKnightElmdorHard(ArcKnightElmdor):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
 
 class ArcKnightElmdorWithKit(ArcKnightElmdor):
     primary = ActionAbility.SWORD_SPIRIT_2
@@ -1546,12 +1617,20 @@ class HolyKnightAgrias(RandomizedUnit):
     gender = UnitGender.FEMALE
     difficulty = 4
 
+class HolyKnightAgriasHard(HolyKnightAgrias):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 10
+
 
 class TempleKnight(RandomizedUnit):
     job = Job.TEMPLE_KNIGHT
     sprite_set = SpriteSet.BEOWULF
     gender = UnitGender.MALE
     difficulty = 8
+
+class TempleKnightHard(TempleKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
 
 
 class DivineKnightVormav(RandomizedUnit):
@@ -1560,6 +1639,10 @@ class DivineKnightVormav(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 6
 
+class DivineKnightVormavHard(DivineKnightVormav):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
+
 
 class DivineKnightRofel(RandomizedUnit):
     job = Job.DIVINE_KNIGHT_ROFEL
@@ -1567,11 +1650,19 @@ class DivineKnightRofel(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 6
 
+class DivineKnightRofelHard(DivineKnightRofel):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
+
 
 class KnightBlade(RandomizedUnit):
     job = Job.KNIGHT_BLADE
     sprite_set = SpriteSet.IZLUDE
     gender = UnitGender.MALE
+
+class KnightBladeHard(KnightBlade):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class KnightBladeWithKit(KnightBlade):
@@ -1587,6 +1678,10 @@ class Sorcerer(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 8
 
+class SorcererHard(Sorcerer):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
+
 
 class WhiteKnight(RandomizedUnit):
     job = Job.WHITE_KNIGHT_C3
@@ -1594,24 +1689,44 @@ class WhiteKnight(RandomizedUnit):
     gender = UnitGender.MALE
     difficulty = 3
 
+class WhiteKnightHard(WhiteKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
+
 
 class WhiteKnightWithCounter(WhiteKnight):
     reaction = ReactionAbility.COUNTER
+
+class WhiteKnightWithCounterHard(WhiteKnightWithCounter):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
 
 
 class WhiteKnightChapter1(WhiteKnight):
     job = Job.WHITE_KNIGHT_C1
     sprite_set = SpriteSet.WIEGRAF1
 
+class WhiteKnightChapter1Hard(WhiteKnightChapter1):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
+
 
 class WhiteKnightChapter1WithCounter(WhiteKnightChapter1):
     reaction = ReactionAbility.COUNTER
+
+class WhiteKnightChapter1WithCounterHard(WhiteKnightChapter1WithCounter):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
 
 
 class HeavenKnight(RandomizedUnit):
     job = Job.HEAVEN_KNIGHT
     sprite_set = SpriteSet.RAFA
     gender = UnitGender.FEMALE
+
+class HeavenKnightHard(HeavenKnight):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class DivineKnightMeliadoul(RandomizedUnit):
@@ -1620,11 +1735,19 @@ class DivineKnightMeliadoul(RandomizedUnit):
     gender = UnitGender.FEMALE
     difficulty = 6
 
+class DivineKnightMeliadoulHard(DivineKnightMeliadoul):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 12
+
 
 class EngineerBalk(RandomizedUnit):
     job = Job.ENGINEER_BALK
     sprite_set = SpriteSet.BALK
     gender = UnitGender.MALE
+
+class EngineerBalkHard(EngineerBalk):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
 
 
 class AssassinCelia(RandomizedUnit):
@@ -1646,10 +1769,18 @@ class Cleric(RandomizedUnit):
     sprite_set = SpriteSet.ALMA
     gender = UnitGender.FEMALE
 
+class ClericHard(Cleric):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 6
+
 
 class ClericWithUltima(Cleric):
     primary = ActionAbility.HOLY_MAGIC
     difficulty = 3
+
+class ClericWithUltimaHard(Cleric):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
 
 
 class Soldier(RandomizedUnit):
@@ -1657,6 +1788,10 @@ class Soldier(RandomizedUnit):
     sprite_set = SpriteSet.CLOUD
     gender = UnitGender.MALE
     difficulty = 4
+
+class SoldierHard(Soldier):
+    unlocked_job = UnlockedJob.MIME
+    difficulty = 8
 
 
 class ArcKnightZombie(RandomizedUnit):
