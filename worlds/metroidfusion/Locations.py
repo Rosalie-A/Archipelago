@@ -118,7 +118,7 @@ shinespark_locations = [
     "Sector 5 (ARC) -- Training Aerie -- Left Item",
     "Sector 4 (AQA) -- Aquarium Kago Storage -- Right Item",
     "Sector 5 (ARC) -- Training Aerie -- Left Item",
-    "Sector 5 (ARC) -- Flooded Airlock to Sector 4 (AQA)",
+    "Sector 5 (ARC) -- Flooded Airlock",
     "Sector 6 (NOC) -- Pillar Highway",
     "Sector 6 (NOC) -- Spaceboost Alley -- Lower Item",
     "Sector 6 (NOC) -- Spaceboost Alley -- Upper Item",
@@ -161,7 +161,7 @@ sector_1_locations = [
     "Sector 1 (SRX) -- Watering Hole",
     "Sector 1 (SRX) -- Crab Rave",
     "Sector 1 (SRX) -- Animorphs Cache",
-    "Sector 1 (SRX) -- Ridley Arena",
+    "Sector 1 (SRX) -- Neo-Ridley Arena",
     "Sector 1 (SRX) -- Ripper Maze"
 ]
 
@@ -173,7 +173,7 @@ sector_2_locations = [
     "Sector 2 (TRO) -- Kago Room",
     "Sector 2 (TRO) -- Level 1 Security Room",
     "Sector 2 (TRO) -- Lobby Cache",
-    "Sector 2 (TRO) -- Zoro Zig-Zag",
+    "Sector 2 (TRO) -- Zig-Zag-Zone",
     "Sector 2 (TRO) -- Cultivation Station",
     "Sector 2 (TRO) -- Oasis",
     "Sector 2 (TRO) -- Oasis Storage",
@@ -192,7 +192,7 @@ sector_2_locations = [
 sector_3_locations = [
     "Sector 3 (PYR) -- Fiery Storage -- Lower Item",
     "Sector 3 (PYR) -- Fiery Storage -- Upper Item",
-    "Sector 3 (PYR) -- Glass Tube to Sector 5 (ARC)",
+    "Sector 3 (PYR) -- Sector 3 (PYR) Westbound Glass Tube",
     "Sector 3 (PYR) -- Level 2 Security Room",
     "Sector 3 (PYR) -- Security Access",
     "Sector 3 (PYR) -- Namihe's Lair",
@@ -221,7 +221,7 @@ sector_4_locations = [
     "Sector 4 (AQA) -- Reservoir Vault -- Upper Item",
     "Sector 4 (AQA) -- Serris Arena",
     "Sector 4 (AQA) -- Pump Control Unit",
-    "Sector 4 (AQA) -- Cargo Hold to Sector 5 (ARC)",
+    "Sector 4 (AQA) -- Cargo Hold",
     "Sector 4 (AQA) -- Waterway",
     "Sector 4 (AQA) -- Aquarium Pirate Tank",
     "Sector 4 (AQA) -- Cheddar Bay",
@@ -246,7 +246,7 @@ sector_5_locations = [
     "Sector 5 (ARC) -- Transmutation Trial",
     "Sector 5 (ARC) -- Data Room",
     "Sector 5 (ARC) -- Crow's Nest",
-    "Sector 5 (ARC) -- Flooded Airlock to Sector 4 (AQA)",
+    "Sector 5 (ARC) -- Flooded Airlock",
     "Sector 5 (ARC) -- Mini-Fridge",
     "Sector 5 (ARC) -- Nightmare Hub",
     "Sector 5 (ARC) -- Ruined Break Room",

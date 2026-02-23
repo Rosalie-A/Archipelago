@@ -177,7 +177,7 @@ Sector5SecurityZone.locations = [
 ]
 
 Sector5NightmareHub.locations = [
-    FusionLocation("Sector 5 (ARC) -- Flooded Airlock to Sector 4 (AQA)", False, [
+    FusionLocation("Sector 5 (ARC) -- Flooded Airlock", False, [
         CanSpeedBoosterUnderwater
     ]),
     FusionLocation("Sector 5 (ARC) -- Mini-Fridge", False, [

@@ -141,7 +141,7 @@ Sector1TourianHub.locations = [
         PONRRequirement([], [CanReachAnimorphs]),
         Requirement(["Space Jump"], [CanReachAnimorphs]),
     ]),
-    FusionLocation("Sector 1 (SRX) -- Ridley Arena", True, [
+    FusionLocation("Sector 1 (SRX) -- Neo-Ridley Arena", True, [
         Requirement(["Charge Beam", "Wave Beam"], [CanFightLateGameBoss]),
         Requirement(["Power Bomb Data"], [CanFightLateGameBoss]),
         Requirement(["Charge Beam", "Wave Beam"], [CanFightLategameBossOnAdvanced]),

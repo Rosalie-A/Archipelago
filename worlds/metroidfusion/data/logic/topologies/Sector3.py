@@ -123,7 +123,7 @@ Sector3FieryStorageLeft.locations = [
 ]
 
 Sector3TubeLeft.locations = [
-    FusionLocation("Sector 3 (PYR) -- Glass Tube to Sector 5 (ARC)", False, [
+    FusionLocation("Sector 3 (PYR) -- Sector 3 (PYR) Westbound Glass Tube", False, [
         CanAccessGlassTubeItem
     ])
 ]

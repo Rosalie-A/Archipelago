@@ -82,7 +82,7 @@ Sector2Hub.locations = [
 ]
 
 Sector2LeftSide.locations = [
-    FusionLocation("Sector 2 (TRO) -- Zoro Zig-Zag", False, [
+    FusionLocation("Sector 2 (TRO) -- Zig-Zag-Zone", False, [
         Requirement(["Morph Ball"], [CanActivatePillar, CanJumpHigh])
     ])
 ]

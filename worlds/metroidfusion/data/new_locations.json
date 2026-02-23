@@ -139,7 +139,7 @@
       "Room": 27,
       "Source": "Ridley",
       "Original": "ScrewAttack",
-      "room_name": "Sector 1 (SRX) -- Ridley Arena"
+      "room_name": "Sector 1 (SRX) -- Neo-Ridley Arena"
     },
     {
       "Area": 3,
@@ -432,7 +432,7 @@
       "BlockY": 4,
       "Hidden": false,
       "Original": "MissileTank",
-      "room_name": "Sector 2 (TRO) -- Zoro Zig-Zag"
+      "room_name": "Sector 2 (TRO) -- Zig-Zag-Zone"
     },
     {
       "Area": 2,
@@ -711,7 +711,7 @@
       "BlockY": 3,
       "Hidden": true,
       "Original": "PowerBombTank",
-      "room_name": "Sector 3 (PYR) -- Glass Tube to Sector 5 (ARC)"
+      "room_name": "Sector 3 (PYR) -- Sector 3 (PYR) Westbound Glass Tube"
     },
     {
       "Area": 4,
@@ -774,7 +774,7 @@
       "BlockY": 19,
       "Hidden": false,
       "Original": "PowerBombTank",
-      "room_name": "Sector 4 (AQA) -- Cargo Hold to Sector 5 (ARC)"
+      "room_name": "Sector 4 (AQA) -- Cargo Hold"
     },
     {
       "Area": 4,
@@ -972,7 +972,7 @@
       "BlockY": 8,
       "Hidden": false,
       "Original": "PowerBombTank",
-      "room_name": "Sector 5 (ARC) -- Flooded Airlock to Sector 4 (AQA)"
+      "room_name": "Sector 5 (ARC) -- Flooded Airlock"
     },
     {
       "Area": 5,

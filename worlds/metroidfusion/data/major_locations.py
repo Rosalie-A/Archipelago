@@ -21,7 +21,7 @@ location_order = [
 	"Sector 4 (AQA) -- Level 4 Security Room",
 	"Sector 4 (AQA) -- Data Room",
 	"Sector 6 (NOC) -- X-B.O.X. Arena",
-	"Sector 1 (SRX) -- Ridley Arena",
+	"Sector 1 (SRX) -- Neo-Ridley Arena",
 	"Sector 3 (PYR) -- Main Boiler Control Room -- Boiler",
 	"Main Deck -- Habitation Deck -- Animals",
 	"Main Deck -- Auxiliary Power Station"
@@ -39,5 +39,5 @@ boss_locations = [
 	"Sector 2 (TRO) -- Nettori Arena",
 	"Sector 5 (ARC) -- Nightmare Arena",
 	"Sector 6 (NOC) -- X-B.O.X. Arena",
-	"Sector 1 (SRX) -- Ridley Arena",
+	"Sector 1 (SRX) -- Neo-Ridley Arena",
 ]
