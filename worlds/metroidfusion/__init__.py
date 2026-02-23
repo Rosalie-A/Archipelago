@@ -819,8 +819,6 @@ class MetroidFusionWorld(World):
             infant_metroids_required = self.options.InfantMetroidsInPool.value
 
         patch_dict["RequiredMetroidCount"] = infant_metroids_required
-        patch_dict["PowerBombsWithoutBombs"] = True
-        patch_dict["AccessibilityPatches"] = True
         patch_dict["RevealHiddenTiles"] = bool(self.options.RevealHiddenBlocks.value)
         patch_dict["DisableDemos"] = True
         patch_dict["SkipDoorTransitions"] = bool(self.options.FastDoorTransitions.value)
