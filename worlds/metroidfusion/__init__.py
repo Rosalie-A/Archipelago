@@ -791,9 +791,9 @@ class MetroidFusionWorld(World):
                         item_sprite = offworld_sprites[game][location.item.name].value
             if item_sprite is None: # If no offworld sprite, we use one based on classification
                 if location.item.classification & ItemClassification.progression:
-                    item_sprite = SpriteNames.Anonymous.value
+                    item_sprite = SpriteNames.APColor.value
                 else:
-                    item_sprite = SpriteNames.Empty.value
+                    item_sprite = SpriteNames.APMonochrome.value
             # For fun, local visible missile and power bomb tanks have a 1/1024 chance to be shiny.
             if location.item.player == self.player and not location_data.major:
                 if item_sprite == SpriteNames.MissileTank.value:

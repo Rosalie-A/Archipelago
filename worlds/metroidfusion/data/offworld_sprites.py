@@ -33,6 +33,11 @@ class SpriteNames(Enum):
     ShinyMissileTank = "ShinyMissileTank"
     ShinyPowerBombTank = "ShinyPowerBombTank"
     InfantMetroid = "InfantMetroid"
+    SamusHead = "SamusHead"
+    WalljumpBoots = "WalljumpBoots"
+    Randovania = "Randovania"
+    APColor = "ArchipelagoColor"
+    APMonochrome = "ArchipelagoMonochrome"
 
 offworld_sprites: dict[str, dict[str, SpriteNames]] = {
     "Super Metroid": {
@@ -84,7 +89,7 @@ offworld_sprites: dict[str, dict[str, SpriteNames]] = {
         "Missile Tank": SpriteNames.MissileTank,
         "Energy Tank": SpriteNames.EnergyTank,
         "Power Bomb Tank": SpriteNames.PowerBombTank,
-        "Ice Trap": SpriteNames.Anonymous,
+        "Ice Trap": SpriteNames.APColor,
         "Infant Metroid": SpriteNames.InfantMetroid
     },
     "SMZ3": {
