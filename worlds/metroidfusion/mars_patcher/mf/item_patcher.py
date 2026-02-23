@@ -1,8 +1,8 @@
+from ..item_messages import ItemMessages, ItemMessagesKind
 from .auto_generated_types import MarsschemamfTankincrements
-from .constants.items import ItemType, ItemSprite, ItemMessagesKind
-from .constants.reserved_space import ReservedConstantsMF
+from .constants.items import ItemSprite, ItemType
+from .constants.reserved_space import ReservedConstantsMF, ReservedPointersMF
 from .locations import (
-    ItemMessages,
     LocationSettings,
 )
 from ..rom import Rom
@@ -10,14 +10,13 @@ from ..room_entry import RoomEntry
 from ..text import Language, MessageType, encode_text
 from ..tileset import Tileset
 
-MINOR_LOCS_TABLE_ADDR = ReservedConstantsMF.MINOR_LOCS_TABLE_ADDR
-MINOR_LOCS_ARRAY_ADDR = ReservedConstantsMF.MINOR_LOCS_ARRAY_ADDR
+MINOR_LOCS_TABLE_ADDR = ReservedPointersMF.MINOR_LOCS_TABLE_ADDR.value
+MINOR_LOCS_ARRAY_ADDR = ReservedPointersMF.MINOR_LOCS_ARRAY_ADDR.value
 MINOR_LOC_SIZE = 0x10
-MAJOR_LOCS_POINTER_ADDR = ReservedConstantsMF.MAJOR_LOCS_POINTER_ADDR
+MAJOR_LOCS_POINTER_ADDR = ReservedPointersMF.MAJOR_LOCS_POINTER_ADDR.value
 MAJOR_LOC_SIZE = 0x4
-TANK_INC_ADDR = ReservedConstantsMF.TANK_INC_ADDR
-REQUIRED_METROID_COUNT_ADDR = ReservedConstantsMF.REQUIRED_METROID_COUNT_ADDR
-TOTAL_METROID_COUNT_ADDR = ReservedConstantsMF.TOTAL_METROID_COUNT_ADDR
+TANK_INC_ADDR = ReservedPointersMF.TANK_INC_ADDR.value
+METROID_PARAMETERS_ADDR = ReservedPointersMF.METROID_PARAMETERS_ADDR.value
 MESSAGE_TABLE_LOOKUP_ADDR = ReservedConstantsMF.MESSAGE_TABLE_LOOKUP_ADDR
 FIRST_CUSTOM_MESSAGE_ID = ReservedConstantsMF.FIRST_CUSTOM_MESSAGE_ID
 AUTO_MESSAGE_ID = 0xFF
@@ -194,7 +193,7 @@ class ItemPatcher:
                 # Write item jingle
                 rom.write_8(addr + 2, maj_loc.item_jingle.value)
         # Write total metroid count
-        rom.write_8(rom.read_ptr(TOTAL_METROID_COUNT_ADDR), total_metroids)
+        rom.write_8(rom.read_ptr(METROID_PARAMETERS_ADDR), total_metroids)
 
     def write_custom_message(
         self,
@@ -223,14 +222,13 @@ class ItemPatcher:
                 ),
                 centered=messages.centered,
             )
-            message_addr = rom.reserve_free_space(len(encoded_text) * 2)
-            rom.write_ptr(message_table_addrs[lang] + (4 * custom_message_id), message_addr)
-            rom.write_16_list(message_addr, encoded_text)
+            message_ptr = message_table_addrs[lang] + (4 * custom_message_id)
+            rom.write_data_with_pointers(encoded_text, [message_ptr])
 
 
 # TODO: Move these?
 def set_required_metroid_count(rom: Rom, count: int) -> None:
-    rom.write_8(rom.read_ptr(REQUIRED_METROID_COUNT_ADDR) + 1, count)
+    rom.write_8(rom.read_ptr(METROID_PARAMETERS_ADDR) + 1, count)
 
 
 def set_tank_increments(rom: Rom, data: MarsschemamfTankincrements) -> None:

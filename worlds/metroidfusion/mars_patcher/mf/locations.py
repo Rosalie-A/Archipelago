@@ -1,13 +1,9 @@
-from __future__ import annotations
-
 import json
-import os
-import pkgutil
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar
 
-from ..frozendict import frozendict
+from typing_extensions import Self
 
+from ..item_messages import ItemMessages
+from .auto_generated_types import MarsschemamfLocations
 from .constants.items import (
     ITEM_ENUMS,
     ITEM_SPRITE_ENUMS,
@@ -15,32 +11,23 @@ from .constants.items import (
     KEY_AREA,
     KEY_BLOCK_X,
     KEY_BLOCK_Y,
-    KEY_CENTERED,
     KEY_HIDDEN,
     KEY_ITEM,
     KEY_ITEM_JINGLE,
     KEY_ITEM_MESSAGES,
-    KEY_ITEM_MESSAGES_KIND,
     KEY_ITEM_SPRITE,
-    KEY_LANGUAGES,
     KEY_MAJOR_LOCS,
-    KEY_MESSAGE_ID,
     KEY_MINOR_LOCS,
     KEY_ORIGINAL,
     KEY_ROOM,
     KEY_SOURCE,
     SOURCE_ENUMS,
     ItemJingle,
-    ItemMessagesKind,
     ItemSprite,
     ItemType,
     MajorSource,
 )
-
-from ..text import Language
-
-if TYPE_CHECKING:
-    from .auto_generated_types import Itemmessages, MarsschemamfLocations
+from .data import get_data_path
 
 
 class Location:
@@ -101,54 +88,15 @@ class MinorLocation(Location):
         self.item_jingle = item_jingle
 
 
-@dataclass(frozen=True)
-class ItemMessages:
-    kind: ItemMessagesKind
-    item_messages: frozendict[Language, str]
-    centered: bool
-    message_id: int
-
-    LANG_ENUMS: ClassVar[dict[str, Language]] = {
-        "JapaneseKanji": Language.JAPANESE_KANJI,
-        "JapaneseHiragana": Language.JAPANESE_HIRAGANA,
-        "English": Language.ENGLISH,
-        "German": Language.GERMAN,
-        "French": Language.FRENCH,
-        "Italian": Language.ITALIAN,
-        "Spanish": Language.SPANISH,
-    }
-
-    KIND_ENUMS: ClassVar[dict[str, ItemMessagesKind]] = {
-        "CustomMessage": ItemMessagesKind.CUSTOM_MESSAGE,
-        "MessageID": ItemMessagesKind.MESSAGE_ID,
-    }
-
-    @classmethod
-    def from_json(cls, data: Itemmessages) -> ItemMessages:
-        item_messages: dict[Language, str] = {}
-        centered = True
-        kind: ItemMessagesKind = cls.KIND_ENUMS[data[KEY_ITEM_MESSAGES_KIND]]
-        message_id = 0
-        if kind == ItemMessagesKind.CUSTOM_MESSAGE:
-            for lang_name, message in data[KEY_LANGUAGES].items():
-                lang = cls.LANG_ENUMS[lang_name]
-                item_messages[lang] = message
-            centered = data.get(KEY_CENTERED, True)
-        else:
-            message_id = data[KEY_MESSAGE_ID]
-
-        return cls(kind, frozendict(item_messages), centered, message_id)
-
-
 class LocationSettings:
     def __init__(self, major_locs: list[MajorLocation], minor_locs: list[MinorLocation]):
         self.major_locs = major_locs
         self.minor_locs = minor_locs
 
     @classmethod
-    def initialize(cls) -> LocationSettings:
-        path = os.path.join("data", "locations.json")
-        data = json.loads(pkgutil.get_data(__name__, path).decode())
+    def initialize(cls) -> Self:
+        with open(get_data_path("locations.json")) as f:
+            data = json.load(f)
 
         major_locs = []
         for entry in data[KEY_MAJOR_LOCS]:
@@ -172,7 +120,7 @@ class LocationSettings:
             )
             minor_locs.append(minor_loc)
 
-        return LocationSettings(major_locs, minor_locs)
+        return cls(major_locs, minor_locs)
 
     def set_assignments(self, data: MarsschemamfLocations) -> None:
         for maj_loc_entry in data[KEY_MAJOR_LOCS]:

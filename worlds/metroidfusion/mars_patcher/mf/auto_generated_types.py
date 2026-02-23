@@ -127,7 +127,14 @@ Validitemsprites = typ.Literal[
     'Anonymous',
     'ShinyMissileTank',
     'ShinyPowerBombTank',
-    'InfantMetroid'
+    'InfantMetroid',
+    'ShinyPowerBombTank',
+    'InfantMetroid',
+    'SamusHead',
+    'WalljumpBoots',
+    'Randovania',
+    'ArchipelagoColor',
+    'ArchipelagoMonochrome'
 ]
 Validabilities = typ.Literal[
     'Missiles',
@@ -506,6 +513,23 @@ MarsschemamfNavstationlocksKey = typ.Literal[
 ]
 
 
+class MarsschemamfEnvironmentaldamage(typ.TypedDict):
+    Lava: Typeu8 = 20
+    """The amount of damage per second taken while submerged in lava."""
+
+    Acid: Typeu8 = 60
+    """The amount of damage per second taken while submerged in acid."""
+
+    Heat: Typeu8 = 6
+    """The amount of damage per second taken while in a heated environment."""
+
+    Cold: Typeu8 = 15
+    """The amount of damage per second taken while in a cold environment."""
+
+    Subzero: Typeu8 = 6
+    """The amount of damage per second taken while in Sub-Zero Containment. Currently unused, will always use Cold."""
+
+
 @typ.final
 class MarsschemamfLeveledits(typ.TypedDict, total=False):
     """Specifies the Room ID."""
@@ -605,6 +629,15 @@ class Marsschemamf(typ.TypedDict, total=False):
     DisableDemos: bool = False
     """Disables title screen demos when true."""
 
+    InstantUnmorph: bool = False
+    """When true, enables instant unmorphing via the SELECT button."""
+
+    NerfGerons: bool = False
+    """When true, changes the Geron weaknesses to only be weak to their 'intended' values."""
+
+    UseAlternativeHudHealthLayout: bool = False
+    """When true, changes the HUD health layout to display 'currentHP/totalHP'."""
+
     SkipDoorTransitions: bool = False
     """Makes all door transitions instant when true."""
 
@@ -617,17 +650,12 @@ class Marsschemamf(typ.TypedDict, total=False):
     DisableSoundEffects: bool = False
     """Disables all sound effects when true."""
 
+    EnvironmentalDamage: MarsschemamfEnvironmentaldamage
     MissileLimit: Typeu8 = 3
     """Changes how many missiles can be on-screen at a time. The vanilla game has it set to 2, the randomizer changes it to 3 by default. Zero Mission uses 4."""
 
     UnexploredMap: bool = False
     """When enabled, starts you with a map where all unexplored items and non-visited tiles have a gray background. This is different from the downloaded map stations where there, the full tile is gray."""
-
-    PowerBombsWithoutBombs: bool = False
-    """When enabled, lets you use Power Bombs without needing to collect Bomb Data."""
-
-    AccessibilityPatches: bool = False
-    """Whether to apply patches for better accessibility."""
 
     LevelEdits: dict[Areaidkey, dict[str, MarsschemamfLeveledits]]
     """Specifies room edits that should be done. These will be applied last."""

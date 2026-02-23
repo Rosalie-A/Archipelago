@@ -1,9 +1,8 @@
 import json
-import os
-import pkgutil
 from collections.abc import Callable
 from os import PathLike
 
+from ..level_edits import apply_level_edits
 from .auto_generated_types import MarsSchemaMF
 from .connections import Connections
 from .credits import write_credits
@@ -16,9 +15,11 @@ from .item_patcher import (
 )
 from .locations import LocationSettings
 from .misc_patches import (
-    apply_accessibility_patch,
+    apply_alternative_health_layout,
     apply_base_patch,
-    apply_pbs_without_bombs,
+    apply_environmental_damage,
+    apply_instant_unmorph_patch,
+    apply_nerf_gerons,
     apply_reveal_hidden_tiles,
     apply_reveal_unexplored_doors,
     apply_unexplored_map,
@@ -32,9 +33,8 @@ from .misc_patches import (
 from .navigation_text import NavigationText
 from .room_names import write_room_names
 from .starting import set_starting_items, set_starting_location
-from ..level_edits import apply_level_edits
 from ..minimap import apply_minimap_edits
-from ..random_palettes import PaletteSettings, PaletteRandomizer
+from ..random_palettes import PaletteRandomizer, PaletteSettings
 from ..rom import Rom
 from ..text import write_seed_hash
 from ..titlescreen_text import write_title_text
@@ -130,16 +130,16 @@ def patch_mf(
         write_credits(rom, credits_text)
 
     # Misc patches
-    if patch_data.get("AccessibilityPatches"):
-        apply_accessibility_patch(rom)
-
     if patch_data.get("DisableDemos"):
         disable_demos(rom)
+
+    if patch_data.get("InstantUnmorph"):
+        apply_instant_unmorph_patch(rom)
 
     if patch_data.get("SkipDoorTransitions"):
         skip_door_transitions(rom)
 
-    if patch_data.get("StereoDefault", False):
+    if patch_data.get("StereoDefault", True):
         stereo_default(rom)
 
     if patch_data.get("DisableMusic"):
@@ -148,11 +148,17 @@ def patch_mf(
     if patch_data.get("DisableSoundEffects"):
         disable_sound_effects(rom)
 
+    if environmental_damage := patch_data.get("EnvironmentalDamage"):
+        apply_environmental_damage(rom, environmental_damage)
+
     if "MissileLimit" in patch_data:
         change_missile_limit(rom, patch_data["MissileLimit"])
 
-    if patch_data.get("PowerBombsWithoutBombs"):
-        apply_pbs_without_bombs(rom)
+    if patch_data.get("NerfGerons"):
+        apply_nerf_gerons(rom)
+
+    if patch_data.get("UseAlternativeHudHealthLayout"):
+        apply_alternative_health_layout(rom)
 
     if patch_data.get("UnexploredMap"):
         apply_unexplored_map(rom)
@@ -167,8 +173,8 @@ def patch_mf(
         apply_level_edits(rom, patch_data["LevelEdits"])
 
     # Apply base minimap edits
-    path = os.path.join("data", "base_minimap_edits.json")
-    edits_dict = json.loads(pkgutil.get_data(__name__, path).decode())
+    with open(get_data_path("base_minimap_edits.json")) as f:
+        edits_dict = json.load(f)
     apply_minimap_edits(rom, edits_dict)
 
     # Apply JSON minimap edits

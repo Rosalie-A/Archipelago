@@ -4,7 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 from .constants.game_data import navigation_text_ptrs
-from .constants.reserved_space import ReservedConstantsMF
+from .constants.reserved_space import ReservedPointersMF
 from ..rom import Rom
 from ..text import Language, MessageType, encode_text
 
@@ -108,18 +108,14 @@ class NavigationText:
             # Info Text
             for info_place, text in lang_texts["ShipText"].items():
                 encoded_text = encode_text(rom, MessageType.CONTINUOUS, text)
-                text_addr = rom.reserve_free_space(len(encoded_text) * 2)
-                rom.write_ptr(base_text_address + info_place.value * 4, text_addr)
-                rom.write_ptr(base_text_address + info_place.value * 4 + 4, text_addr)
-                rom.write_16_list(text_addr, encoded_text)
+                text_ptr = base_text_address + info_place.value * 4
+                rom.write_data_with_pointers(encoded_text, [text_ptr, text_ptr + 4])
 
             # Navigation Text
             for nav_room, text in lang_texts["NavigationTerminals"].items():
                 encoded_text = encode_text(rom, MessageType.CONTINUOUS, text)
-                text_addr = rom.reserve_free_space(len(encoded_text) * 2)
-                rom.write_ptr(base_text_address + nav_room.value * 8, text_addr)
-                rom.write_ptr(base_text_address + nav_room.value * 8 + 4, text_addr)
-                rom.write_16_list(text_addr, encoded_text)
+                text_ptr = base_text_address + nav_room.value * 8
+                rom.write_data_with_pointers(encoded_text, [text_ptr, text_ptr + 4])
 
     @classmethod
     def apply_hint_security(
@@ -132,6 +128,6 @@ class NavigationText:
         default_lock_name = "OPEN"
         for location, offset in NavigationText.NAV_ROOM_ENUMS.items():
             rom.write_8(
-                rom.read_ptr(ReservedConstantsMF.HINT_SECURITY_LEVELS_ADDR) + offset.value,
+                rom.read_ptr(ReservedPointersMF.HINT_SECURITY_LEVELS_ADDR.value) + offset.value,
                 NavStationLockType[locks.get(location, default_lock_name)].value,
             )

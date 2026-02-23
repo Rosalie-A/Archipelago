@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import json
-import os
-import pkgutil
 from typing import TYPE_CHECKING
 
 from .compress import comp_lz77, decomp_lz77
@@ -24,7 +21,7 @@ class Minimap:
         self.rom = rom
         self.pointer = minimap_ptrs(rom) + (id * 4)
         addr = rom.read_ptr(self.pointer)
-        self.tile_data, self.comp_len = decomp_lz77(rom.data, addr)
+        self.tile_data, self.comp_size = decomp_lz77(rom.data, addr)
 
     def __enter__(self) -> Minimap:
         # We don't need to do anything
@@ -65,15 +62,9 @@ class Minimap:
 
     def write(self) -> None:
         comp_data = comp_lz77(self.tile_data)
-        comp_len = len(comp_data)
-        if comp_len > self.comp_len:
-            # Repoint data
-            addr = self.rom.reserve_free_space(comp_len)
-            self.rom.write_ptr(self.pointer, addr)
-        else:
-            addr = self.rom.read_ptr(self.pointer)
-        self.rom.write_bytes(addr, comp_data)
-        self.comp_len = comp_len
+        addr = self.rom.read_ptr(self.pointer)
+        self.rom.write_repointable_data(addr, self.comp_size, comp_data, [self.pointer])
+        self.comp_size = len(comp_data)
 
 
 def apply_minimap_edits(rom: Rom, edit_dict: dict) -> None:
@@ -81,24 +72,6 @@ def apply_minimap_edits(rom: Rom, edit_dict: dict) -> None:
     for map_id, changes in edit_dict.items():
         with Minimap(rom, int(map_id)) as minimap:
             for change in changes:
-                minimap.set_tile_value(
-                    change["X"],
-                    change["Y"],
-                    change["Tile"],
-                    change["Palette"],
-                    change.get("HFlip", False),
-                    change.get("VFlip", False),
-                )
-
-
-def apply_base_minimap_edits(rom: Rom) -> None:
-    path = os.path.join("data", "base_minimap_edits.json")
-    data = json.loads(pkgutil.get_data(__name__, path).decode())
-
-    # Go through every minimap
-    for map in data:
-        with Minimap(rom, int(map["MAP_ID"])) as minimap:
-            for change in map["CHANGES"]:
                 minimap.set_tile_value(
                     change["X"],
                     change["Y"],

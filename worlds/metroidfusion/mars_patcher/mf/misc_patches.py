@@ -1,10 +1,9 @@
 from ..constants import game_data as gd
-from .constants.reserved_space import ReservedConstantsMF
+from .auto_generated_types import MarsschemamfEnvironmentaldamage
+from .constants.reserved_space import ReservedPointersMF
 from .data import get_data_path
 from ..patching import BpsDecoder, IpsDecoder
 from ..rom import Rom
-import os
-import pkgutil
 
 
 def _get_patch_path(rom: Rom, subfolder: str, filename: str) -> str:
@@ -14,27 +13,23 @@ def _get_patch_path(rom: Rom, subfolder: str, filename: str) -> str:
 
 def _internal_apply_ips_patch(rom: Rom, patch_name: str, subfolder: str) -> None:
     path = _get_patch_path(rom, subfolder, patch_name)
-    patch = pkgutil.get_data("", path)
+    with open(path, "rb") as f:
+        patch = f.read()
     IpsDecoder().apply_patch(patch, rom.data)
 
 
 def apply_patch_in_data_path(rom: Rom, patch_name: str) -> None:
-    path = os.path.join("data", "patches", "mf_u", patch_name)
-    patch = pkgutil.get_data(__name__, path)
-    IpsDecoder().apply_patch(patch, rom.data)
-    #_internal_apply_ips_patch(rom, patch_name, "")
+    _internal_apply_ips_patch(rom, patch_name, "")
 
 
 def apply_patch_in_asm_path(rom: Rom, patch_name: str) -> None:
-    path = os.path.join("data", "patches", "mf_u", "asm", patch_name)
-    patch = pkgutil.get_data(__name__, path)
-    IpsDecoder().apply_patch(patch, rom.data)
-    #_internal_apply_ips_patch(rom, patch_name, "asm")
+    _internal_apply_ips_patch(rom, patch_name, "asm")
 
 
 def apply_base_patch(rom: Rom) -> None:
-    path = os.path.join("data", "patches", "mf_u", "asm", "m4rs.bps")
-    patch = pkgutil.get_data(__name__, path)
+    path = _get_patch_path(rom, "asm", "m4rs.bps")
+    with open(path, "rb") as f:
+        patch = f.read()
     rom.data = BpsDecoder().apply_patch(patch, rom.data)
 
 
@@ -49,7 +44,7 @@ def skip_door_transitions(rom: Rom) -> None:
 
 
 def stereo_default(rom: Rom) -> None:
-    rom.write_8(rom.read_ptr(ReservedConstantsMF.DEFAULT_STEREO_FLAG_POINTER_ADDR), 1)
+    rom.write_8(rom.read_ptr(ReservedPointersMF.DEFAULT_STEREO_FLAG_POINTER_ADDR.value), 1)
 
 
 def disable_sounds(rom: Rom, start: int, end: int, exclude: set[int] = set()) -> None:
@@ -76,24 +71,42 @@ def disable_sound_effects(rom: Rom) -> None:
 
 
 def change_missile_limit(rom: Rom, limit: int) -> None:
-    rom.write_8(rom.read_ptr(ReservedConstantsMF.MISSILE_LIMIT_ADDR), limit)
+    rom.write_8(rom.read_ptr(ReservedPointersMF.MISSILE_LIMIT_ADDR.value), limit)
 
 
 def apply_unexplored_map(rom: Rom) -> None:
     apply_patch_in_asm_path(rom, "unhidden_map.ips")
 
 
-def apply_pbs_without_bombs(rom: Rom) -> None:
-    apply_patch_in_asm_path(rom, "bombless_pbs.ips")
+def apply_nerf_gerons(rom: Rom) -> None:
+    apply_patch_in_asm_path(rom, "nerf_geron_weakness.ips")
+
+
+def apply_alternative_health_layout(rom: Rom) -> None:
+    rom.write_8(rom.read_ptr(ReservedPointersMF.USE_ALTERNATIVE_HUD_DISPLAY.value), 1)
+
+
+def apply_environmental_damage(rom: Rom, damage_dict: MarsschemamfEnvironmentaldamage) -> None:
+    base_address = rom.read_ptr(ReservedPointersMF.ENVIRONMENTAL_HAZARD_DAMAGE_ADDR.value)
+    damage = [
+        damage_dict["Lava"],
+        damage_dict["Acid"],
+        damage_dict["Heat"],
+        # ASM currently has Subzero and Cold mislabelled. https://github.com/MetroidAdvRandomizerSystem/mars-fusion-asm/issues/374
+        damage_dict["Cold"],
+        damage_dict["Subzero"],
+    ]
+    for offset, damage_amount in enumerate(damage):
+        rom.write_8(base_address + offset, damage_amount)
 
 
 def apply_reveal_hidden_tiles(rom: Rom) -> None:
-    rom.write_8(rom.read_ptr(ReservedConstantsMF.REVEAL_HIDDEN_TILES_ADDR), 1)
+    rom.write_8(rom.read_ptr(ReservedPointersMF.REVEAL_HIDDEN_TILES_ADDR.value), 1)
 
 
 def apply_reveal_unexplored_doors(rom: Rom) -> None:
     apply_patch_in_asm_path(rom, "unhidden_map_doors.ips")
 
 
-def apply_accessibility_patch(rom: Rom) -> None:
-    apply_patch_in_asm_path(rom, "accessibility.ips")
+def apply_instant_unmorph_patch(rom: Rom) -> None:
+    rom.write_8(rom.read_ptr(ReservedPointersMF.INSTANT_MORPH_FLAG_POINTER_ADDR.value), 1)

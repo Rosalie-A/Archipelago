@@ -5,12 +5,12 @@ from .auto_generated_types import (
 )
 from .constants.game_data import starting_equipment
 from .constants.items import BEAM_FLAGS, MISSILE_BOMB_FLAGS, SUIT_MISC_FLAGS
-from .constants.reserved_space import ReservedConstantsMF
+from .constants.reserved_space import ReservedPointersMF
 from ..rom import Rom
 from ..room_entry import RoomEntry
 
 # Keep in sync with base patch
-STARTING_LOC_ADDR = ReservedConstantsMF.STARTING_LOCATION_ADDR
+STARTING_LOC_ADDR = ReservedPointersMF.STARTING_LOCATION_ADDR.value
 
 
 def set_starting_location(rom: Rom, data: MarsschemamfStartinglocation) -> None:

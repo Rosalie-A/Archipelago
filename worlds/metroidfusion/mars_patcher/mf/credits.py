@@ -4,7 +4,7 @@ from .constants.credits_lines import (
     MARS_CREDITS,
     RDV_CREDITS,
 )
-from ..credits import CreditsWriter, CreditsLine
+from ..credits import CreditsLine, CreditsWriter
 from ..rom import Rom
 
 CREDITS_ADDR = 0x74B0B0
