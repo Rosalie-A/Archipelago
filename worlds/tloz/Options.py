@@ -37,7 +37,7 @@ class WeaponLogic(Choice):
     """What level of offensive power is logically required for later dungeons.
     Easy means the Sword will be required for level 1 and later, the White Sword for levels 4 and later,
     and the Magical Sword for levels 6, 8, and 9.
-    Moderate means the Swrod for level 1 and later and the White Sword or Magical Rod for levels 4 and later.
+    Moderate means the Sword for level 1 and later and the White Sword or Magical Rod for levels 4 and later.
     Hard means no safety logic is added. You may be required to defeat enemies with weak or unusual weaponry, such as
     Wizzrobes with the basic Sword or Darknuts with the Magical Rod."""
     display_name = "Weapon Logic"
@@ -89,6 +89,17 @@ class ShopItems(ItemSet):
     valid_keys = item_names
     default = default_shop_items
 
+class DeathLink(Choice):
+    """When DeathLink is enabled and someone dies, you will die. With 'survive', a Water of Life
+    (blue or red potion) can save you."""
+    display_name = "Death Link"
+    option_disable = 0
+    option_enable = 1
+    option_enable_survive = 3
+    alias_false = 0
+    alias_true = 1
+    default = 0
+
 
 
 @dataclass
@@ -101,6 +112,7 @@ class TlozOptions(PerGameCommonOptions):
     EntranceShuffle: EntranceShuffle
     RandomizeWarpCaves: RandomizeWarpCaves
     ShopItems: ShopItems
+    DeathLink: DeathLink
 
 
 def is_open_cave_shuffled(option_value) -> bool:

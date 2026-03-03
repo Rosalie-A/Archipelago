@@ -17,6 +17,7 @@ header_length = 0x10
 player_name_location = 0x20
 player_name_length = 0x40
 major_offsets_location = 0x60
+deathlink_options = 0x80
 bit_positions = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
 candle_shop = bit_positions[4]
 arrow_shop = bit_positions[3]
@@ -31,6 +32,8 @@ take_any_caves_checked = 0x0678
 first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
 game_mode = 0x12
+fill_hearts = 0x63
+death_mode_counter = 0xE5
 items_obtained_low = 0x0677
 items_obtained_high = 0x067B
 sword = 0x0657
@@ -115,17 +118,6 @@ shop_correspondance = {
     "Shield Shop": shield_shop,
     "Potion Shop": potion_shop
 }
-
-
-class TLoZDeltaPatch(APDeltaPatch):
-    hash = NA10CHECKSUM
-    game = "The Legend of Zelda"
-    patch_file_ending = ".aptloz"
-    result_file_ending = ".nes"
-
-    @classmethod
-    def get_source_data(cls) -> bytes:
-        return get_base_rom_bytes()
 
 
 def get_base_rom_bytes(file_name: str = "") -> bytes:
@@ -225,6 +217,7 @@ class TLOZPatchExtension(APPatchExtension):
         player_name = bytearray(placements["meta"]["player_name"], 'utf8')[:player_name_length]
         player_name.extend([0] * (player_name_length - len(player_name)))
         rom_data[player_name_location + header_length:player_name_location + header_length + player_name_length] = player_name
+        rom_data[deathlink_options + header_length] = placements["meta"]["death_link"]
 
         # Write each location's new data in
         for location, item in placements.items():
