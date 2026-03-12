@@ -45,7 +45,7 @@ class TLOZClient(BizHawkClient):
             rom_name = ((await bizhawk.read(ctx.bizhawk_ctx, [(Rom.rom_name_location, 3, self.rom)]))[0]).decode("ascii")
             if rom_name != "LOZ":
                 return False
-            nes_core = (await bizhawk.get_cores(ctx.bizhawk_ctx))["NES"]
+            #nes_core = (await bizhawk.get_cores(ctx.bizhawk_ctx))["NES"]
         except (bizhawk.RequestFailedError, UnicodeDecodeError):
             return False  # Not able to get a response, say no for now
 
@@ -53,7 +53,7 @@ class TLOZClient(BizHawkClient):
         ctx.items_handling = 0b101
         ctx.want_slot_data = True
 
-        self.sram_name = WRAM_NAMES[nes_core]
+        #self.sram_name = WRAM_NAMES[nes_core]
 
         deathlink = (await bizhawk.read(ctx.bizhawk_ctx, [(Rom.deathlink_options, 1, self.rom)]))[0][0]
         if deathlink:
