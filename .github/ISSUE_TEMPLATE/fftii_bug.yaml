@@ -1,0 +1,12 @@
+name: FFTII Bug
+description: Add a bug or bugfix issue for FFTII
+title: "[Bug] [FFTII] "
+assignees:
+  - Rosalie-A
+labels:
+  - bug
+body:
+  - type: textarea
+    id: bug
+    attributes:
+      label: What is the bug and what is the expected behavior?
