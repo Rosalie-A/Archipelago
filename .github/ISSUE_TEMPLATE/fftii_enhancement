@@ -1,0 +1,12 @@
+name: FFTII Enhancement
+description: Add an Enhancement issue for FFTII
+title: "[Enhancement] [FFTII] "
+assignees:
+  - Rosalie-A
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: What feature would you like to see?
