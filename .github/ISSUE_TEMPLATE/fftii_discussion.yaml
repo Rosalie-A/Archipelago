@@ -1,0 +1,16 @@
+name: FFTII Discussion Topic
+description: Add a Discussion issue for FFTII
+title: "[Discussion] [FFTII] "
+assignees:
+  - Rosalie-A
+labels:
+  - discussion
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is intended for internal usage. You probably are looking for an enhancement or bug report.
+  - type: textarea
+    id: feature
+    attributes:
+      label: What is the discussion topic?
