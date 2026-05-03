@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Range, PerGameCommonOptions, OptionGroup, StartInventoryPool, DefaultOnToggle, Toggle, Choice, \
-    Visibility
+from Options import Range, PerGameCommonOptions, OptionGroup, StartInventoryPool, DefaultOnToggle, Toggle, Choice
 
 
 # Main Options
@@ -33,7 +32,7 @@ class ZodiacStoneLocations(Choice):
     default = 0
 
 class FinalBattles(Choice):
-    """What the final goal is.
+    """What the final goal is, located at the Murond Death City world map dot near Deep Dungeon.
     Vanilla requires the completion of all six final battles in sequence at Murond Death City.
     Altima Only requires only Altima at Murond Death City, and the other endgame battles will be located at Orbonne."""
     display_name = "Final Battles"
@@ -216,6 +215,21 @@ class EnemyRandomizerMethod(Choice):
     option_chaos = 1
     default = 0
 
+# MFI Options
+class MoveFindItemLocations(Toggle):
+    """Will Move-Find Item locations contain multiworld items? WARNING: Will be more annoying than you think."""
+    display_name = "Move-Find Item Locations"
+
+class MoveFindItemLocationLogic(Choice):
+    """Controls what is needed to access MFI locations.
+    Vanilla requires Move-Find Item to be equipped.
+    Chemist Innate makes Move-Find Item innate to Chemists.
+    Player Innate makes Move-Find Item innate to all player units."""
+    display_name = "Move-Find Item Location Logic"
+    option_vanilla = 0
+    option_chemist_innate = 1
+    option_player_innate = 2
+
 # Unused options
 class StartingRegion(Choice):
     """What region to start in. Gallione is easiest, followed by Lesalia and Lionel. Fovoham, Zeltennia, and Limberry
@@ -257,6 +271,8 @@ class FinalFantasyTacticsIIOptions(PerGameCommonOptions):
     enemy_randomizer_locality: EnemyRandomizerLocality
     lucavi_randomizer: LucaviRandomizer
     enemy_randomizer_method: EnemyRandomizerMethod
+    move_find_item_locations: MoveFindItemLocations
+    move_find_item_location_logic: MoveFindItemLocationLogic
     exp_gain_multiplier: EXPGainMultiplier
     jp_gain_multiplier: JPGainMultiplier
     start_inventory_from_pool: StartInventoryPool
@@ -295,6 +311,10 @@ fftii_option_groups = [
         EnemyRandomizerLocality,
         LucaviRandomizer,
         EnemyRandomizerMethod
+    ]),
+    OptionGroup("Move-Find Item Options", [
+        MoveFindItemLocations,
+        MoveFindItemLocationLogic
     ]),
     OptionGroup("QOL Options", [
         EXPGainMultiplier,

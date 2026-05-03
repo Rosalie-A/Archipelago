@@ -1,4 +1,5 @@
 from BaseClasses import Location
+from .data.logic.FFTLocation import MoveFindItemLocation, FFTLocation
 from .data.logic.Requirement import Requirement
 from .data.logic import topologies
 from .data.locations import all_regions, monster_location_names, location_sort_list, location_sort_list_names
@@ -25,9 +26,14 @@ class LocationData:
 id = 1
 
 all_locations: list[LocationData] = list()
+mfi_locations: list[FFTLocation] = list()
 
 for region in all_regions:
     for location in region.locations:
+        # Defer MFI location adding so I don't go insane updating the tracker
+        if issubclass(location.__class__, MoveFindItemLocation):
+            mfi_locations.append(location)
+            continue
         location_data = LocationData(location.name, id, location.battle_level)
         location_data.requirements = location.requirements
         all_locations.append(location_data)
@@ -39,4 +45,11 @@ for monster in monster_location_names:
     location_data = LocationData(monster, id, 0)
     all_locations.append(location_data)
     all_monster_locations.append(location_data)
+    id += 1
+
+for location in mfi_locations:
+    location_data = LocationData(location.name, id, location.battle_level)
+    location_data.requirements = location.requirements
+    all_locations.append(location_data)
+    print(f'[{id}] = {{"@Move-Find Item/{location.name[:-6]}/{location.name[-5:]}"}},')
     id += 1

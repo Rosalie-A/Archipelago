@@ -1,6 +1,6 @@
 from ..Connection import Connection
 from ..Requirements import *
-from ..FFTLocation import FFTLocation, RareBattleLocation, LocationNames
+from ..FFTLocation import FFTLocation, RareBattleLocation, LocationNames, MoveFindItemLocation
 
 from ..regions.Gallione import *
 from ..regions.Fovoham import Fovoham
@@ -27,7 +27,11 @@ Mandalia.connections = [
 Mandalia.locations = [
     FFTLocation(LocationNames.MANDALIA_STORY, battle_level=0),
     FFTLocation(LocationNames.MANDALIA_SHOP, battle_level=0),
-    RareBattleLocation(LocationNames.MANDALIA_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.MANDALIA_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.MANDALIA_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.MANDALIA_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.MANDALIA_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.MANDALIA_MFI_4, battle_level=0)
 ]
 
 Igros.connections = [
@@ -37,7 +41,11 @@ Igros.connections = [
 
 Igros.locations = [
     FFTLocation(LocationNames.IGROS_STORY, battle_level=14),
-    FFTLocation(LocationNames.IGROS_STONE, battle_level=14)
+    FFTLocation(LocationNames.IGROS_STONE, battle_level=14),
+    MoveFindItemLocation(LocationNames.IGROS_MFI_1, battle_level=14),
+    MoveFindItemLocation(LocationNames.IGROS_MFI_2, battle_level=14),
+    MoveFindItemLocation(LocationNames.IGROS_MFI_3, battle_level=14),
+    MoveFindItemLocation(LocationNames.IGROS_MFI_4, battle_level=14)
 ]
 
 Sweegy.connections = [
@@ -47,7 +55,11 @@ Sweegy.connections = [
 
 Sweegy.locations = [
     FFTLocation(LocationNames.SWEEGY_STORY, battle_level=1),
-    RareBattleLocation(LocationNames.SWEEGY_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.SWEEGY_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.SWEEGY_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.SWEEGY_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.SWEEGY_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.SWEEGY_MFI_4, battle_level=0)
 ]
 
 Dorter.connections = [
@@ -59,7 +71,15 @@ Dorter.connections = [
 
 Dorter.locations = [
     FFTLocation(LocationNames.DORTER_1_STORY, battle_level=1),
-    FFTLocation(LocationNames.DORTER_2_STORY, battle_level=4)
+    FFTLocation(LocationNames.DORTER_2_STORY, battle_level=4),
+    MoveFindItemLocation(LocationNames.DORTER_SLUMS_MFI_1, battle_level=1),
+    MoveFindItemLocation(LocationNames.DORTER_SLUMS_MFI_2, battle_level=1),
+    MoveFindItemLocation(LocationNames.DORTER_SLUMS_MFI_3, battle_level=1),
+    MoveFindItemLocation(LocationNames.DORTER_SLUMS_MFI_4, battle_level=1),
+    MoveFindItemLocation(LocationNames.DORTER_CITY_MFI_1, battle_level=4),
+    MoveFindItemLocation(LocationNames.DORTER_CITY_MFI_2, battle_level=4),
+    MoveFindItemLocation(LocationNames.DORTER_CITY_MFI_3, battle_level=4),
+    MoveFindItemLocation(LocationNames.DORTER_CITY_MFI_4, battle_level=4)
 ]
 
 ThievesFort.connections = [
@@ -67,7 +87,11 @@ ThievesFort.connections = [
 ]
 
 ThievesFort.locations = [
-    FFTLocation(LocationNames.THIEVES_FORT_STORY, battle_level=2)
+    FFTLocation(LocationNames.THIEVES_FORT_STORY, battle_level=2),
+    MoveFindItemLocation(LocationNames.THIEVES_FORT_MFI_1, battle_level=2),
+    MoveFindItemLocation(LocationNames.THIEVES_FORT_MFI_2, battle_level=2),
+    MoveFindItemLocation(LocationNames.THIEVES_FORT_MFI_3, battle_level=2),
+    MoveFindItemLocation(LocationNames.THIEVES_FORT_MFI_4, battle_level=2)
 ]
 
 Lenalia.connections = [
@@ -78,7 +102,11 @@ Lenalia.connections = [
 Lenalia.locations = [
     FFTLocation(LocationNames.LENALIA_STORY, battle_level=2),
     FFTLocation(LocationNames.LENALIA_SHOP, battle_level=2),
-    RareBattleLocation(LocationNames.LENALIA_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.LENALIA_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.LENALIA_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.LENALIA_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.LENALIA_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.LENALIA_MFI_4, battle_level=0)
 
 ]
 
@@ -93,5 +121,9 @@ Zeakden.locations = [
     FFTLocation(LocationNames.RAMZA_CHAPTER_2_UNLOCK, battle_level=3),
     FFTLocation(LocationNames.RAD_RECRUIT, battle_level=3),
     FFTLocation(LocationNames.ALICIA_RECRUIT, battle_level=3),
-    FFTLocation(LocationNames.LAVIAN_RECRUIT, battle_level=3)
+    FFTLocation(LocationNames.LAVIAN_RECRUIT, battle_level=3),
+    MoveFindItemLocation(LocationNames.ZEAKDEN_MFI_1, battle_level=3),
+    MoveFindItemLocation(LocationNames.ZEAKDEN_MFI_2, battle_level=3),
+    MoveFindItemLocation(LocationNames.ZEAKDEN_MFI_3, battle_level=3),
+    MoveFindItemLocation(LocationNames.ZEAKDEN_MFI_4, battle_level=3)
 ]

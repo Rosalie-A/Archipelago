@@ -117,6 +117,16 @@ def get_randomized_mapping(
             job: options for job, options in eligible_destination_job_table.items()
             if job in eligible_factories.keys()
         }
+        if len(eligible_destination_job_table) == 0:
+            eligible_factories = {
+                job: factory for job, factory in all_factories.items()
+                if factory.get_lowest_difficulty() <= 14
+            }
+            eligible_destination_job_table = get_eligible_destination_jobs(source_unit, world.options)
+            eligible_destination_job_table = {
+                job: options for job, options in eligible_destination_job_table.items()
+                if job in eligible_factories.keys()
+            }
     else:
         pass
         #print(f"Shuffle succeeded for source unit {source_unit}.")

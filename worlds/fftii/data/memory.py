@@ -219,7 +219,10 @@ yaml_options = {
     "Sidequests": (0x00348931, 0x02),
     "FinalBattles": (0x00348931, 0x01),
     "EXPMultiplier": 0x35565C,
-    "JPMultiplier": 0x355670
+    "JPMultiplier": 0x355670,
+    "MFIChemistInnate": 0x06C623,
+    "MFIBlueTeamInnate": 0x3556DC
+
 }
 
 # This is written to the client to unlock jobs
@@ -840,3 +843,88 @@ location_dot_info = {
         ADDRESS: (0x05795B, 0x08)
     }
 }
+
+mfi_locations = {
+    "Back Gate of Lesalia Castle": 2,
+    "St. Murond Temple Hall": 3,
+    "Roof of Riovanes Castle": 5,
+    "Gate of Riovanes Castle": 6,
+    "Inside of Riovanes Castle": 7,
+    "Igros Castle": 10,
+    "Gate of Lionel Castle": 12,
+    "Inside of Lionel Castle": 13,
+    "Inside of Limberry Castle": 16,
+    "Limberry Castle Cemetery": 17,
+    "Limberry Castle Gates": 19,
+    "Gariland Magic City": 22,
+    "Yardow Fort City": 25,
+    "Goland Coal City": 27,
+    "Goland Colliery First Floor": 28,
+    "Goland Colliery Second Floor": 29,
+    "Goland Colliery Third Floor": 30,
+    "Dorter City": 31,
+    "Dorter Slums": 32,
+    "Zeklaus Desert Story": 34,
+    "Zaland Fort City": 35,
+    "Zeltennia Castle": 36,
+    "Goland Underground Passage": 39,
+    "Slums of Goug": 40,
+    "Bervenia Free City": 44,
+    "Zarghidas Trade City": 47,
+    "Fort Zeakden": 49,
+    "St. Murond Temple": 50,
+    "Chapel of St. Murond Temple": 52,
+    "Lost Sacred Precincts": 54,
+    "Graveyard of Airships": 55,
+    "Underground Book Storage 1": 57,
+    "Underground Book Storage 2": 58,
+    "Underground Book Storage 3": 59,
+    "Underground Book Storage 4": 60,
+    "Underground Book Storage 5": 61,
+    "Golgorand Execution Site": 63,
+    "Bethla Garrison Sluice": 64,
+    "Bethla Garrison South Wall": 66,
+    "Bethla Garrison North Wall": 67,
+    "Murond Death City": 69,
+    "Nelveska Temple": 70,
+    "Dolbodar Swamp": 71,
+    "Fovoham Plains": 72,
+    "Sweegy Woods": 74,
+    "Bervenia Volcano": 75,
+    "Zeklaus Desert": 76,
+    "Lenalia Plateau": 77,
+    "Zigolis Swamp": 78,
+    "Yuguo Woods": 79,
+    "Araguay Woods": 80,
+    "Grog Hill": 81,
+    "Bed Desert": 82,
+    "Zirekile Falls": 83,
+    "Bariaus Hill": 84,
+    "Mandalia Plains": 85,
+    "Doguola Pass": 86,
+    "Bariaus Valley": 87,
+    "Finath River": 88,
+    "Poeskas Lake": 89,
+    "Germinas Peak": 90,
+    "Thieves' Fort": 91,
+    "Fovoham Plains Story": 103,
+    "TERMINATE": 105,
+    "DELTA": 106,
+    "NOGIAS": 107,
+    "VOYAGE": 108,
+    "BRIDGE": 109,
+    "VALKYRIES": 110,
+    "MLAPAN": 111,
+    "TIGER": 112,
+    "HORROR": 113,
+    "END": 114
+}
+
+mfi_base_address = 0x059414
+
+def get_mfi_byte_bit(map_name, item_index):
+    map_index = mfi_locations[map_name]
+    mfi_byte = mfi_base_address + (map_index // 2)
+    mfi_bit_position = ((map_index % 2) * 4) + item_index
+    mfi_bit = 0b10000000 >> mfi_bit_position
+    return mfi_byte, mfi_bit

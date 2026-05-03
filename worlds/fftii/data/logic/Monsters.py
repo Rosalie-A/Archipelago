@@ -82,7 +82,7 @@ class MonsterFamilies(Enum):
     MINDFLAYER = "Mindflayer"
     BIRD = "Bird"
     MINOTAUR = "Minotaur"
-    MALBORO = "Malboro"
+    MALBORO = "Morbol"
     TREANT = "Treant"
     DRAGON = "Dragon"
     BEHEMOTH = "Behemoth"
@@ -524,6 +524,10 @@ monster_locations = [
 monster_locations_lookup: dict[str, MonsterRegion] = {
     monster.monster_name.value: monster for monster in monster_locations
 }
+
+large_monster_families = [
+    MonsterFamilies.MALBORO, MonsterFamilies.DRAGON, MonsterFamilies.BEHEMOTH, MonsterFamilies.HYDRA
+]
 
 for monster in monster_locations:
     monster.compiled_requirements = [

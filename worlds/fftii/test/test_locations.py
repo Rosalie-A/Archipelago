@@ -9,28 +9,28 @@ from ..data.logic.FFTLocation import LocationNames
 from ..data.logic.Monsters import monster_locations_lookup, monster_family_lookup, MonsterNames, monster_families
 
 zodiac_stone_locations = [
-    LocationNames.LIONEL_2_STORY.value,
-    LocationNames.GOUG_STORY.value,
-    LocationNames.RIOVANES_2_STORY.value,
-    LocationNames.RIOVANES_3_STORY.value,
-    LocationNames.BETHLA_SLUICE_STORY.value,
-    LocationNames.LIMBERRY_2_STORY.value,
-    LocationNames.LIMBERRY_3_STORY.value,
-    LocationNames.IGROS_STORY.value,
+    LocationNames.LIONEL_2_STONE.value,
+    LocationNames.GOUG_STONE.value,
+    LocationNames.RIOVANES_2_STONE.value,
+    LocationNames.RIOVANES_3_STONE.value,
+    LocationNames.BETHLA_SLUICE_STONE.value,
+    LocationNames.LIMBERRY_3_STONE_1.value,
+    LocationNames.LIMBERRY_3_STONE_2.value,
+    LocationNames.IGROS_STONE.value,
 ]
 
 zodiac_stone_locations_with_sidequests = [
-    LocationNames.LIONEL_2_STORY.value,
-    LocationNames.GOUG_STORY.value,
-    LocationNames.RIOVANES_2_STORY.value,
-    LocationNames.RIOVANES_3_STORY.value,
-    LocationNames.BETHLA_SLUICE_STORY.value,
-    LocationNames.LIMBERRY_2_STORY.value,
-    LocationNames.LIMBERRY_3_STORY.value,
-    LocationNames.IGROS_STORY.value,
-    LocationNames.GOLAND_4_SIDEQUEST.value,
-    LocationNames.NELVESKA_SIDEQUEST.value,
-    LocationNames.END_SIDEQUEST.value
+    LocationNames.LIONEL_2_STONE.value,
+    LocationNames.GOUG_STONE.value,
+    LocationNames.RIOVANES_2_STONE.value,
+    LocationNames.RIOVANES_3_STONE.value,
+    LocationNames.BETHLA_SLUICE_STONE.value,
+    LocationNames.LIMBERRY_3_STONE_1.value,
+    LocationNames.LIMBERRY_3_STONE_2.value,
+    LocationNames.IGROS_STONE.value,
+    LocationNames.GOLAND_4_STONE.value,
+    LocationNames.NELVESKA_STONE.value,
+    LocationNames.END_STONE.value
 ]
 
 sidequest_names = [
@@ -38,7 +38,9 @@ sidequest_names = [
     LocationNames.GOLAND_2_SIDEQUEST.value,
     LocationNames.GOLAND_3_SIDEQUEST.value,
     LocationNames.GOLAND_4_SIDEQUEST.value,
+    LocationNames.GOLAND_4_STONE.value,
     LocationNames.NELVESKA_SIDEQUEST.value,
+    LocationNames.NELVESKA_STONE.value,
     LocationNames.ZARGHIDAS_SIDEQUEST.value,
     LocationNames.NOGIAS_SIDEQUEST.value,
     LocationNames.TERMINATE_SIDEQUEST.value,
@@ -50,6 +52,7 @@ sidequest_names = [
     LocationNames.VOYAGE_SIDEQUEST.value,
     LocationNames.HORROR_SIDEQUEST.value,
     LocationNames.END_SIDEQUEST.value,
+    LocationNames.END_STONE.value,
     LocationNames.BEOWULF_RECRUIT.value,
     LocationNames.WORKER_8_RECRUIT.value,
     LocationNames.REIS_DRAGON_RECRUIT.value,
@@ -81,6 +84,12 @@ rare_battle_names = [
 ]
 
 class TestAllRegionsReachable(FFTIITestBase):
+    options = {
+        "zodiac_stone_locations": 1,
+        "zodiac_stones_required": 12,
+        "zodiac_stones_in_pool": 12,
+        "sidequest_battles": "true"
+    }
     def test_regions_from_gallione(self):
         with self.subTest("Test all"):
             self.collect_by_name(world_map_pass_names)
@@ -245,6 +254,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.GARILAND_STORY,
                 LocationNames.MANDALIA_STORY,
                 LocationNames.IGROS_STORY,
+                LocationNames.IGROS_STONE,
                 LocationNames.THIEVES_FORT_STORY,
                 LocationNames.SWEEGY_STORY,
                 LocationNames.DORTER_1_STORY,
@@ -274,7 +284,9 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.FOVOHAM_STORY,
                 LocationNames.RIOVANES_1_STORY,
                 LocationNames.RIOVANES_2_STORY,
+                LocationNames.RIOVANES_2_STONE,
                 LocationNames.RIOVANES_3_STORY,
+                LocationNames.RIOVANES_3_STONE,
                 LocationNames.YUGUO_STORY,
                 LocationNames.YARDOW_STORY,
                 LocationNames.GROG_STORY,
@@ -311,6 +323,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.GOLAND_2_SIDEQUEST,
                 LocationNames.GOLAND_3_SIDEQUEST,
                 LocationNames.GOLAND_4_SIDEQUEST,
+                LocationNames.GOLAND_4_STONE,
                 LocationNames.BEOWULF_RECRUIT,
                 LocationNames.REIS_DRAGON_RECRUIT,
                 LocationNames.WORKER_8_RECRUIT,
@@ -335,6 +348,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.BARIAUS_HILL_STORY,
                 LocationNames.LIONEL_1_STORY,
                 LocationNames.LIONEL_2_STORY,
+                LocationNames.LIONEL_2_STONE,
                 LocationNames.BARIAUS_VALLEY_STORY,
                 LocationNames.GOLGORAND_STORY,
                 LocationNames.ZIGOLIS_STORY,
@@ -365,6 +379,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.BARIAUS_HILL_STORY,
                 LocationNames.LIONEL_1_STORY,
                 LocationNames.LIONEL_2_STORY,
+                LocationNames.LIONEL_2_STONE,
                 LocationNames.BARIAUS_VALLEY_STORY,
                 LocationNames.GOLGORAND_STORY,
                 LocationNames.ZIGOLIS_STORY,
@@ -397,6 +412,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.ZELTENNIA_STORY,
                 LocationNames.GERMINAS_STORY,
                 LocationNames.NELVESKA_SIDEQUEST,
+                LocationNames.NELVESKA_STONE,
                 LocationNames.ZARGHIDAS_SIDEQUEST,
                 LocationNames.REIS_HUMAN_RECRUIT,
                 LocationNames.CLOUD_RECRUIT,
@@ -423,10 +439,13 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.BETHLA_NORTH_STORY,
                 LocationNames.BETHLA_SOUTH_STORY,
                 LocationNames.BETHLA_SLUICE_STORY,
+                LocationNames.BETHLA_SLUICE_STONE,
                 LocationNames.POESKAS_STORY,
                 LocationNames.LIMBERRY_1_STORY,
                 LocationNames.LIMBERRY_2_STORY,
                 LocationNames.LIMBERRY_3_STORY,
+                LocationNames.LIMBERRY_3_STONE_1,
+                LocationNames.LIMBERRY_3_STONE_2,
                 LocationNames.BETHLA_SHOP,
                 LocationNames.LIMBERRY_SHOP,
                 LocationNames.ORLANDU_RECRUIT,
@@ -454,6 +473,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.MUROND_TEMPLE_2_STORY,
                 LocationNames.MUROND_TEMPLE_3_STORY,
                 LocationNames.GOUG_STORY,
+                LocationNames.GOUG_STONE,
                 LocationNames.UBS_1_STORY,
                 LocationNames.UBS_2_STORY,
                 LocationNames.UBS_3_STORY,
@@ -467,6 +487,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.MUROND_DEATH_CITY_STORY,
                 LocationNames.PRECINCTS_STORY,
                 LocationNames.AIRSHIPS_1_STORY,
+                LocationNames.AIRSHIPS_1_STONE,
                 LocationNames.AIRSHIPS_2_STORY,
                 LocationNames.NOGIAS_SIDEQUEST,
                 LocationNames.TERMINATE_SIDEQUEST,
@@ -478,6 +499,7 @@ class TestRegionLogicGallioneStart(FFTIITestBase):
                 LocationNames.VOYAGE_SIDEQUEST,
                 LocationNames.HORROR_SIDEQUEST,
                 LocationNames.END_SIDEQUEST,
+                LocationNames.END_STONE,
                 LocationNames.BYBLOS_RECRUIT
             ]
             tested_locations.update(set(test_locations_east))
@@ -518,6 +540,7 @@ class TestRegionLogicGallioneStartAltimaOnly(FFTIITestBase):
                 LocationNames.MUROND_TEMPLE_2_STORY,
                 LocationNames.MUROND_TEMPLE_3_STORY,
                 LocationNames.GOUG_STORY,
+                LocationNames.GOUG_STONE,
                 LocationNames.UBS_1_STORY,
                 LocationNames.UBS_2_STORY,
                 LocationNames.UBS_3_STORY,
@@ -526,6 +549,7 @@ class TestRegionLogicGallioneStartAltimaOnly(FFTIITestBase):
                 LocationNames.MUROND_DEATH_CITY_STORY,
                 LocationNames.PRECINCTS_STORY,
                 LocationNames.AIRSHIPS_1_STORY,
+                LocationNames.AIRSHIPS_1_STONE,
                 LocationNames.ORBONNE_SHOP,
                 LocationNames.MUSTADIO_RECRUIT
             ]
@@ -541,6 +565,7 @@ class TestRegionLogicGallioneStartAltimaOnly(FFTIITestBase):
                 LocationNames.VOYAGE_SIDEQUEST,
                 LocationNames.HORROR_SIDEQUEST,
                 LocationNames.END_SIDEQUEST,
+                LocationNames.END_STONE,
                 LocationNames.BYBLOS_RECRUIT
             ]
             location_names_west = [str(location.value) for location in test_locations_west]
@@ -677,3 +702,31 @@ class TestPoachLogicWithGallioneStart(FFTIITestBase):
                     len(monster_datas[2].limberry_locations) > 0,
                 ]):
                     self.assertTrue(self.can_reach_location(monster_location), monster_location)
+
+class TestLocationsInPoolMatchIncludedLocations(FFTIITestBase):
+    def test_options(self):
+        with self.subTest("Test default options"):
+            self.world_setup()
+            included_locations = set(self.world.included_locations)
+            submitted_locations = set(self.multiworld.regions.location_cache[1].keys())
+            locations_difference = included_locations.symmetric_difference(submitted_locations)
+            self.assertTrue(len(locations_difference) == 0, locations_difference)
+        with self.subTest("Test poach options, no enemy rando"):
+            self.options = {
+                "poach_locations": "true"
+            }
+            self.world_setup()
+            included_locations = set(self.world.included_locations)
+            submitted_locations = set(self.multiworld.regions.location_cache[1].keys())
+            locations_difference = included_locations.symmetric_difference(submitted_locations)
+            self.assertTrue(len(locations_difference) == 0, locations_difference)
+        with self.subTest("Test poach options, enemy rando"):
+            self.options = {
+                "poach_locations": "true",
+                "enemy_randomizer": 2
+            }
+            self.world_setup()
+            included_locations = set(self.world.included_locations)
+            submitted_locations = set(self.multiworld.regions.location_cache[1].keys())
+            locations_difference = included_locations.symmetric_difference(submitted_locations)
+            self.assertTrue(len(locations_difference) == 0, locations_difference)

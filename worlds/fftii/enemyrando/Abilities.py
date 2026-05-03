@@ -7,6 +7,7 @@ class ActionAbility(Enum):
     JOB = 0xFF
     RANDOM = 0xFE
 
+    SUMMON_MAGIC = 0x0D
     GUTS_C4 = 0x1B
     WIEGRAF_1_HOLY_SWORD = 0x22
     IZLUDE_BATTLE_SKILL = 0x33

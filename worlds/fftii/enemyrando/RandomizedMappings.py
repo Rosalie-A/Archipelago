@@ -498,3 +498,12 @@ sidequest_boss_shuffle_list: list[type[RandomizedUnit]] = [
 sidequest_zodiac_shuffle_list: list[type[RandomizedUnit]] = [
     ElidibsBoss
 ]
+
+all_boss_shuffle_lists: list[type[RandomizedUnit]] = [
+    *base_shuffle_list, *zodiac_story_shuffle_list, *altima_story_shuffle_list,
+    *sidequest_boss_shuffle_list, *sidequest_zodiac_shuffle_list
+]
+
+all_boss_shuffle_lookup: dict[Job, type[RandomizedUnit]] = {
+    unit.job: unit for unit in all_boss_shuffle_lists
+}

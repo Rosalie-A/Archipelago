@@ -99,45 +99,45 @@ for index, item_name in enumerate(gear_item_names, start=1):
 
 item_data_lookup = {item.name: item for item in all_item_data}
 
-zodiac_stone_names = [
+zodiac_stone_names: list[str] = [
     "Aries Stone", "Taurus Stone", "Gemini Stone", "Cancer Stone", "Leo Stone", "Virgo Stone", "Libra Stone",
     "Scorpio Stone", "Sagittarius Stone", "Capricorn Stone", "Aquarius Stone", "Pisces Stone", "Serpentarius Stone",
 ]
 
-world_map_pass_names = [
+world_map_pass_names: list[str] = [
     "Gallione Pass", "Lesalia Pass", "Fovoham Pass", "Lionel Pass", "Zeltennia Pass", "Limberry Pass", "Murond Pass"
 ]
 
-job_names = [
+job_names: list[str] = [
     "Squire", "Chemist", "Knight", "Archer", "Monk", "Thief", "Lancer", "Geomancer", "Samurai", "Ninja", "Dancer",
     "Priest", "Wizard", "Oracle", "Time Mage", "Mediator", "Summoner", "Calculator", "Bard", "Mime"
 ]
 
-earned_job_names = [job for job in job_names if job != "Squire"]
+earned_job_names: list[str] = [job for job in job_names if job != "Squire"]
 
-shop_levels = []
+shop_levels: list[str] = []
 
 for i in range(14):
     shop_levels.append("Progressive Shop Level")
 
-major_item_names = [
+major_item_names: list[str] = [
     *zodiac_stone_names, *world_map_pass_names, *job_names, "Progressive Shop Level", "Progressive Ramza Job Form"
 ]
 
-nonbalanced_major_item_names = [*job_names, "Progressive Shop Level"]
+nonbalanced_major_item_names: list[str] = [*job_names, "Progressive Shop Level"]
 
-ramza_job_levels = [
+ramza_job_levels: list[str] = [
     "Progressive Ramza Job Form", "Progressive Ramza Job Form"
 ]
 
 
-special_character_names = [
+special_character_names: list[str] = [
     "Boco", "Rad", "Alicia", "Lavian", "Agrias", "Mustadio", "Rafa",
     "Malak", "Beowulf", "Reis (Dragon)", "Reis (Human)", "Orlandu",
     "Worker 8", "Cloud", "Meliadoul", "Byblos"
 ]
 
-rare_item_names = [
+rare_item_names: list[str] = [
     "Zorlin Shape", "Sasuke Knife", "Iga Knife", "Koga Knife", "Nagrarock", "Materia Blade", "Defender",
     "Save the Queen", "Excalibur", "Ragnarok", "Chaos Blade", "Masamune", "Chirijiraden", "Faith Rod", "Healing Staff",
     "Mace of Zeus", "Sage Staff", "Scorpion Tail", "Stone Gun", "Blaze Gun", "Glacier Gun", "Blast Gun",
@@ -148,13 +148,13 @@ rare_item_names = [
     "Cursed Ring", "Vanish Mantle", "Chantage", "Cherche", "Salty Rage", "Setiemson"
 ]
 
-gil_item_names = [
+gil_item_names: list[str] = [
     "Bonus Gil: l i t t l e  m o n e y",
     "Bonus Gil: m o r e  m o n e y",
     "Bonus Gil: l o t s  o f  m o n e y"
 ]
 
-gil_item_names_weighted = [
+gil_item_names_weighted: list[str] = [
     "Bonus Gil: l i t t l e  m o n e y",
     "Bonus Gil: l i t t l e  m o n e y",
     "Bonus Gil: l i t t l e  m o n e y",
@@ -184,11 +184,11 @@ gil_item_sizes = [
     }
 ]
 
-jp_item_names = [
+jp_item_names: list[str] = [
     "Small JP Boon", "Medium JP Boon", "Large JP Boon"
 ]
 
-jp_item_names_weighted = [
+jp_item_names_weighted: list[str] = [
     "Small JP Boon", "Small JP Boon", "Small JP Boon", "Small JP Boon",
     "Medium JP Boon", "Medium JP Boon", "Medium JP Boon",
     "Large JP Boon", "Large JP Boon",
@@ -200,18 +200,18 @@ jp_item_sizes = [
     {"Small JP Boon": 100, "Medium JP Boon": 200, "Large JP Boon": 500}
 ]
 
-useful_item_names = [
+useful_item_names: list[str] = [
     *rare_item_names, *special_character_names, *jp_item_names
 ]
 
-shop_item_names = [
+shop_item_names: list[str] = [
     item for item in gear_item_names if item not in useful_item_names
 ]
 
-filler_item_names = [
+filler_item_names: list[str] = [
     *shop_item_names, *gil_item_names, *jp_item_names
 ]
 
-all_item_names = [
+all_item_names: list[str] = [
     *major_item_names, *special_character_names, *gear_item_names, *gil_item_names, *jp_item_names
 ]

@@ -7,15 +7,17 @@ import settings
 import typing
 
 from typing import Dict, Any, TextIO
-from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, Entrance
+from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region
+from rule_builder.field_resolvers import FromWorldAttr
+from rule_builder.options import OptionFilter
+from rule_builder.rules import Has, HasAny, HasGroupUnique, CanReachRegion, Rule, False_, Filtered
 
 from worlds.AutoWorld import World, WebWorld
-from worlds.generic.Rules import add_rule
 
 from .Items import item_table
 from .Locations import all_locations, FinalFantasyTacticsIILocation
 from .Logic import create_logic_rule, create_logic_rule_for_list, LogicObject, PoachLogicObject
-from .Options import FinalFantasyTacticsIIOptions, fftii_option_groups
+from .Options import FinalFantasyTacticsIIOptions, fftii_option_groups, MoveFindItemLocationLogic
 from .Rom import FinalFantasyTacticsIIProcedurePatch
 from .Client import FinalFantasyTacticsIvaliceIslandClient
 
@@ -27,10 +29,11 @@ from .data.locations import all_regions, world_map_regions, story_battle_locatio
     shop_unlock_locations, monster_location_names, \
     ramza_job_unlock_locations, location_sort_list_names, locations_with_text, linked_reward_names, \
     location_groups, story_stone_locations, altima_only_stone_locations, \
-    sidequest_stone_locations, rare_battle_location_names
+    sidequest_stone_locations, rare_battle_location_names, mfi_locations, mfi_location_names, main_mfi_locations, \
+    sidequest_mfi_locations
 from .data.logic.FFTLocation import LocationNames
 from .data.logic.Monsters import monster_locations_lookup, monster_family_lookup, monster_families, MonsterNames, \
-    RegionAccessRequirement, monster_locations
+    RegionAccessRequirement, monster_locations, MonsterFamilies, large_monster_families
 from .data.logic.regions.Fovoham import fovoham_regions
 from .data.logic.regions.Gallione import gallione_regions
 from .data.logic.regions.Jobs import jobs_regions
@@ -119,10 +122,12 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
     zodiac_stones_required: int
     zodiac_stones_in_pool: int
     enemy_rando_mapping: dict[EventCode, list[RandomizedMapping]]
+    poach_enemy_rando_mapping: dict[EventCode, list[RandomizedMapping]]
     poach_locations: dict[MonsterNames, list[RegionAccessRequirement]]
     poach_hints: dict[MonsterNames, list[PoachHintLocation]]
+    excluded_monster_locations: list[str]
 
-    version = "0.3.0"
+    version = "0.4.0"
     debug = False
     topology_present = debug
 
@@ -136,6 +141,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         self.poach_locations = dict()
         self.poach_hints = dict()
         self.poach_database: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
+        self.excluded_monster_locations = []
 
     @classmethod
     def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
@@ -154,6 +160,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 spoiler_handle.write("\n")
                 for mapping in mapping_list:
                     spoiler_handle.write(f"- {mapping}\n")
+            spoiler_handle.write("\n")
 
     def create_item(self, name: str) -> "FinalFantasyTacticsIIItem":
         return FinalFantasyTacticsIIItem(name, item_table[name].classification, self.item_name_to_id[name], self.player)
@@ -194,7 +201,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                         new_randomized_mapping = RandomizedMapping()
                         new_randomized_mapping.source_unit = fight_source_unit
                         logical_difficulty = self.options.logical_difficulty.value
-                        adjusted_battle_level = Logic.battle_levels[logical_difficulty][fight.battle_level]
+                        adjusted_battle_level = get_logic_adjusted_fight_level(fight.battle_level, logical_difficulty)
                         new_randomized_mapping.battle_level = adjusted_battle_level
                         mapping_dict[fight.battle_id].append(new_randomized_mapping)
             refined_dict = {key: value for key, value in mapping_dict.items() if len(value) > 0}
@@ -205,11 +212,28 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                         if factory.get_lowest_difficulty() <= mapping.battle_level
                            and job in destination_unit_jobs
                     }
+                    if len(factory_options) == 0:
+                        mapping.battle_level = 14
+                        factory_options = {
+                            job: factory for job, factory in unit_factories.items()
+                            if factory.get_lowest_difficulty() <= mapping.battle_level
+                               and job in destination_unit_jobs
+                        }
                     destination_job = self.random.choice(sorted(list(factory_options.keys())))
                     destination_factory = factory_options[destination_job]
                     mapping.destination_unit = destination_factory.get_unit(mapping.battle_level).job
                     destination_unit_jobs.remove(destination_job)
-            self.enemy_rando_mapping = refined_dict
+            mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
+            for fight in BattleMappingLists.all_fights:
+                mapping_dict[fight.battle_id] = list()
+                for fight_source_unit in fight.source_units:
+                    new_mapping = RandomizedMapping()
+                    new_mapping.source_unit = fight_source_unit
+                    new_mapping.destination_unit = fight_source_unit.job
+                    mapping_dict[fight.battle_id].append(new_mapping)
+            self.enemy_rando_mapping = {}
+            for key, value in refined_dict.items():
+                self.enemy_rando_mapping[key] = value
         elif self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized: # Randomized enemies
             randomized_factories: dict[Job, RandomizedUnitFactory] = {
                 job: RandomizedUnitFactory(mapping, self.random) for job, mapping in factory_mappings.items()
@@ -307,45 +331,56 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                                 working_factories.pop(destination_job_key)
                 for fight in fight_list:
                     self.enemy_rando_mapping[fight.battle_id] = all_mappings
-            pass
+            mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
+            for fight in BattleMappingLists.all_fights:
+                mapping_dict[fight.battle_id] = list()
+                for fight_source_unit in fight.source_units:
+                    new_mapping = RandomizedMapping()
+                    new_mapping.source_unit = fight_source_unit
+                    new_mapping.destination_unit = fight_source_unit.job
+                    mapping_dict[fight.battle_id].append(new_mapping)
+            self.poach_enemy_rando_mapping = self.enemy_rando_mapping.copy()
+            for key, value in mapping_dict.items():
+                if key not in self.poach_enemy_rando_mapping.keys():
+                    self.poach_enemy_rando_mapping[key] = value
 
 
     def generate_early(self) -> None:
         self.enemy_rando_mapping: dict[EventCode, list[RandomizedMapping]] = {}
         if self.options.enemy_randomizer > self.options.enemy_randomizer.option_disabled:
-            if self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized:
-                pass
-                #self.options.poach_locations.value = False
+            self.poach_enemy_rando_mapping = dict()
             self.create_enemy_rando_mapping()
-            if self.options.poach_locations:
-                poach_mappings = create_poach_mappings(self.enemy_rando_mapping)
-                poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
-                for monster_name in monster_family_lookup.keys():
-                    self.poach_hints[monster_name] = list()
-                    self.poach_database[monster_name] = list()
-                    poach_locations[monster_name] = []
-                    for region, battle_sources in poach_mappings.items():
-                        for battle_source in battle_sources:
-                            if monster_name == battle_source.monster_name:
-                                battle_region_mapping = [
-                                    mapping for mapping in all_battle_region_mappings
-                                    if battle_source.fight_id in mapping.battle_ids
-                                ].pop()
-                                story_battle = battle_source.fight_id > 0x100
-                                requirement = RegionAccessRequirement(
-                                    battle_region_mapping.regions,
-                                    battle_source.battle_level,
-                                    story=story_battle
-                                )
-                                requirement.battle_id = battle_source.fight_id
-                                poach_locations[monster_name].append(requirement)
-                                poach_hint = PoachHintLocation(
-                                    battle_region_mapping.name,
-                                    battle_source.battle_level,
-                                    battle_source.fight_id)
-                                self.poach_hints[monster_name].append(poach_hint)
-                                self.poach_database[monster_name].append(requirement)
-                self.poach_locations = poach_locations
+            if len(self.poach_enemy_rando_mapping) > 0:
+                poach_mappings = create_poach_mappings(self.poach_enemy_rando_mapping)
+            else:
+                poach_mappings = create_default_poach_mappings()
+            poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
+            for monster_name in monster_family_lookup.keys():
+                self.poach_hints[monster_name] = list()
+                self.poach_database[monster_name] = list()
+                poach_locations[monster_name] = []
+                for region, battle_sources in poach_mappings.items():
+                    for battle_source in battle_sources:
+                        if monster_name == battle_source.monster_name:
+                            battle_region_mapping = [
+                                mapping for mapping in all_battle_region_mappings
+                                if battle_source.fight_id in mapping.battle_ids
+                            ].pop()
+                            story_battle = battle_source.fight_id > 0x100
+                            requirement = RegionAccessRequirement(
+                                battle_region_mapping.regions,
+                                battle_source.battle_level,
+                                story=story_battle
+                            )
+                            requirement.battle_id = battle_source.fight_id
+                            poach_locations[monster_name].append(requirement)
+                            poach_hint = PoachHintLocation(
+                                battle_region_mapping.name,
+                                battle_source.battle_level,
+                                battle_source.fight_id)
+                            self.poach_hints[monster_name].append(poach_hint)
+                            self.poach_database[monster_name].append(requirement)
+            self.poach_locations = poach_locations
         elif self.options.poach_locations:
             poach_mappings = create_default_poach_mappings()
             poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
@@ -404,6 +439,12 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
             included_locations.extend(job_unlock_locations)
         if self.options.rare_battles:
             included_locations.extend(rare_battle_locations)
+        if self.options.move_find_item_locations:
+            included_locations.extend(main_mfi_locations)
+            if self.options.sidequest_battles:
+                included_locations.extend(sidequest_mfi_locations)
+            if self.options.move_find_item_location_logic == self.options.move_find_item_location_logic.option_vanilla:
+                included_locations.remove(LocationNames.BERVENIA_VOLCANO_MFI_2)
 
 
         if self.options.final_battles == self.options.final_battles.option_vanilla:
@@ -425,7 +466,6 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 self.included_locations.extend(monster_location_names)
 
         # Make Zodiac Stones local if option is set
-
         if self.options.zodiac_stone_locations == self.options.zodiac_stone_locations.option_anywhere_local:
             self.options.local_items.value |= set(zodiac_stone_names)
 
@@ -451,7 +491,8 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
             early_items_dict["Chemist"] = 1
         self.multiworld.early_items[self.player].update(early_items_dict)
 
-        if self.options.chemist_placement == self.options.chemist_placement.option_starting:
+        if (self.options.chemist_placement == self.options.chemist_placement.option_starting
+                and self.options.job_unlocks == self.options.job_unlocks.option_true):
             self.options.start_inventory_from_pool.value.update({"Chemist": 1})
             #self.push_precollected(self.create_item("Chemist"))
 
@@ -496,10 +537,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     self.options,
                     self.debug)
                 connection_name = f"{origin_region.name} to {connecting_region.name}"
-                new_entrance = Entrance(self.player, connection_name, origin_region)
-                new_entrance.access_rule = logic_object.logic_rule
-                origin_region.exits.append(new_entrance)
-                new_entrance.connect(connecting_region)
+                self.create_entrance(origin_region, connecting_region, logic_object.get_logic_rule(), connection_name)
             for location in origin_region_data.locations:
                 if origin_region_data in gallione_regions:
                     gallione_locations.append(location)
@@ -542,6 +580,8 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 )
                 if new_location.name in self.included_locations:
                     poach_region.locations.append(new_location)
+                else:
+                    self.excluded_monster_locations.append(poach_location)
 
         victory_location = self.get_location(LocationNames.AIRSHIPS_2_STORY.value)
         victory_location.place_locked_item(self.create_item("Farlem"))
@@ -564,9 +604,6 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     for location in locations:
                         file.write(f"{location}\n")
                     file.write("\n")
-
-        #for fight in self.murond_fights:
-        #    self.get_location(fight).place_locked_item(self.create_item(self.random.choice(rare_item_names)))
 
         if self.debug:
             from Utils import visualize_regions
@@ -628,7 +665,6 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
             self.multiworld.itempool.append(item)
 
     def determine_filler_item_pool(self, filler_item_count: int) -> list[str]:
-
         filler_lists = []
         normal_weight = self.options.normal_item_weight.value
         rare_weight = self.options.rare_item_weight.value
@@ -664,12 +700,13 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         return return_list
 
     def set_rules(self):
-        # Locations that aren't real don't get rules set, of course
+        monster_family_logic_rules: dict[MonsterFamilies, Rule["FinalFantasyTacticsIvaliceIslandWorld"]] = dict()
         for location in all_locations:
+            # Locations that aren't real don't get rules set, of course
             if location.name not in self.included_locations:
-                continue
-
-            ap_location = self.get_location(location.name)
+                ap_location = None
+            else:
+                ap_location = self.get_location(location.name)
             if location.name in monster_location_names:
                 # Poach locations rules
                 if self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized:
@@ -684,11 +721,13 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     breed_logic_object.requirements = []
                     for monster in monster_family:
                         breed_logic_object.requirements.extend(self.poach_locations[monster.monster_name])
-                    add_rule(
-                        ap_location,
-                        lambda state,
-                               breed_object=breed_logic_object: breed_object.poach_logic_rule(state)
-                                                                and state.has("Mediator", self.player))
+                    breed_access_rule = breed_logic_object.get_poach_logic_rule()
+                    full_access_rule = breed_access_rule & Has("Thief") & Has("Mediator")
+                    monster_family_logic_rules[MonsterFamilies(monster_family_name)] = breed_access_rule
+                    # Locations that aren't real don't get rules set, of course
+                    if location.name not in self.included_locations:
+                        continue
+                    self.set_rule(ap_location, full_access_rule)
                 else:
                     # Normal poach logic
                     monster_object = monster_locations_lookup[location.name[6:]]
@@ -703,29 +742,54 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     breed_logic_object.requirements = []
                     for monster in monster_family:
                         breed_logic_object.requirements.extend(monster.compiled_requirements)
-                    add_rule(
-                        ap_location,
-                        lambda state,
-                               poach_object=poach_logic_object,
-                               breed_object=breed_logic_object: poach_object.poach_logic_rule(state) or
-                                      (breed_object.poach_logic_rule(state) and state.has("Mediator", self.player)))
+                    poach_access_rule = poach_logic_object.get_poach_logic_rule()
+                    breed_access_rule = breed_logic_object.get_poach_logic_rule()
+                    full_access_rule = (poach_access_rule | (breed_access_rule & Has("Mediator"))) & Has("Thief")
+                    monster_family_logic_rules[MonsterFamilies(monster_family_name)] = breed_access_rule
+                    # Locations that aren't real don't get rules set, of course
+                    if location.name not in self.included_locations:
+                        continue
+                    self.set_rule(ap_location, full_access_rule)
             else:
+                # Locations that aren't real don't get rules set, of course
+                if location.name not in self.included_locations:
+                    continue
                 # Regular location rules
                 logic_object = LogicObject(self.player, self.options, location.battle_level, self.zodiac_stones_required)
                 if self.debug:
                     print(f"\n{location.name} requirements (Battle level {location.battle_level}):")
                 logic_object.requirements = create_logic_rule_for_list(
                     location.requirements, self.options, self.debug)
-                add_rule(ap_location, logic_object.logic_rule)
+                access_rule = logic_object.get_logic_rule()
                 if location.name in rare_battle_location_names:
-                    add_rule(ap_location, lambda state: state.has("Progressive Shop Level",  self.player, 8))
+                    access_rule &= Has("Progressive Shop Level", count=8)
+                if location.name in mfi_location_names:
+                    access_rule &= Has("Chemist",
+                                       options=[OptionFilter(MoveFindItemLocationLogic, 2, operator="ne")],
+                                       filtered_resolution=True)
+                    if location.name in [LocationNames.NELVESKA_MFI_1.value, LocationNames.NELVESKA_MFI_4.value]:
+                        spike_shoes_access_rule = Has("Progressive Shop Level", count=4)
+                        four_jump_access_rule = HasAny("Monk", "Thief", "Ninja", "Lancer") & Has("Dancer")
+                        four_jump_access_rule = Filtered(four_jump_access_rule,
+                                                         options=[
+                                                             OptionFilter(MoveFindItemLocationLogic, 0, operator="ne")
+                                                         ])
+                        large_monster_access_rule = False_()
+                        large_monster_present = False
+                        for family in large_monster_families:
+                            large_monster_present = True
+                            large_monster_access_rule |= monster_family_logic_rules[family]
+                        if large_monster_present:
+                            large_monster_access_rule &= Has("Mediator")
+                        access_rule &= four_jump_access_rule | (spike_shoes_access_rule & large_monster_access_rule)
+                self.set_rule(ap_location, access_rule)
+
 
         # Victory condition
-        add_rule(
-            self.get_location(LocationNames.AIRSHIPS_2_STORY.value),
-            lambda state: state.has_group("Zodiac Stones", self.player, self.zodiac_stones_required)
-                          and state.can_reach_region("Murond Death City", self.player))
-        self.multiworld.completion_condition[self.player] = lambda state: state.has("Farlem", self.player)
+        victory_rule = HasGroupUnique("Zodiac Stones", count=FromWorldAttr("zodiac_stones_required"))
+        victory_rule &= CanReachRegion("Murond Death City")
+        self.set_rule(self.get_location(LocationNames.AIRSHIPS_2_STORY.value), victory_rule)
+        self.set_completion_rule(Has("Farlem"))
 
     def pre_fill(self) -> None:
         pass
@@ -746,7 +810,10 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         patch_dict["EXPMultiplier"] = self.options.exp_gain_multiplier.value
         patch_dict["JPMultiplier"] = self.options.jp_gain_multiplier.value
         patch_dict["RandomizeGariland"] = self.options.randomize_gariland.value
+        patch_dict["BossShuffle"] = self.options.enemy_randomizer.value
+        patch_dict["MFILogic"] = self.options.move_find_item_location_logic.value
         patch_dict["LocationDict"] = self.create_location_dict()
+        patch_dict["SlotData"] = self.fill_slot_data()
 
         new_enemy_rando_dict = {}
         for key, value in self.enemy_rando_mapping.items():
@@ -846,7 +913,9 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
             "poach_locations",
             "job_unlocks",
             "logical_difficulty",
-            "enemy_randomizer"
+            "enemy_randomizer",
+            "move_find_item_locations",
+            "move_find_item_location_logic"
         )
         return_dict["zodiac_stones_required"] = self.zodiac_stones_required
         poach_hints = {}
@@ -861,6 +930,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 requirement_list.append(requirement.to_json())
             poach_database[monster_name.value] = requirement_list
         return_dict["poach_database"] = poach_database
+        return_dict["excluded_monster_locations"] = self.excluded_monster_locations
         return return_dict
 
 

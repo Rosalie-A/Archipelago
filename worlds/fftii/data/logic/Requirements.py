@@ -31,3 +31,18 @@ class HasMurondPass(Requirement):
 class HasZodiacStones(Requirement):
     name = "Has Zodiac Stones"
     items_needed = ["Zodiac Stones"]
+
+class HasGeomancer(Requirement):
+    name = "Has Geomancer"
+    items_needed = ["Geomancer"]
+
+class HasTimeMage(Requirement):
+    name = "Has Time Mage"
+    items_needed = ["Time Mage"]
+
+class CanLavaWalk(Requirement):
+    name = "Can Lava Walk"
+    other_requirements = [HasGeomancer, HasTimeMage]
+
+class CanAccessNelveskaPillar(Requirement):
+    name = "Can Access Nelveska Pillar"

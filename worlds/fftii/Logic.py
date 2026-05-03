@@ -1,10 +1,14 @@
 from copy import copy
+from typing import TYPE_CHECKING
 
-from BaseClasses import CollectionState
+from rule_builder.rules import True_, Rule, HasGroupUnique, HasAll, Has, False_, CanReachRegion
 from .data.logic.Monsters import RegionAccessRequirement
 from .data.logic.Requirement import Requirement
 from .Items import valid_item_names
 from .Options import FinalFantasyTacticsIIOptions
+
+if TYPE_CHECKING:
+    from worlds.fftii import FinalFantasyTacticsIvaliceIslandWorld
 
 # Number of shop progression unlocks needed to logically access a battle
 easy_battle_levels =      [0, 1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14, 14]
@@ -57,32 +61,29 @@ class LogicObject:
         self.battle_level = battle_level
         self.zodiac_stones_required = zodiac_stones_required
 
-    def logic_rule(self, state: CollectionState) -> bool:
+    def get_logic_rule(self) -> Rule["FinalFantasyTacticsIvaliceIslandWorld"]:
         if len(self.requirements) == 0 and self.battle_level < 1:
-            return True
-        expression = None
+            return True_()
+        expression: Rule | None = None
         for requirement_list in self.requirements:
             if "Zodiac Stones" in requirement_list:
-                expression = state.has_group("Zodiac Stones", self.player, self.zodiac_stones_required)
+                expression = HasGroupUnique("Zodiac Stones", count=self.zodiac_stones_required)
             elif expression is None:
-                expression = state.has_all(requirement_list, self.player)
+                expression = HasAll(*requirement_list)
             else:
-                expression = expression or state.has_all(requirement_list, self.player)
+                expression = expression | HasAll(*requirement_list)
         if self.battle_level > 0:
-            battle_level_expression = (state.has(
-                "Progressive Shop Level",
-                self.player,
-                battle_levels[self.options.logical_difficulty.value][self.battle_level])
-                              and state.has_group_unique(
-                        "Jobs",
-                        self.player,
-                        job_battle_levels[self.options.logical_difficulty.value][self.battle_level]))
+            shop_level_count = battle_levels[self.options.logical_difficulty.value][self.battle_level]
+            job_count = job_battle_levels[self.options.logical_difficulty.value][self.battle_level]
+            shop_level_expression: Rule = Has("Progressive Shop Level", count=shop_level_count)
+            job_count_expression: Rule = HasGroupUnique("Jobs", count=job_count)
+            battle_level_expression: Rule = shop_level_expression & job_count_expression
             if expression is None:
                 expression = battle_level_expression
             else:
-                expression = expression and battle_level_expression
+                expression = expression & battle_level_expression
         if expression is None:
-            return True
+            return True_()
         return expression
 
 def create_logic_rule_for_list(
@@ -168,27 +169,28 @@ class PoachLogicObject:
         self.player = player
         self.options = options
 
-    def poach_logic_rule(self, state: CollectionState) -> bool:
-        expression = None
+    def get_poach_logic_rule(self) -> Rule["FinalFantasyTacticsIvaliceIslandWorld"]:
+        expression: Rule | None = None
+        if len(self.requirements) == 0:
+            return False_()
         for requirement in self.requirements:
             region_list = requirement.access_regions
             battle_level = requirement.battle_level
-            region_expression = None
+            region_expression: Rule | None = None
             for region in region_list:
                 if region_expression is None:
-                    region_expression = state.can_reach_region(region.name, self.player)
+                    region_expression = CanReachRegion(region.name)
                 else:
-                    region_expression = region_expression and state.can_reach_region(region.name, self.player)
+                    region_expression = region_expression & CanReachRegion(region.name)
             battle_level_list = battle_levels if requirement.story else poach_battle_levels
             job_level_list = job_battle_levels if requirement.story else poach_job_battle_levels
             poach_shop_level = battle_level_list[self.options.logical_difficulty.value][battle_level]
             poach_job_count = job_level_list[self.options.logical_difficulty.value][battle_level]
-            assert poach_shop_level is not None, requirement.access_regions
-            assert poach_job_count is not None, requirement.access_regions
-            battle_level_expression = (state.has("Progressive Shop Level", self.player, poach_shop_level)
-                                       and state.has_group_unique("Jobs", self.player, poach_job_count))
+            shop_level_expression: Rule = Has("Progressive Shop Level", count=poach_shop_level)
+            job_count_expression: Rule = HasGroupUnique("Jobs", count=poach_job_count)
+            battle_level_expression: Rule = shop_level_expression & job_count_expression
             if expression is None:
-                expression = region_expression and battle_level_expression
+                expression = region_expression & battle_level_expression
             else:
-                expression = expression or (region_expression and battle_level_expression)
-        return expression and state.has("Thief", self.player)
+                expression = expression | (region_expression & battle_level_expression)
+        return expression

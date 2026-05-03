@@ -16,7 +16,7 @@ from .data.items import item_data_lookup, gear_item_names, gil_item_names, gil_i
 from .data.locations import linked_reward_names
 from .data.logic.JobUnlocks import unlock_dict
 from .data.memory import stones_lookup, seed_hash_length, pass_paths, finale_path, location_dot_info, STORY_LOCATIONS, \
-    RARE_BATTLE, SIDEQUEST_LOCATIONS, ALTIMA_ONLY_STORY_LOCATIONS, ADDRESS
+    RARE_BATTLE, SIDEQUEST_LOCATIONS, ALTIMA_ONLY_STORY_LOCATIONS, ADDRESS, mfi_locations, get_mfi_byte_bit
 
 if TYPE_CHECKING:
     from worlds._bizhawk.context import BizHawkClientContext, BizHawkClientCommandProcessor
@@ -121,6 +121,7 @@ class FinalFantasyTacticsIvaliceIslandClient(BizHawkClient):
         locations_checked.extend(await self.check_major_locations(ctx))
         locations_checked.extend(await self.check_poaches(ctx))
         locations_checked.extend(await self.check_job_unlocks(ctx))
+        locations_checked.extend(await self.check_mfi_locations(ctx))
 
         found_locations = await ctx.check_locations(locations_checked)
         for location in found_locations:
@@ -184,30 +185,45 @@ class FinalFantasyTacticsIvaliceIslandClient(BizHawkClient):
                 all_jobs_obtained = [item.item for item in ctx.items_received if item.item in job_ids]
                 jobs_obtained_names = [ctx.item_names.lookup_in_game(pass_id) for pass_id in all_jobs_obtained]
                 jobs_obtained_names.extend(["Squire"])
-                unlock_job = self.check_job_unlock_condition(current_unit_jobs, requirements, jobs_obtained_names)
+                unlock_job = self.check_job_unlock_condition(
+                    current_unit_jobs,
+                    requirements,
+                    jobs_obtained_names,
+                    job)
                 if unlock_job:
                     unlocked_jobs.add(f"{job} Unlock")
         for job in unlocked_jobs:
             locations_checked.append(self.location_name_to_id[job])
         return locations_checked
 
-    def check_job_unlock_condition(self, job_levels, unlock_requirements, current_jobs):
-        unlock = True
+    def check_job_unlock_condition(self, job_levels, unlock_requirements, current_jobs, job_to_unlock):
+        # If the job level is 0, that means that unit can't unlock that job.
+        # IOW, males can't unlock Dancer, females can't unlock Bard. We reflect that here.
+        if job_to_unlock == "Bard":
+            if job_levels["Bard"] == 0:
+                return False
+        if job_to_unlock == "Dancer":
+            if job_levels["Dancer"] == 0:
+                return False
         for requirement_job, required_level in unlock_requirements.items():
             current_level = job_levels[requirement_job]
             if requirement_job not in current_jobs:
                 return False
             if current_level < required_level:
-                unlock = False
-            if requirement_job == "Bard":
-                if job_levels["Bard"] == 0:
-                    unlock = False
-            if requirement_job == "Dancer":
-                if job_levels["Dancer"] == 0:
-                    unlock = False
-            if unlock == False:
                 return False
         return True
+
+    async def check_mfi_locations(self, ctx: "BizHawkClientContext"):
+        locations_checked = []
+        for battle_map in mfi_locations.keys():
+            for i in range(4):
+                mfi_byte, mfi_bit = get_mfi_byte_bit(battle_map, i)
+                mfi_byte_value = await self.read_ram_value_guarded(ctx, mfi_byte)
+                if mfi_byte_value is None:
+                    continue
+                if mfi_byte_value & mfi_bit > 0:
+                    locations_checked.append(self.location_name_to_id[f"{battle_map} MFI {i + 1}"])
+        return locations_checked
 
     async def received_items_check(self, ctx: "BizHawkClientContext"):
         write_list: list[tuple[int, list[int], str]] = []
@@ -489,8 +505,8 @@ class FinalFantasyTacticsIvaliceIslandClient(BizHawkClient):
 
     @mark_raw
     def _cmd_poach_locations(self, ctx: "BizHawkClientCommandProcessor", monster: str) -> None:
-        """Test message."""
-        key = monster
+        """Check where monster families are located."""
+        key = monster.title()
         if self.poach_mapping is None:
             logger.info("Please connect to the server first.")
             return

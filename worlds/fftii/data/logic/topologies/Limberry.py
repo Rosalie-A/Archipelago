@@ -1,6 +1,6 @@
 from ..Connection import Connection
 from ..Requirements import *
-from ..FFTLocation import FFTLocation, LocationNames, RareBattleLocation
+from ..FFTLocation import FFTLocation, LocationNames, RareBattleLocation, MoveFindItemLocation
 
 from ..regions.Limberry import *
 from ..regions.Zeltennia import BerveniaCity, Germinas
@@ -13,7 +13,11 @@ Bed.connections = [
 
 Bed.locations = [
     FFTLocation(LocationNames.BED_STORY, battle_level=12),
-    RareBattleLocation(LocationNames.BED_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.BED_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.BED_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.BED_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.BED_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.BED_MFI_4, battle_level=0)
 ]
 
 Bethla.connections = [
@@ -28,7 +32,19 @@ Bethla.locations = [
     FFTLocation(LocationNames.BETHLA_SLUICE_STORY, battle_level=12),
     FFTLocation(LocationNames.BETHLA_SLUICE_STONE, battle_level=12),
     FFTLocation(LocationNames.BETHLA_SHOP, battle_level=12),
-    FFTLocation(LocationNames.ORLANDU_RECRUIT, battle_level=12)
+    FFTLocation(LocationNames.ORLANDU_RECRUIT, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_NORTH_MFI_1, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_NORTH_MFI_2, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_NORTH_MFI_3, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_NORTH_MFI_4, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SOUTH_MFI_1, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SOUTH_MFI_2, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SOUTH_MFI_3, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SOUTH_MFI_4, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SLUICE_MFI_1, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SLUICE_MFI_2, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SLUICE_MFI_3, battle_level=12),
+    MoveFindItemLocation(LocationNames.BETHLA_SLUICE_MFI_4, battle_level=12)
 ]
 
 Dolbodar.connections = [
@@ -37,7 +53,11 @@ Dolbodar.connections = [
 ]
 
 Dolbodar.locations = [
-    RareBattleLocation(LocationNames.DOLBODAR_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.DOLBODAR_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.DOLBODAR_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.DOLBODAR_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.DOLBODAR_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.DOLBODAR_MFI_4, battle_level=0)
 ]
 
 Limberry.connections = [
@@ -52,7 +72,19 @@ Limberry.locations = [
     FFTLocation(LocationNames.LIMBERRY_3_STONE_1, battle_level=13),
     FFTLocation(LocationNames.LIMBERRY_3_STONE_2, battle_level=13),
     FFTLocation(LocationNames.LIMBERRY_SHOP, battle_level=13),
-    FFTLocation(LocationNames.MELIADOUL_RECRUIT, battle_level=13)
+    FFTLocation(LocationNames.MELIADOUL_RECRUIT, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_1_MFI_1, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_1_MFI_2, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_1_MFI_3, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_1_MFI_4, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_2_MFI_1, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_2_MFI_2, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_2_MFI_3, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_2_MFI_4, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_3_MFI_1, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_3_MFI_2, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_3_MFI_3, battle_level=13),
+    MoveFindItemLocation(LocationNames.LIMBERRY_3_MFI_4, battle_level=13)
 ]
 
 Poeskas.connections = [
@@ -62,5 +94,9 @@ Poeskas.connections = [
 
 Poeskas.locations = [
     FFTLocation(LocationNames.POESKAS_STORY, battle_level=13),
-    RareBattleLocation(LocationNames.POESKAS_RARE, battle_level=8)
+    RareBattleLocation(LocationNames.POESKAS_RARE, battle_level=8),
+    MoveFindItemLocation(LocationNames.POESKAS_MFI_1, battle_level=0),
+    MoveFindItemLocation(LocationNames.POESKAS_MFI_2, battle_level=0),
+    MoveFindItemLocation(LocationNames.POESKAS_MFI_3, battle_level=0),
+    MoveFindItemLocation(LocationNames.POESKAS_MFI_4, battle_level=0)
 ]

@@ -837,6 +837,7 @@ class MaleSummonerExpert(MaleSummoner):
     difficulty = 8
 
 class MaleSummonerRare(MaleSummonerExpert):
+    primary = ActionAbility.SUMMON_MAGIC
     support = SupportAbility.SHORT_CHARGE
     difficulty = 10
 
@@ -864,6 +865,7 @@ class FemaleSummonerExpert(FemaleSummoner):
     difficulty = 8
 
 class FemaleSummonerRare(FemaleSummonerExpert):
+    primary = ActionAbility.SUMMON_MAGIC
     accessory = Items.CHERCHE
     difficulty = 10
 
@@ -1866,6 +1868,8 @@ class Altima2(RandomizedUnit):
 class GenericMonster(RandomizedUnit):
     sprite_set = SpriteSet.MONSTER
     gender = UnitGender.MONSTER
+    unlocked_job = UnlockedJob.BASE
+    unlocked_job_level = 1
 
 
 class YellowChocobo(GenericMonster):
@@ -2084,6 +2088,8 @@ class Tiamat(GenericMonster):
 class SpecialMonster(RandomizedUnit):
     sprite_set = SpriteSet.MONSTER
     gender = UnitGender.MONSTER
+    unlocked_job = UnlockedJob.BASE
+    unlocked_job_level = 1
     difficulty = 6
 
 

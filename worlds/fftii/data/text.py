@@ -120,9 +120,9 @@ all_characters: list[TextData] = [
     TextData("{Pisces}", 0xDA0B, 10),
     TextData("{Serpentarius}", 0xDA0C, 10),
 
-    TextData("=", 0xDA0C, 6),
-    TextData("$", 0xDA0C, 6),
-    TextData("¥", 0xDA0C, 6),
+    TextData("=", 0xDA70, 6),
+    TextData("$", 0xDA71, 6),
+    TextData("¥", 0xDA72, 6),
 
     TextData(" ", 0xDA73, 2),
     TextData("{unitname}", 0xE1),

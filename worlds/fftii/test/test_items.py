@@ -1,8 +1,8 @@
 from Fill import distribute_items_restrictive
 from .bases import FFTIITestBase
 
-from ..data.locations import (story_zodiac_stone_locations, sidequest_zodiac_stone_locations,
-                              altima_only_story_zodiac_stone_locations)
+from ..data.locations import (story_stone_locations, sidequest_stone_locations,
+                              altima_only_stone_locations)
 from ..data.items import zodiac_stone_names, earned_job_names, shop_item_names, rare_item_names, gil_item_names, \
     jp_item_names
 
@@ -46,7 +46,7 @@ class TestZodiacStonesCorrectAdjustmentForVanillaStones(FFTIITestBase):
         distribute_items_restrictive(self.multiworld)
         all_locations = self.multiworld.get_locations(self.player)
         zodiac_stone_locations = [location for location in all_locations if location.item.name in zodiac_stone_names]
-        self.assertEqual(len(zodiac_stone_locations), len(story_zodiac_stone_locations), zodiac_stone_locations)
+        self.assertEqual(len(zodiac_stone_locations), len(story_stone_locations), zodiac_stone_locations)
 
 class TestZodiacStonesCorrectAdjustmentForVanillaStonesForSidequestsOn(FFTIITestBase):
     options = {
@@ -64,7 +64,7 @@ class TestZodiacStonesCorrectAdjustmentForVanillaStonesForSidequestsOn(FFTIITest
         zodiac_stone_locations = [location for location in all_locations if location.item.name in zodiac_stone_names]
         self.assertEqual(
             len(zodiac_stone_locations),
-            len(story_zodiac_stone_locations) + len(sidequest_zodiac_stone_locations),
+            len(story_stone_locations) + len(sidequest_stone_locations),
             zodiac_stone_locations)
 
 
@@ -84,7 +84,7 @@ class TestZodiacStonesCorrectAdjustmentForVanillaStonesForSidequestsAndAltimaOnl
         zodiac_stone_locations = [location for location in all_locations if location.item.name in zodiac_stone_names]
         self.assertEqual(
             len(zodiac_stone_locations),
-            len(story_zodiac_stone_locations) + len(sidequest_zodiac_stone_locations) + len(altima_only_story_zodiac_stone_locations),
+            len(story_stone_locations) + len(sidequest_stone_locations) + len(altima_only_stone_locations),
             zodiac_stone_locations)
 
 
@@ -104,7 +104,7 @@ class TestZodiacStonesCorrectAdjustmentForVanillaStonesForAltimaOnly(FFTIITestBa
         zodiac_stone_locations = [location for location in all_locations if location.item.name in zodiac_stone_names]
         self.assertEqual(
             len(zodiac_stone_locations),
-            len(story_zodiac_stone_locations) + len(altima_only_story_zodiac_stone_locations),
+            len(story_stone_locations) + len(altima_only_stone_locations),
             zodiac_stone_locations)
 
 class TestJobsOn(FFTIITestBase):

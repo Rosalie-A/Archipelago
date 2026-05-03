@@ -10,7 +10,7 @@ import bsdiff4
 import Utils
 from settings import get_settings
 from worlds.Files import APProcedurePatch, APTokenMixin, APPatchExtension
-from .enemyrando.RandomizedMappings import factory_mappings
+from .enemyrando.RandomizedMappings import factory_mappings, all_boss_shuffle_lookup
 from .enemyrando.RandomizedUnitFactory import RandomizedUnitFactory
 from .enemyrando.EventCodes import EventCode
 from .ErrorRecalc import ErrorRecalculator
@@ -66,7 +66,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         pass
 
     @staticmethod
-    def apply_enemy_rando(patch_dict, rom_data, seed, randomize_gariland):
+    def apply_enemy_rando(patch_dict, rom_data, seed, randomize_gariland, boss_shuffle):
         mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
         for key, value in patch_dict.items():
             new_list = []
@@ -130,8 +130,10 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                                 if source_unit == mapping_entry.source_unit:
                                     destination_unit = randomized_factories[mapping_entry.destination_unit].get_unit(
                                         mapping_entry.battle_level)
+                                    if boss_shuffle == 1:
+                                        destination_unit = all_boss_shuffle_lookup[mapping_entry.destination_unit]
                                     if destination_unit is None:
-                                        raise ValueError
+                                        raise RuntimeError("Invalid enemy randomization.")
                                     if i == 0x193: # Dorter 2 exclude Gafgarion.
                                         if unit.job == Job.DARK_KNIGHT_GUEST:
                                             continue
@@ -174,7 +176,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
 
     @staticmethod
     def patch_bin(caller, iso, placement_file):
-        patch_dict = json.loads(caller.get_file(placement_file))
+        patch_dict: dict = json.loads(caller.get_file(placement_file))
         if patch_dict["APJobs"] == 1:
             base_patch = pkgutil.get_data(__name__, "fftiiapjobs.bsdiff4")
         else:
@@ -202,6 +204,17 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
             exp_mult_value = exp_mult_values[patch_dict["JPMultiplier"]]
             address = memory.yaml_options["JPMultiplier"]
             rom_data[address] = exp_mult_value
+        if "MFILogic" in patch_dict.keys():
+            if patch_dict["MFILogic"] == 1:
+                address = memory.yaml_options["MFIChemistInnate"]
+                rom_data[address] = 0xFD
+                rom_data[address + 1] = 0x01
+            if patch_dict["MFILogic"] == 2:
+                address = memory.yaml_options["MFIBlueTeamInnate"]
+                rom_data[address] = 0x00
+                rom_data[address + 1] = 0x00
+                rom_data[address + 2] = 0x00
+                rom_data[address + 3] = 0x00
 
         location_dict = patch_dict["LocationDict"]
         for location, text in location_dict.items():
@@ -237,12 +250,14 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                     all_dd_bytes.extend(byte_line)
             FinalFantasyTacticsIIPatchExtension.write_text_to_location(all_dd_bytes, dd_battles_offset, rom_data)
 
-        if True:
-            rom_data = FinalFantasyTacticsIIPatchExtension.apply_enemy_rando(
-                patch_dict["EnemyRandoMapping"],
-                rom_data,
-                patch_dict["Seed"],
-                patch_dict["RandomizeGariland"])
+        rom_data = FinalFantasyTacticsIIPatchExtension.apply_enemy_rando(
+            patch_dict["EnemyRandoMapping"],
+            rom_data,
+            patch_dict["Seed"],
+            patch_dict["RandomizeGariland"],
+            patch_dict["BossShuffle"]
+        )
+
         rom_name_text = patch_dict["RomName"]
         rom_name = bytearray(rom_name_text, 'utf-8')
         rom_name.extend([0] * (20 - len(rom_name)))
