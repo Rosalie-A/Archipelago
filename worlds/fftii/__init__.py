@@ -23,7 +23,8 @@ from .Client import FinalFantasyTacticsIvaliceIslandClient
 
 from .data.items import zodiac_stone_names, world_map_pass_names, job_names, shop_levels, \
     special_character_names, ramza_job_levels, rare_item_names, shop_item_names, \
-    gil_item_names_weighted, earned_job_names, filler_item_names, jp_item_names_weighted
+    gil_item_names_weighted, earned_job_names, filler_item_names, jp_item_names_weighted, gear_item_names, \
+    item_name_lookup_by_game_id, item_data_lookup
 from .data.locations import all_regions, world_map_regions, story_battle_locations, character_recruit_locations, \
     sidequest_battle_locations, job_unlock_locations, rare_battle_locations, default_murond_fights, \
     shop_unlock_locations, monster_location_names, \
@@ -42,6 +43,7 @@ from .data.logic.regions.Limberry import limberry_regions
 from .data.logic.regions.Lionel import lionel_regions
 from .data.logic.regions.Murond import murond_regions
 from .data.logic.regions.Zeltennia import zeltennia_regions
+from .data.memory import mfi_location_id_to_name
 from .data.text import create_text_for_own_item, create_text_for_offworld_item
 from .enemyrando.BattleMappingLists import gallione_only_randoms, gallione_story_fights, gallione_randoms_from_fovoham
 from .enemyrando.BattleMappings import valid_shuffle_source_units, zodiac_shuffle_source_units, \
@@ -127,6 +129,8 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
     poach_hints: dict[MonsterNames, list[PoachHintLocation]]
     excluded_monster_locations: list[str]
 
+    mfi_rewards: dict[int, list[tuple[int, int]]]
+
     version = "0.4.0"
     debug = False
     topology_present = debug
@@ -142,6 +146,8 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         self.poach_hints = dict()
         self.poach_database: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
         self.excluded_monster_locations = []
+
+        self.mfi_rewards = dict()
 
     @classmethod
     def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
@@ -170,7 +176,10 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
 
     def create_enemy_rando_mapping(self):
         # Switch modes based on settings
-        if self.options.enemy_randomizer == self.options.enemy_randomizer.option_boss_shuffle: # if unique enemy shuffle
+
+        # if unique enemy shuffle
+        if (self.options.enemy_randomizer == self.options.enemy_randomizer.option_boss_shuffle
+                or self.options.enemy_randomizer == self.options.enemy_randomizer.option_boss_shuffle_randomized):
             source_units: list[SourceUnit] = valid_shuffle_source_units.copy()
             destination_units = base_shuffle_list.copy()
             if self.options.lucavi_randomizer >= self.options.lucavi_randomizer.option_lucavi: # if Zodiac bosses are in
@@ -223,18 +232,10 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     destination_factory = factory_options[destination_job]
                     mapping.destination_unit = destination_factory.get_unit(mapping.battle_level).job
                     destination_unit_jobs.remove(destination_job)
-            mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
-            for fight in BattleMappingLists.all_fights:
-                mapping_dict[fight.battle_id] = list()
-                for fight_source_unit in fight.source_units:
-                    new_mapping = RandomizedMapping()
-                    new_mapping.source_unit = fight_source_unit
-                    new_mapping.destination_unit = fight_source_unit.job
-                    mapping_dict[fight.battle_id].append(new_mapping)
             self.enemy_rando_mapping = {}
             for key, value in refined_dict.items():
                 self.enemy_rando_mapping[key] = value
-        elif self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized: # Randomized enemies
+        if self.options.enemy_randomizer >= self.options.enemy_randomizer.option_randomized: # Randomized enemies
             randomized_factories: dict[Job, RandomizedUnitFactory] = {
                 job: RandomizedUnitFactory(mapping, self.random) for job, mapping in factory_mappings.items()
             }
@@ -249,7 +250,14 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                         fight.battle_level, self.options.logical_difficulty.value)
                     working_factories = randomized_factories.copy()
                     for source_unit in fight.source_units:
-                        if check_if_source_unit_randomized(source_unit, self.options):
+                        skip = False
+                        found_mapping = None
+                        if fight.battle_id in self.enemy_rando_mapping.keys():
+                            for mapping in self.enemy_rando_mapping[fight.battle_id]:
+                                if source_unit == mapping.source_unit:
+                                    skip = True
+                                    found_mapping = mapping
+                        if not skip and check_if_source_unit_randomized(source_unit, self.options):
                             randomized_mapping, destination_job_key = get_randomized_mapping(
                                 working_factories,
                                 randomized_factories,
@@ -261,6 +269,8 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                             if self.options.enemy_randomizer_method == self.options.enemy_randomizer_method.option_shuffle:
                                 if destination_job_key in working_factories:
                                     working_factories.pop(destination_job_key)
+                        elif skip:
+                            fight_mapping_list.append(found_mapping)
                     self.enemy_rando_mapping[fight.battle_id] = fight_mapping_list
             if self.options.enemy_randomizer_locality == self.options.enemy_randomizer_locality.option_region:
                 if self.options.randomize_story_fights_only:
@@ -275,6 +285,9 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                         fight_difficulty = get_logic_adjusted_fight_level(
                             fight.battle_level, self.options.logical_difficulty.value)
                         region_source_units.update(fight.source_units)
+                        if fight.battle_id in self.enemy_rando_mapping.keys():
+                            for mapping in self.enemy_rando_mapping[fight.battle_id]:
+                                region_source_units.remove(mapping.source_unit)
                         for source_unit in fight.source_units:
                             if source_unit in source_unit_difficulty.keys():
                                 source_unit_difficulty[source_unit] = min(
@@ -296,7 +309,10 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                                 if destination_job_key in working_factories:
                                     working_factories.pop(destination_job_key)
                     for fight in region:
-                        self.enemy_rando_mapping[fight.battle_id] = region_mappings
+                        if fight.battle_id in self.enemy_rando_mapping.keys():
+                            self.enemy_rando_mapping[fight.battle_id].extend(region_mappings)
+                        else:
+                            self.enemy_rando_mapping[fight.battle_id] = region_mappings
             if self.options.enemy_randomizer_locality == self.options.enemy_randomizer_locality.option_global:
                 if self.options.randomize_story_fights_only:
                     fight_list = BattleMappingLists.all_story_fights
@@ -309,6 +325,9 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     fight_difficulty = get_logic_adjusted_fight_level(
                         fight.battle_level, self.options.logical_difficulty.value)
                     all_source_units.update(fight.source_units)
+                    if fight.battle_id in self.enemy_rando_mapping.keys():
+                        for mapping in self.enemy_rando_mapping[fight.battle_id]:
+                            all_source_units.remove(mapping.source_unit)
                     for source_unit in fight.source_units:
                         if source_unit in source_unit_difficulty.keys():
                             source_unit_difficulty[source_unit] = min(
@@ -330,7 +349,10 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                             if destination_job_key in working_factories:
                                 working_factories.pop(destination_job_key)
                 for fight in fight_list:
-                    self.enemy_rando_mapping[fight.battle_id] = all_mappings
+                    if fight.battle_id in self.enemy_rando_mapping.keys():
+                        self.enemy_rando_mapping[fight.battle_id].extend(all_mappings)
+                    else:
+                        self.enemy_rando_mapping[fight.battle_id] = all_mappings
             mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
             for fight in BattleMappingLists.all_fights:
                 mapping_dict[fight.battle_id] = list()
@@ -381,7 +403,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                             self.poach_hints[monster_name].append(poach_hint)
                             self.poach_database[monster_name].append(requirement)
             self.poach_locations = poach_locations
-        elif self.options.poach_locations:
+        else:
             poach_mappings = create_default_poach_mappings()
             poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
             for monster_name in monster_family_lookup.keys():
@@ -409,6 +431,26 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                                 battle_source.fight_id)
                             self.poach_hints[monster_name].append(poach_hint)
                             self.poach_database[monster_name].append(requirement)
+
+        # Move-Find Item randomization
+        if self.options.randomize_move_find_item_rewards > self.options.randomize_move_find_item_rewards.option_off:
+            all_items = set(gear_item_names)
+            rare_items = set(rare_item_names)
+            common_items = all_items - rare_items
+            all_items = sorted(list(all_items))
+            rare_items = sorted(list(rare_items))
+            common_items = sorted(list(common_items))
+            for map_id, map_name in mfi_location_id_to_name.items():
+                print(map_id, map_name)
+                self.mfi_rewards[map_id] = []
+                for i in range(4):
+                    if self.options.randomize_move_find_item_rewards == self.options.randomize_move_find_item_rewards.option_on:
+                        common_item = item_data_lookup[self.random.choice(all_items)].game_id
+                        rare_item = item_data_lookup[self.random.choice(all_items)].game_id
+                    else:
+                        common_item = item_data_lookup[self.random.choice(common_items)].game_id
+                        rare_item = item_data_lookup[self.random.choice(rare_items)].game_id
+                    self.mfi_rewards[map_id].append((common_item, rare_item))
 
         # Story battles are always in
         included_locations: list[LocationNames] = []
@@ -768,12 +810,23 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                                        options=[OptionFilter(MoveFindItemLocationLogic, 2, operator="ne")],
                                        filtered_resolution=True)
                     if location.name in [LocationNames.NELVESKA_MFI_1.value, LocationNames.NELVESKA_MFI_4.value]:
+                        # Nelveska requires 7 Jump, which can be obtained...
+                        # ...on Default, with a large monster and Spike Shoes
+                        # ...on Chemist Innate, with the above or Jump+3 and Spike Shoes or Teleport/Ignore Height
+                        # ...on Blue Team Innate, with the above or a four jump job plus Jump+3.
                         spike_shoes_access_rule = Has("Progressive Shop Level", count=4)
-                        four_jump_access_rule = HasAny("Monk", "Thief", "Ninja", "Lancer") & Has("Dancer")
+                        chemist_jump_access_rule = Has("Dancer") & spike_shoes_access_rule
+                        chemist_jump_access_rule |= HasAny("Time Mage", "Lancer")
+                        chemist_jump_access_rule = Filtered(chemist_jump_access_rule,
+                                                            options=[
+                                                                OptionFilter(MoveFindItemLocationLogic, 0, operator="ne")
+                                                            ])
+                        four_jump_access_rule = HasAny("Monk", "Thief", "Ninja") & Has("Dancer")
                         four_jump_access_rule = Filtered(four_jump_access_rule,
                                                          options=[
-                                                             OptionFilter(MoveFindItemLocationLogic, 0, operator="ne")
+                                                             OptionFilter(MoveFindItemLocationLogic, 2, operator="eq")
                                                          ])
+                        jump_access_rule = chemist_jump_access_rule | four_jump_access_rule
                         large_monster_access_rule = False_()
                         large_monster_present = False
                         for family in large_monster_families:
@@ -781,7 +834,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                             large_monster_access_rule |= monster_family_logic_rules[family]
                         if large_monster_present:
                             large_monster_access_rule &= Has("Mediator")
-                        access_rule &= four_jump_access_rule | (spike_shoes_access_rule & large_monster_access_rule)
+                        access_rule &= jump_access_rule | (spike_shoes_access_rule & large_monster_access_rule)
                 self.set_rule(ap_location, access_rule)
 
 
@@ -822,6 +875,19 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 new_list.append(mapping.to_json())
             new_enemy_rando_dict[key.value] = new_list
         patch_dict["EnemyRandoMapping"] = new_enemy_rando_dict
+
+        if self.options.randomize_move_find_item_rewards > self.options.randomize_move_find_item_rewards.option_off:
+            mfi_rando_dict = {}
+            for map_id in self.mfi_rewards.keys():
+                mfi_list = []
+                for i in range(4):
+                    map_dict = {
+                        "Common": self.mfi_rewards[map_id][i][0],
+                        "Rare": self.mfi_rewards[map_id][i][1]
+                    }
+                    mfi_list.append(map_dict)
+                mfi_rando_dict[map_id] = mfi_list
+            patch_dict["MFIRandoMapping"] = mfi_rando_dict
 
         rom_name_text = f'FFTII{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:9}'
         rom_name_text = rom_name_text[:20]

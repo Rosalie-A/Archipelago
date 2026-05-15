@@ -1,4 +1,4 @@
-from worlds.fftii.patchersuite.Unit import Unit
+from .Unit import Unit
 
 
 class ENTDEntry:

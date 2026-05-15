@@ -1,4 +1,4 @@
-events = {
+events: dict[int, str] = {
     0x001: "Dolbodar Swamp East 1",
     0x002: "Dolbodar Swamp East 2",
     0x003: "Dolbodar Swamp East 3",

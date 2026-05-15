@@ -159,11 +159,14 @@ class EnemyRandomizer(Choice):
     """Randomizes enemies.
     Disabled leaves enemies as vanilla.
     Boss Shuffle shuffles only unique story bosses amongst each other.
-    Randomized randommizes all enemies per other settings in this section."""
+    Randomized randommizes all enemies per other settings in this section.
+    Boss Shuffle Randomized combines the above two options: bosses will be shuffled and
+    all other slots will be randomized per other settings."""
     display_name = "Enemy Randomizer"
     option_disabled = 0
     option_boss_shuffle = 1
     option_randomized = 2
+    option_boss_shuffle_randomized = 3
     default = 0
 
 class RandomizeGariland(Toggle):
@@ -180,7 +183,7 @@ class CrossSpeciesRandomizer(Toggle):
 
 class RandomizeStoryFightsOnly(Toggle):
     """If enabled, only story and sidequest fights will be randomized,
-    and random encounters will be left alone"""
+    and random encounters will be left alone."""
     display_name = "Randomize Story Fights Only"
 
 class EnemyRandomizerLocality(Choice):
@@ -221,7 +224,7 @@ class MoveFindItemLocations(Toggle):
     display_name = "Move-Find Item Locations"
 
 class MoveFindItemLocationLogic(Choice):
-    """Controls what is needed to access MFI locations.
+    """Controls what is needed and used to access MFI locations.
     Vanilla requires Move-Find Item to be equipped.
     Chemist Innate makes Move-Find Item innate to Chemists.
     Player Innate makes Move-Find Item innate to all player units."""
@@ -229,6 +232,15 @@ class MoveFindItemLocationLogic(Choice):
     option_vanilla = 0
     option_chemist_innate = 1
     option_player_innate = 2
+
+class RandomizeMoveFindItemRewards(Choice):
+    """Should MFI tile rewards be randomized?
+    If Split is chosen, the rare slot (more likely with lower Brave)
+    will always have an item unavailable in shops while the common slot will only have shop items."""
+    display_name = "Randomize Move-Find Item Rewards"
+    option_off = 0
+    option_on = 1
+    option_split = 2
 
 # Unused options
 class StartingRegion(Choice):
@@ -273,6 +285,7 @@ class FinalFantasyTacticsIIOptions(PerGameCommonOptions):
     enemy_randomizer_method: EnemyRandomizerMethod
     move_find_item_locations: MoveFindItemLocations
     move_find_item_location_logic: MoveFindItemLocationLogic
+    randomize_move_find_item_rewards: RandomizeMoveFindItemRewards
     exp_gain_multiplier: EXPGainMultiplier
     jp_gain_multiplier: JPGainMultiplier
     start_inventory_from_pool: StartInventoryPool
@@ -314,7 +327,8 @@ fftii_option_groups = [
     ]),
     OptionGroup("Move-Find Item Options", [
         MoveFindItemLocations,
-        MoveFindItemLocationLogic
+        MoveFindItemLocationLogic,
+        RandomizeMoveFindItemRewards
     ]),
     OptionGroup("QOL Options", [
         EXPGainMultiplier,

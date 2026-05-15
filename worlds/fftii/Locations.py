@@ -51,5 +51,4 @@ for location in mfi_locations:
     location_data = LocationData(location.name, id, location.battle_level)
     location_data.requirements = location.requirements
     all_locations.append(location_data)
-    print(f'[{id}] = {{"@Move-Find Item/{location.name[:-6]}/{location.name[-5:]}"}},')
     id += 1

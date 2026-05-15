@@ -21,8 +21,12 @@ items_received_high = 0x578CF
 items_obtained_size = 2
 
 world_loaded_address = 0x0E0228
-world_loaded_length = 4
 world_loaded_value = [0x27, 0xBD, 0xFF, 0xE8]
+
+battle_loaded_address = 0x067000
+battle_loaded_value = [0x88, 0x88, 0x06, 0x80]
+
+current_map_location = 0x0577E8
 
 inventory_start_address = 0x0596E0
 shop_progression_address = 0x0578D8
@@ -50,6 +54,13 @@ stones_lookup = {
     "Serpentarius Stone": (zodiac_stones_2_address, 7),
 }
 
+battle_unit_stats_address = 0x1908CC
+battle_unit_stat_size = 0x1C0
+battle_unit_count = 21
+battle_unit_stats_length = battle_unit_stat_size * battle_unit_count
+battle_unit_entd_flag_offset = 0x05
+battle_unit_job_level_offset = 0xD2
+
 unit_stats_address = 0x057F74
 unit_stat_size = 0x100
 unit_count = 16
@@ -68,6 +79,8 @@ temp_job_amount = 20
 
 event_flags_location = 0x05791C
 event_flags_length = 0x224
+
+job_unlock_address_location = 0x05793E
 
 
 
@@ -856,7 +869,7 @@ mfi_locations = {
     "Inside of Limberry Castle": 16,
     "Limberry Castle Cemetery": 17,
     "Limberry Castle Gates": 19,
-    "Gariland Magic City": 22,
+    #"Gariland Magic City": 22,
     "Yardow Fort City": 25,
     "Goland Coal City": 27,
     "Goland Colliery First Floor": 28,
@@ -919,6 +932,88 @@ mfi_locations = {
     "HORROR": 113,
     "END": 114
 }
+
+mfi_location_id_to_name = {v: k for k, v in mfi_locations.items()}
+
+mfi_location_map_names = {
+    "Lesalia": 2,
+    "Murond Temple Hall": 3,
+    "Riovanes Castle Rooftop": 5,
+    "Riovanes Castle Gate": 6,
+    "Riovanes Castle Inside": 7,
+    "Igros Castle": 10,
+    "Lionel Castle Gate": 12,
+    "Lionel Castle Inside": 13,
+    "Limberry Castle Inside": 16,
+    "Limberry Underground Cemetery": 17,
+    "Limberry Castle Gate": 19,
+    #"Gariland Magic City": 22,
+    "Yardow": 25,
+    "Goland Coal City": 27,
+    "Goland Colliery First Floor": 28,
+    "Goland Colliery Second Floor": 29,
+    "Goland Colliery Third Floor": 30,
+    "Dorter Trade City": 31,
+    "Dorter Slums": 32,
+    "Sand Rat Cellar": 34,
+    "Zaland": 35,
+    "Zeltennia Castle": 36,
+    "Goland Underground Passage": 39,
+    "Goug": 40,
+    "Bervenia City": 44,
+    "Zarghidas": 47,
+    "Fort Zeakden": 49,
+    "Murond Temple Outside": 50,
+    "Murond Temple Chapel": 52,
+    "Lost Sacred Precincts": 54,
+    "Graveyard of Airships": 55,
+    "Underground Book Storage 1": 57,
+    "Underground Book Storage 2": 58,
+    "Underground Book Storage 3": 59,
+    "Underground Book Storage 4": 60,
+    "Underground Book Storage 5": 61,
+    "Golgorand Execution Site": 63,
+    "Bethla Sluice": 64,
+    "Bethla Garrison South Wall": 66,
+    "Bethla Garrison North Wall": 67,
+    "Murond Death City": 69,
+    "Nelveska Temple": 70,
+    "Dolbodar Swamp": 71,
+    "Fovoham Plains": 72,
+    "Sweegy Woods": 74,
+    "Bervenia Volcano": 75,
+    "Zeklaus Desert": 76,
+    "Lenalia Plateau": 77,
+    "Zigolis Swamp": 78,
+    "Yuguo Woods": 79,
+    "Araguay Woods": 80,
+    "Grog Hill": 81,
+    "Bed Desert": 82,
+    "Zirekile Falls": 83,
+    "Bariaus Hill": 84,
+    "Mandalia Plains": 85,
+    "Doguola Pass": 86,
+    "Bariaus Valley": 87,
+    "Finath River": 88,
+    "Poeskas Lake": 89,
+    "Germinas Peak": 90,
+    "Thieves' Fort": 91,
+    "Windmill Shed": 103,
+    "TERMINATE": 105,
+    "DELTA": 106,
+    "NOGIAS": 107,
+    "VOYAGE": 108,
+    "BRIDGE": 109,
+    "VALKYRIES": 110,
+    "MLAPAN": 111,
+    "TIGER": 112,
+    "HORROR": 113,
+    "END": 114
+}
+
+mfi_location_id_to_map_name = {v: k for k, v in mfi_location_map_names.items()}
+#for key, value in mfi_location_id_to_map_name.items():
+#    print(f"[{key}] = \"{value}\",")
 
 mfi_base_address = 0x059414
 

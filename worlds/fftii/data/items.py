@@ -9,7 +9,7 @@ class ItemData:
     def __repr__(self):
         return f"{self.name} ({hex(self.game_id)})"
 
-all_item_data = []
+all_item_data: list[ItemData] = []
 
 gear_item_names = [
     "Dagger", "Mythril Knife", "Blind Knife", "Mage Masher", "Platina Dagger", "Main Gauche", "Orichalcum",
@@ -98,6 +98,8 @@ for index, item_name in enumerate(gear_item_names, start=1):
     all_item_data.append(ItemData(item_name, index))
 
 item_data_lookup = {item.name: item for item in all_item_data}
+item_name_lookup_by_game_id = {item.game_id: item.name for item in all_item_data}
+item_name_lookup_by_game_id[0] = "Nothing"
 
 zodiac_stone_names: list[str] = [
     "Aries Stone", "Taurus Stone", "Gemini Stone", "Cancer Stone", "Leo Stone", "Virgo Stone", "Libra Stone",

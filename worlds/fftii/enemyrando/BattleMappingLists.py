@@ -205,7 +205,20 @@ lionel_only_randoms: list[BattleMapping] = [
     ZigolisSwampEast1,
     ZigolisSwampEast2,
     ZigolisSwampEast3,
-    ZigolisSwampEast4
+    ZigolisSwampEast4,
+    BariusValleyWest1,
+    BariusValleyWest2,
+    BariusValleyWest3,
+    BariusValleyWest4,
+    BariusValleySouth1,
+    BariusValleySouth2,
+    BariusValleySouth3,
+    BariusValleySouth4,
+    BariusValleySouth5,
+    BariusValleyEast1,
+    BariusValleyEast2,
+    BariusValleyEast3,
+    BariusValleyEast4,
 ]
 
 lionel_randoms_from_murond: list[BattleMapping] = [

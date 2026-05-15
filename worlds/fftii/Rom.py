@@ -16,13 +16,14 @@ from .enemyrando.EventCodes import EventCode
 from .ErrorRecalc import ErrorRecalculator
 from .data import memory
 from .data.locations import rare_battle_location_names, dd_location_names
-from .data.memory import victory_text_offsets, rare_battles_offset, dd_battles_offset
+from .data.memory import victory_text_offsets, rare_battles_offset, dd_battles_offset, mfi_location_id_to_name
 from .data.text import split_text_into_lines
 from .data.logic.FFTLocation import LocationNames
 from .enemyrando.RandomizedMapping import RandomizedMapping
 from .enemyrando.BattleMappings import valid_shuffle_source_units
 from .enemyrando.EventIDs import events
 from .enemyrando.Job import Job
+from .patchersuite.BATTLEBin import BATTLEBin
 from .patchersuite.Sector import Sector
 from .patchersuite.ENTDEntry import ENTDEntry
 from .enemyrando.SourceUnit import SourceUnit
@@ -130,8 +131,13 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                                 if source_unit == mapping_entry.source_unit:
                                     destination_unit = randomized_factories[mapping_entry.destination_unit].get_unit(
                                         mapping_entry.battle_level)
-                                    if boss_shuffle == 1:
-                                        destination_unit = all_boss_shuffle_lookup[mapping_entry.destination_unit]
+                                    if boss_shuffle == 1 or boss_shuffle == 3:
+                                        try:
+                                            destination_unit = all_boss_shuffle_lookup[mapping_entry.destination_unit]
+                                        except KeyError:
+                                            destination_unit = randomized_factories[
+                                                mapping_entry.destination_unit].get_unit(
+                                                mapping_entry.battle_level)
                                     if destination_unit is None:
                                         raise RuntimeError("Invalid enemy randomization.")
                                     if i == 0x193: # Dorter 2 exclude Gafgarion.
@@ -172,6 +178,39 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         for sector in new_all_entd_sectors:
             new_sector_data.extend(sector.all_data)
         new_iso_data[entd_start:entd_start + len(new_sector_data)] = new_sector_data
+        return new_iso_data
+
+    @staticmethod
+    def apply_mfi_rando(patch_dict, rom_data):
+        battle_bin_raw_data = rom_data[BATTLEBin.start_sector_location:BATTLEBin.end_location]
+        battle_bin_sectors = []
+        for i in range(BATTLEBin.sector_count):
+            battle_bin_sectors.append(Sector(battle_bin_raw_data[i * Sector.sector_size:(i + 1) * Sector.sector_size]))
+        battle_bin_data = bytearray()
+        for sector in battle_bin_sectors:
+            battle_bin_data.extend(sector.data)
+        initial_length = len(battle_bin_data)
+        battle_bin = BATTLEBin(battle_bin_data)
+        for map_mfi_data in battle_bin.map_mfi_datas:
+            if map_mfi_data.index in mfi_location_id_to_name.keys():
+                #map_mfi_data.print_tracker_data()
+                new_mfi_data = patch_dict["MFIRandoMapping"][str(map_mfi_data.index)]
+                for i in range(4):
+                    map_mfi_data.mfi_datas[i].common_item = new_mfi_data[i]["Common"]
+                    map_mfi_data.mfi_datas[i].rare_item = new_mfi_data[i]["Rare"]
+        battle_bin.apply_data()
+        assert len(battle_bin.all_data) == initial_length
+        for i, sector in enumerate(battle_bin_sectors):
+            sector.data = battle_bin.all_data[i * Sector.data_size:(i + 1) * Sector.data_size]
+            sector.all_data = []
+            sector.all_data.extend(sector.header)
+            sector.all_data.extend(sector.data)
+            sector.all_data.extend(sector.error)
+        new_iso_data = bytearray(rom_data)
+        new_sector_data: bytearray = bytearray()
+        for sector in battle_bin_sectors:
+            new_sector_data.extend(sector.all_data)
+        new_iso_data[BATTLEBin.start_sector_location:BATTLEBin.start_sector_location + len(new_sector_data)] = new_sector_data
         return new_iso_data
 
     @staticmethod
@@ -249,6 +288,9 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                 for byte_line in byte_lines:
                     all_dd_bytes.extend(byte_line)
             FinalFantasyTacticsIIPatchExtension.write_text_to_location(all_dd_bytes, dd_battles_offset, rom_data)
+
+        if "MFIRandoMapping" in patch_dict.keys():
+            rom_data = FinalFantasyTacticsIIPatchExtension.apply_mfi_rando(patch_dict, rom_data)
 
         rom_data = FinalFantasyTacticsIIPatchExtension.apply_enemy_rando(
             patch_dict["EnemyRandoMapping"],
