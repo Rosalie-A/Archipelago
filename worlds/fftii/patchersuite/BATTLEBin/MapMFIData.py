@@ -1,7 +1,6 @@
 import json
 from .MFIData import MFIData
-from .MapHeights import map_heights
-from ..data.memory import mfi_location_id_to_map_name
+from ...data.memory import mfi_location_id_to_map_name
 
 
 class MapMFIData:

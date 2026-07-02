@@ -1,164 +1,165 @@
+from .FactoryKey import FactoryKey
 from .RandomizedUnits import *
 
-generic_job_table: dict[Job, list[Job]] = {
-    Job.SQUIRE: [Job.SQUIRE, Job.FEMALE_SQUIRE],
-    Job.CHEMIST: [Job.CHEMIST, Job.FEMALE_CHEMIST],
-    Job.KNIGHT: [Job.KNIGHT, Job.FEMALE_KNIGHT],
-    Job.ARCHER: [Job.ARCHER, Job.FEMALE_ARCHER],
-    Job.MONK: [Job.MONK, Job.FEMALE_MONK],
-    Job.PRIEST: [Job.PRIEST, Job.FEMALE_PRIEST],
-    Job.WIZARD: [Job.WIZARD, Job.FEMALE_WIZARD],
-    Job.TIMEMAGE: [Job.TIMEMAGE, Job.FEMALE_TIMEMAGE],
-    Job.SUMMONER: [Job.SUMMONER, Job.FEMALE_SUMMONER],
-    Job.THIEF: [Job.THIEF, Job.FEMALE_THIEF],
-    Job.MEDIATOR: [Job.MEDIATOR, Job.FEMALE_MEDIATOR],
-    Job.ORACLE: [Job.ORACLE, Job.FEMALE_ORACLE],
-    Job.GEOMANCER: [Job.GEOMANCER, Job.FEMALE_GEOMANCER],
-    Job.LANCER: [Job.LANCER, Job.FEMALE_LANCER],
-    Job.SAMURAI: [Job.SAMURAI, Job.FEMALE_SAMURAI],
-    Job.NINJA: [Job.NINJA, Job.FEMALE_NINJA],
-    Job.CALCULATOR: [Job.CALCULATOR, Job.FEMALE_CALCULATOR],
-    Job.BARD: [Job.BARD],
-    Job.DANCER: [Job.DANCER],
-    Job.MIME: [Job.MIME, Job.FEMALE_MIME]
+generic_job_table: dict[Job, list[FactoryKey]] = {
+    Job.SQUIRE: [FactoryKey.SQUIRE, FactoryKey.FEMALE_SQUIRE],
+    Job.CHEMIST: [FactoryKey.CHEMIST, FactoryKey.FEMALE_CHEMIST],
+    Job.KNIGHT: [FactoryKey.KNIGHT, FactoryKey.FEMALE_KNIGHT],
+    Job.ARCHER: [FactoryKey.ARCHER, FactoryKey.FEMALE_ARCHER],
+    Job.MONK: [FactoryKey.MONK, FactoryKey.FEMALE_MONK],
+    Job.PRIEST: [FactoryKey.PRIEST, FactoryKey.FEMALE_PRIEST],
+    Job.WIZARD: [FactoryKey.WIZARD, FactoryKey.FEMALE_WIZARD],
+    Job.TIMEMAGE: [FactoryKey.TIMEMAGE, FactoryKey.FEMALE_TIMEMAGE],
+    Job.SUMMONER: [FactoryKey.SUMMONER, FactoryKey.FEMALE_SUMMONER],
+    Job.THIEF: [FactoryKey.THIEF, FactoryKey.FEMALE_THIEF],
+    Job.MEDIATOR: [FactoryKey.MEDIATOR, FactoryKey.FEMALE_MEDIATOR],
+    Job.ORACLE: [FactoryKey.ORACLE, FactoryKey.FEMALE_ORACLE],
+    Job.GEOMANCER: [FactoryKey.GEOMANCER, FactoryKey.FEMALE_GEOMANCER],
+    Job.LANCER: [FactoryKey.LANCER, FactoryKey.FEMALE_LANCER],
+    Job.SAMURAI: [FactoryKey.SAMURAI, FactoryKey.FEMALE_SAMURAI],
+    Job.NINJA: [FactoryKey.NINJA, FactoryKey.FEMALE_NINJA],
+    Job.CALCULATOR: [FactoryKey.CALCULATOR, FactoryKey.FEMALE_CALCULATOR],
+    Job.BARD: [FactoryKey.BARD],
+    Job.DANCER: [FactoryKey.DANCER],
+    Job.MIME: [FactoryKey.MIME, FactoryKey.FEMALE_MIME]
 }
 
-generic_monster_table: dict[Job, list[Job]] = {
-    Job.YELLOW_CHOCOBO: [Job.YELLOW_CHOCOBO],
-    Job.GOBLIN: [Job.GOBLIN],
-    Job.BOMB: [Job.BOMB],
-    Job.RED_PANTHER: [Job.RED_PANTHER],
-    Job.PISCO_DEMON: [Job.PISCO_DEMON],
-    Job.SKELETON: [Job.SKELETON],
-    Job.GHOUL: [Job.GHOUL],
-    Job.FLOTIBALL: [Job.FLOTIBALL],
-    Job.JURAVIS: [Job.JURAVIS],
-    Job.URIBO: [Job.URIBO],
-    Job.WOODMAN: [Job.WOODMAN],
-    Job.BULL_DEMON: [Job.BULL_DEMON],
-    Job.MORBOL: [Job.MORBOL],
-    Job.BEHEMOTH: [Job.BEHEMOTH],
-    Job.DRAGON: [Job.DRAGON],
-    Job.HYUDRA: [Job.HYUDRA]
+generic_monster_table: dict[Job, list[FactoryKey]] = {
+    Job.YELLOW_CHOCOBO: [FactoryKey.YELLOW_CHOCOBO],
+    Job.GOBLIN: [FactoryKey.GOBLIN],
+    Job.BOMB: [FactoryKey.BOMB],
+    Job.RED_PANTHER: [FactoryKey.RED_PANTHER],
+    Job.PISCO_DEMON: [FactoryKey.PISCO_DEMON],
+    Job.SKELETON: [FactoryKey.SKELETON],
+    Job.GHOUL: [FactoryKey.GHOUL],
+    Job.FLOTIBALL: [FactoryKey.FLOTIBALL],
+    Job.JURAVIS: [FactoryKey.JURAVIS],
+    Job.URIBO: [FactoryKey.URIBO],
+    Job.WOODMAN: [FactoryKey.WOODMAN],
+    Job.BULL_DEMON: [FactoryKey.BULL_DEMON],
+    Job.MORBOL: [FactoryKey.MORBOL],
+    Job.BEHEMOTH: [FactoryKey.BEHEMOTH],
+    Job.DRAGON: [FactoryKey.DRAGON],
+    Job.HYUDRA: [FactoryKey.HYUDRA]
 }
 
-special_job_table: dict[Job, list[Job]] = {
+special_job_table: dict[Job, list[FactoryKey]] = {
     #Job.RAMZA_SQUIRE_CHAPTER_1: [Job.RAMZA_SQUIRE_CHAPTER_1],
     #Job.RAMZA_SQUIRE_CHAPTER_23: [Job.RAMZA_SQUIRE_CHAPTER_23],
     #Job.RAMZA_SQUIRE_CHAPTER_4: [Job.RAMZA_SQUIRE_CHAPTER_4],
-    Job.SQUIRE_DELITA: [Job.SQUIRE_DELITA],
-    Job.SQUIRE_ALGUS: [Job.SQUIRE_ALGUS],
-    Job.HOLY_KNIGHT_DELITA: [Job.HOLY_KNIGHT_DELITA],
-    Job.ARC_KNIGHT_DELITA: [Job.ARC_KNIGHT_DELITA],
-    Job.HOLY_KNIGHT_AGRIAS: [Job.HOLY_KNIGHT_AGRIAS],
-    Job.ARC_KNIGHT_ZALBAG: [Job.ARC_KNIGHT_ZALBAG],
-    Job.LUNE_KNIGHT: [Job.LUNE_KNIGHT],
-    Job.PRINCESS: [Job.PRINCESS],
-    Job.HOLY_SWORDSMAN: [Job.HOLY_SWORDSMAN],
-    Job.DRAGONER: [Job.DRAGONER],
-    Job.HOLY_PRIEST: [Job.HOLY_PRIEST],
-    Job.DARK_KNIGHT_ENEMY: [Job.DARK_KNIGHT_ENEMY],
-    Job.ASTROLOGIST: [Job.ASTROLOGIST],
-    Job.ENGINEER_MUSTADIO: [Job.ENGINEER_MUSTADIO, Job.ENGINEER_BALK],
-    Job.HELL_KNIGHT: [Job.HELL_KNIGHT],
-    Job.ARC_KNIGHT_ELMDOR: [Job.ARC_KNIGHT_ELMDOR],
-    Job.TEMPLE_KNIGHT: [Job.TEMPLE_KNIGHT],
-    Job.WHITE_KNIGHT_C1: [Job.WHITE_KNIGHT_C1, Job.WHITE_KNIGHT_C3],
-    Job.DIVINE_KNIGHT_VORMAV: [Job.DIVINE_KNIGHT_VORMAV, Job.DIVINE_KNIGHT_ROFEL, Job.DIVINE_KNIGHT_MELIADOUL],
-    Job.KNIGHT_BLADE: [Job.KNIGHT_BLADE],
-    Job.SORCERER: [Job.SORCERER],
-    Job.HEAVEN_KNIGHT: [Job.HEAVEN_KNIGHT],
-    Job.ASSASSIN_CELIA: [Job.ASSASSIN_CELIA, Job.ASSASSIN_LEDE],
-    Job.CLERIC: [Job.CLERIC],
-    Job.SOLDIER: [Job.SOLDIER],
+    Job.SQUIRE_DELITA: [FactoryKey.SQUIRE_DELITA],
+    Job.SQUIRE_ALGUS: [FactoryKey.SQUIRE_ALGUS],
+    Job.HOLY_KNIGHT_DELITA: [FactoryKey.HOLY_KNIGHT_DELITA],
+    Job.ARC_KNIGHT_DELITA: [FactoryKey.ARC_KNIGHT_DELITA],
+    Job.HOLY_KNIGHT_AGRIAS: [FactoryKey.HOLY_KNIGHT_AGRIAS],
+    Job.ARC_KNIGHT_ZALBAG: [FactoryKey.ARC_KNIGHT_ZALBAG],
+    Job.LUNE_KNIGHT: [FactoryKey.LUNE_KNIGHT],
+    Job.PRINCESS: [FactoryKey.PRINCESS],
+    Job.HOLY_SWORDSMAN: [FactoryKey.HOLY_SWORDSMAN],
+    Job.DRAGONER: [FactoryKey.DRAGONER],
+    Job.HOLY_PRIEST: [FactoryKey.HOLY_PRIEST],
+    Job.DARK_KNIGHT_ENEMY: [FactoryKey.DARK_KNIGHT_ENEMY],
+    Job.ASTROLOGIST: [FactoryKey.ASTROLOGIST],
+    Job.ENGINEER_MUSTADIO: [FactoryKey.ENGINEER_MUSTADIO, FactoryKey.ENGINEER_BALK],
+    Job.HELL_KNIGHT: [FactoryKey.HELL_KNIGHT],
+    Job.ARC_KNIGHT_ELMDOR: [FactoryKey.ARC_KNIGHT_ELMDOR],
+    Job.TEMPLE_KNIGHT: [FactoryKey.TEMPLE_KNIGHT],
+    Job.WHITE_KNIGHT_C1: [FactoryKey.WHITE_KNIGHT_C1, FactoryKey.WHITE_KNIGHT_C3],
+    Job.DIVINE_KNIGHT_VORMAV: [FactoryKey.DIVINE_KNIGHT_VORMAV, FactoryKey.DIVINE_KNIGHT_ROFEL, FactoryKey.DIVINE_KNIGHT_MELIADOUL],
+    Job.KNIGHT_BLADE: [FactoryKey.KNIGHT_BLADE],
+    Job.SORCERER: [FactoryKey.SORCERER],
+    Job.HEAVEN_KNIGHT: [FactoryKey.HEAVEN_KNIGHT],
+    Job.ASSASSIN_CELIA: [FactoryKey.ASSASSIN_CELIA, FactoryKey.ASSASSIN_LEDE],
+    Job.CLERIC: [FactoryKey.CLERIC],
+    Job.SOLDIER: [FactoryKey.SOLDIER],
     Job.KNIGHT_UNDEAD: [
-        Job.KNIGHT_UNDEAD, Job.ARCHER_UNDEAD, Job.ORACLE_UNDEAD, Job.WIZARD_UNDEAD,
-        Job.TIME_MAGE_UNDEAD, Job.SUMMONER_UNDEAD
+        FactoryKey.KNIGHT_UNDEAD, FactoryKey.ARCHER_UNDEAD, FactoryKey.ORACLE_UNDEAD, FactoryKey.WIZARD_UNDEAD,
+        FactoryKey.TIME_MAGE_UNDEAD, FactoryKey.SUMMONER_UNDEAD
     ]
 }
 
-special_monster_table: dict[Job, list[Job]] = {
-    Job.HOLY_DRAGON: [Job.HOLY_DRAGON],
-    Job.BYBLOS: [Job.BYBLOS],
-    Job.STEEL_GIANT: [Job.STEEL_GIANT],
-    Job.APANDA: [Job.APANDA],
-    Job.ARCHAIC_DEMON: [Job.ARCHAIC_DEMON],
+special_monster_table: dict[Job, list[FactoryKey]] = {
+    Job.HOLY_DRAGON: [FactoryKey.HOLY_DRAGON],
+    Job.BYBLOS: [FactoryKey.BYBLOS],
+    Job.STEEL_GIANT: [FactoryKey.STEEL_GIANT],
+    Job.APANDA: [FactoryKey.APANDA],
+    Job.ARCHAIC_DEMON: [FactoryKey.ARCHAIC_DEMON],
 }
 
-lucavi_table: dict[Job, list[Job]] = {
-    Job.QUEKLAIN: [Job.QUEKLAIN],
-    Job.VELIUS: [Job.VELIUS],
-    Job.ZALERA: [Job.ZALERA],
-    Job.ADRAMELK: [Job.ADRAMELK],
-    Job.ELIDIBS: [Job.ELIDIBS],
-    Job.HASHMALUM: [Job.HASHMALUM]
+lucavi_table: dict[Job, list[FactoryKey]] = {
+    Job.QUEKLAIN: [FactoryKey.QUEKLAIN],
+    Job.VELIUS: [FactoryKey.VELIUS],
+    Job.ZALERA: [FactoryKey.ZALERA],
+    Job.ADRAMELK: [FactoryKey.ADRAMELK],
+    Job.ELIDIBS: [FactoryKey.ELIDIBS],
+    Job.HASHMALUM: [FactoryKey.HASHMALUM]
 }
 
-altima_table: dict[Job, list[Job]] = {
-    Job.ALTIMA_1: [Job.ALTIMA_1],
-    Job.ALTIMA_2: [Job.ALTIMA_2],
+altima_table: dict[Job, list[FactoryKey]] = {
+    Job.ALTIMA_1: [FactoryKey.ALTIMA_1],
+    Job.ALTIMA_2: [FactoryKey.ALTIMA_2],
 }
 
-factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
-    Job.RAMZA_SQUIRE_CHAPTER_1: {RamzaC1Squire: 1},
-    Job.RAMZA_SQUIRE_CHAPTER_23: {RamzaC23Squire: 1},
-    Job.RAMZA_SQUIRE_CHAPTER_4: {RamzaC4Squire: 9, RamzaC4SquireFullSkillset: 1},
-    Job.SQUIRE_DELITA: {DelitaSquire: 1, DelitaSquireHard: 9},
-    Job.HOLY_KNIGHT_DELITA: {DelitaHolyKnight: 1, DelitaHolyKnightHard: 9},
-    Job.ARC_KNIGHT_DELITA: {DelitaArcKnight: 1, DelitaArcKnightHard: 9},
-    Job.SQUIRE_ALGUS: {Algus: 9, AlgusWithCrossbow: 1, AlgusHard: 90, AlgusWithCrossbowHard: 10},
-    Job.ARC_KNIGHT_ZALBAG: {ZalbagArcKnight: 1, ZalbagArcKnightHard: 9},
-    Job.LUNE_KNIGHT: {LuneKnight: 1, LuneKnightHard: 9},
-    Job.PRINCESS: {Princess: 1, PrincessHard: 9},
-    Job.HOLY_SWORDSMAN: {HolySwordsman: 1, HolySwordsmanHard: 9, HolySwordsmanWithExcalibur: 1},
-    Job.DRAGONER: {Dragoner: 1, DragonerHard: 9},
-    Job.HOLY_PRIEST: {HolyPriest: 1, HolyPriestHard: 9},
-    Job.DARK_KNIGHT_ENEMY: {DarkKnight: 1, DarkKnightHard: 9},
-    Job.ASTROLOGIST: {Astrologist: 1, AstrologistHard: 9},
-    Job.ENGINEER_MUSTADIO: {EngineerMustadio: 1, EngineerMustadioHard: 9},
-    Job.DARK_KNIGHT_GUEST: {DarkKnight: 1, DarkKnightHard: 9},
-    Job.HEAVEN_KNIGHT_GUEST: {HeavenKnight: 1, HeavenKnightHard: 9},
-    Job.HELL_KNIGHT: {HellKnight: 1, HellKnightHard: 9},
-    Job.ARC_KNIGHT_ELMDOR: {ArcKnightElmdor: 1, ArcKnightElmdorHard: 9, ArcKnightElmdorWithKit: 1},
-    Job.HOLY_KNIGHT_AGRIAS: {HolyKnightAgrias: 1, HolyKnightAgriasHard: 9},
-    Job.TEMPLE_KNIGHT: {TempleKnight: 1, TempleKnightHard: 9},
-    Job.WHITE_KNIGHT_C1: {
+factory_mappings: dict[FactoryKey, dict[type[RandomizedUnit], int]] = {
+    FactoryKey.RAMZA_SQUIRE_CHAPTER_1: {RamzaC1Squire: 1},
+    FactoryKey.RAMZA_SQUIRE_CHAPTER_23: {RamzaC23Squire: 1},
+    FactoryKey.RAMZA_SQUIRE_CHAPTER_4: {RamzaC4Squire: 9, RamzaC4SquireFullSkillset: 1},
+    FactoryKey.SQUIRE_DELITA: {DelitaSquire: 1, DelitaSquireHard: 9},
+    FactoryKey.HOLY_KNIGHT_DELITA: {DelitaHolyKnight: 1, DelitaHolyKnightHard: 9},
+    FactoryKey.ARC_KNIGHT_DELITA: {DelitaArcKnight: 1, DelitaArcKnightHard: 9},
+    FactoryKey.SQUIRE_ALGUS: {Algus: 9, AlgusWithCrossbow: 1, AlgusHard: 90, AlgusWithCrossbowHard: 10},
+    FactoryKey.ARC_KNIGHT_ZALBAG: {ZalbagArcKnight: 1, ZalbagArcKnightHard: 9},
+    FactoryKey.LUNE_KNIGHT: {LuneKnight: 1, LuneKnightHard: 9},
+    FactoryKey.PRINCESS: {Princess: 1, PrincessHard: 9},
+    FactoryKey.HOLY_SWORDSMAN: {HolySwordsman: 1, HolySwordsmanHard: 9, HolySwordsmanWithExcalibur: 1},
+    FactoryKey.DRAGONER: {Dragoner: 1, DragonerHard: 9},
+    FactoryKey.HOLY_PRIEST: {HolyPriest: 1, HolyPriestHard: 9},
+    FactoryKey.DARK_KNIGHT_ENEMY: {DarkKnight: 1, DarkKnightHard: 9},
+    FactoryKey.ASTROLOGIST: {Astrologist: 1, AstrologistHard: 9},
+    FactoryKey.ENGINEER_MUSTADIO: {EngineerMustadio: 1, EngineerMustadioHard: 9},
+    FactoryKey.DARK_KNIGHT_GUEST: {DarkKnight: 1, DarkKnightHard: 9},
+    FactoryKey.HEAVEN_KNIGHT_GUEST: {HeavenKnight: 1, HeavenKnightHard: 9},
+    FactoryKey.HELL_KNIGHT: {HellKnight: 1, HellKnightHard: 9},
+    FactoryKey.ARC_KNIGHT_ELMDOR: {ArcKnightElmdor: 1, ArcKnightElmdorHard: 9, ArcKnightElmdorWithKit: 1},
+    FactoryKey.HOLY_KNIGHT_AGRIAS: {HolyKnightAgrias: 1, HolyKnightAgriasHard: 9},
+    FactoryKey.TEMPLE_KNIGHT: {TempleKnight: 1, TempleKnightHard: 9},
+    FactoryKey.WHITE_KNIGHT_C1: {
         WhiteKnightChapter1: 9, WhiteKnightChapter1WithCounter: 1,
         WhiteKnightChapter1Hard: 90, WhiteKnightChapter1WithCounterHard: 10
     },
-    Job.ENGINEER_GUEST: {EngineerMustadio: 1, EngineerMustadioHard: 9},
-    Job.DIVINE_KNIGHT_VORMAV: {DivineKnightVormav: 1, DivineKnightVormavHard: 9},
-    Job.DIVINE_KNIGHT_ROFEL: {DivineKnightRofel: 1, DivineKnightRofelHard: 9},
-    Job.KNIGHT_BLADE: {
+    FactoryKey.ENGINEER_GUEST: {EngineerMustadio: 1, EngineerMustadioHard: 9},
+    FactoryKey.DIVINE_KNIGHT_VORMAV: {DivineKnightVormav: 1, DivineKnightVormavHard: 9},
+    FactoryKey.DIVINE_KNIGHT_ROFEL: {DivineKnightRofel: 1, DivineKnightRofelHard: 9},
+    FactoryKey.KNIGHT_BLADE: {
         KnightBlade: 1, KnightBladeWithKit: 1, KnightBladeHard: 9
     },
-    Job.SORCERER: {Sorcerer: 1, SorcererHard: 9},
-    Job.WHITE_KNIGHT_C3: {
+    FactoryKey.SORCERER: {Sorcerer: 1, SorcererHard: 9},
+    FactoryKey.WHITE_KNIGHT_C3: {
         WhiteKnight: 9, WhiteKnightWithCounter: 1,
         WhiteKnightHard: 90, WhiteKnightWithCounterHard: 10
     },
-    Job.HEAVEN_KNIGHT: {HeavenKnight: 1, HeavenKnightHard: 9},
-    Job.DIVINE_KNIGHT_MELIADOUL: {DivineKnightMeliadoul: 1, DivineKnightMeliadoulHard: 9},
-    Job.ENGINEER_BALK: {EngineerBalk: 1, EngineerBalkHard: 9},
-    Job.ASSASSIN_CELIA: {AssassinCelia: 1},
-    Job.ASSASSIN_LEDE: {AssassinLede: 1},
-    Job.DIVINE_KNIGHT_MELIADOUL_ENEMY: {DivineKnightMeliadoul: 1, DivineKnightMeliadoulHard: 9},
-    Job.CLERIC: {
+    FactoryKey.HEAVEN_KNIGHT: {HeavenKnight: 1, HeavenKnightHard: 9},
+    FactoryKey.DIVINE_KNIGHT_MELIADOUL: {DivineKnightMeliadoul: 1, DivineKnightMeliadoulHard: 9},
+    FactoryKey.ENGINEER_BALK: {EngineerBalk: 1, EngineerBalkHard: 9},
+    FactoryKey.ASSASSIN_CELIA: {AssassinCelia: 1},
+    FactoryKey.ASSASSIN_LEDE: {AssassinLede: 1},
+    FactoryKey.DIVINE_KNIGHT_MELIADOUL_ENEMY: {DivineKnightMeliadoul: 1, DivineKnightMeliadoulHard: 9},
+    FactoryKey.CLERIC: {
         Cleric: 9, ClericWithUltima: 1,
         ClericHard: 90, ClericWithUltimaHard: 10
     },
-    Job.SOLDIER: {Soldier: 1, SoldierHard: 9},
-    Job.ARC_KNIGHT_ZOMBIE: {ArcKnightZombie: 9, ArcKnightZombieWithKit: 1},
-    Job.HOLY_KNIGHT_AGRIAS_GUEST: {HolyKnightAgrias: 1},
-    Job.KNIGHT_UNDEAD: {UndeadKnight: 1},
-    Job.ARCHER_UNDEAD: {UndeadArcher: 1},
-    Job.ALTIMA_1: {Altima1: 1},
-    Job.WIZARD_UNDEAD: {UndeadWizard: 1},
-    Job.TIME_MAGE_UNDEAD: {UndeadTimeMage: 1},
-    Job.ORACLE_UNDEAD: {UndeadOracle: 1},
-    Job.SUMMONER_UNDEAD: {UndeadSummoner: 1},
-    Job.ALTIMA_2: {Altima2: 1},
-    Job.SQUIRE: {
+    FactoryKey.SOLDIER: {Soldier: 1, SoldierHard: 9},
+    FactoryKey.ARC_KNIGHT_ZOMBIE: {ArcKnightZombie: 9, ArcKnightZombieWithKit: 1},
+    FactoryKey.HOLY_KNIGHT_AGRIAS_GUEST: {HolyKnightAgrias: 1},
+    FactoryKey.KNIGHT_UNDEAD: {UndeadKnight: 1},
+    FactoryKey.ARCHER_UNDEAD: {UndeadArcher: 1},
+    FactoryKey.ALTIMA_1: {Altima1: 1},
+    FactoryKey.WIZARD_UNDEAD: {UndeadWizard: 1},
+    FactoryKey.TIME_MAGE_UNDEAD: {UndeadTimeMage: 1},
+    FactoryKey.ORACLE_UNDEAD: {UndeadOracle: 1},
+    FactoryKey.SUMMONER_UNDEAD: {UndeadSummoner: 1},
+    FactoryKey.ALTIMA_2: {Altima2: 1},
+    FactoryKey.SQUIRE: {
         MaleSquire: 1,
         MaleSquireEasy: 2,
         MaleSquireModerate1: 3, MaleSquireModerate2: 3,
@@ -166,7 +167,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleSquireExpert1: 5, MaleSquireExpert2: 5, MaleSquireExpert3: 5,
         MaleSquireRare: 1
     },
-    Job.FEMALE_SQUIRE: {
+    FactoryKey.FEMALE_SQUIRE: {
         FemaleSquire: 1,
         FemaleSquireEasy: 2,
         FemaleSquireModerate1: 3, FemaleSquireModerate2: 3,
@@ -174,7 +175,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleSquireExpert1: 5, FemaleSquireExpert2: 5, FemaleSquireExpert3: 5, FemaleSquireExpert4: 5,
         FemaleSquireRare: 1
     },
-    Job.CHEMIST: {
+    FactoryKey.CHEMIST: {
         MaleChemist: 1,
         MaleChemistEasy: 2,
         MaleChemistModerate1: 3, MaleChemistModerate2: 3,
@@ -182,7 +183,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleChemistExpert1: 5, MaleChemistExpert2: 5, MaleChemistExpert3: 5,
         MaleChemistRare: 1
     },
-    Job.FEMALE_CHEMIST: {
+    FactoryKey.FEMALE_CHEMIST: {
         FemaleChemist: 1,
         FemaleChemistEasy: 2,
         FemaleChemistModerate1: 3, FemaleChemistModerate2: 3,
@@ -190,7 +191,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleChemistExpert1: 5, FemaleChemistExpert2: 5,
         FemaleChemistRare: 1
     },
-    Job.KNIGHT: {
+    FactoryKey.KNIGHT: {
         MaleKnight: 1,
         MaleKnightEasy: 2,
         MaleKnightModerate: 3,
@@ -198,7 +199,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleKnightExpert1: 5, MaleKnightExpert2: 5, MaleKnightExpert3: 5,
         MaleKnightRare: 1
     },
-    Job.FEMALE_KNIGHT: {
+    FactoryKey.FEMALE_KNIGHT: {
         FemaleKnight: 1,
         FemaleKnightEasy: 2,
         FemaleKnightModerate: 3,
@@ -206,7 +207,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleKnightExpert1: 5, FemaleKnightExpert2: 5, FemaleKnightExpert3: 5, FemaleKnightExpert4: 5,
         FemaleKnightRare: 1
     },
-    Job.ARCHER: {
+    FactoryKey.ARCHER: {
         MaleArcher: 1,
         MaleArcherEasy: 2,
         MaleArcherModerate: 3,
@@ -214,7 +215,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleArcherExpert1: 5, MaleArcherExpert2: 5, MaleArcherExpert3: 5,
         MaleArcherRare: 1
     },
-    Job.FEMALE_ARCHER: {
+    FactoryKey.FEMALE_ARCHER: {
         FemaleArcher: 1,
         FemaleArcherEasy: 2,
         FemaleArcherModerate: 3,
@@ -222,7 +223,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleArcherExpert1: 5, FemaleArcherExpert2: 5, FemaleArcherExpert3: 5, FemaleArcherExpert4: 5,
         FemaleArcherRare: 1
     },
-    Job.MONK: {
+    FactoryKey.MONK: {
         MaleMonk: 1,
         MaleMonkEasy: 2,
         MaleMonkModerate: 3,
@@ -230,7 +231,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleMonkExpert1: 5, MaleMonkExpert2: 5, MaleMonkExpert3: 5,
         MaleMonkRare: 1
     },
-    Job.FEMALE_MONK: {
+    FactoryKey.FEMALE_MONK: {
         FemaleMonk: 1,
         FemaleMonkEasy: 2,
         FemaleMonkModerate: 3,
@@ -238,7 +239,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleMonkExpert1: 5, FemaleMonkExpert2: 5, FemaleMonkExpert3: 5, FemaleMonkExpert4: 5,
         FemaleMonkRare: 1
     },
-    Job.PRIEST: {
+    FactoryKey.PRIEST: {
         MalePriest: 1,
         MalePriestEasy: 2,
         MalePriestModerate: 3,
@@ -246,7 +247,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MalePriestExpert1: 5, MalePriestExpert2: 5,
         MalePriestRare: 1
     },
-    Job.FEMALE_PRIEST: {
+    FactoryKey.FEMALE_PRIEST: {
         FemalePriest: 1,
         FemalePriestEasy: 2,
         FemalePriestModerate: 3,
@@ -254,7 +255,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemalePriestExpert1: 5, FemalePriestExpert2: 5,
         FemalePriestRare: 1
     },
-    Job.WIZARD: {
+    FactoryKey.WIZARD: {
         MaleWizard: 1,
         MaleWizardEasy: 2,
         MaleWizardModerate: 3,
@@ -262,7 +263,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleWizardExpert1: 5, MaleWizardExpert2: 5,
         MaleWizardRare: 1
     },
-    Job.FEMALE_WIZARD: {
+    FactoryKey.FEMALE_WIZARD: {
         FemaleWizard: 1,
         FemaleWizardEasy: 2,
         FemaleWizardModerate: 3,
@@ -270,7 +271,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleWizardExpert1: 5, FemaleWizardExpert2: 5,
         FemaleWizardRare: 1
     },
-    Job.TIMEMAGE: {
+    FactoryKey.TIMEMAGE: {
         MaleTimeMage: 1,
         MaleTimeMageEasy: 2,
         MaleTimeMageModerate: 3,
@@ -278,7 +279,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleTimeMageExpert1: 5, MaleTimeMageExpert2: 5,
         MaleTimeMageRare: 1
     },
-    Job.FEMALE_TIMEMAGE: {
+    FactoryKey.FEMALE_TIMEMAGE: {
         FemaleTimeMage: 1,
         FemaleTimeMageEasy: 2,
         FemaleTimeMageModerate: 3,
@@ -286,7 +287,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleTimeMageExpert1: 5, FemaleTimeMageExpert2: 5,
         FemaleTimeMageRare: 1
     },
-    Job.SUMMONER: {
+    FactoryKey.SUMMONER: {
         MaleSummoner: 1,
         MaleSummonerEasy: 2,
         MaleSummonerModerate: 3,
@@ -294,7 +295,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleSummonerExpert: 5,
         MaleSummonerRare: 1
     },
-    Job.FEMALE_SUMMONER: {
+    FactoryKey.FEMALE_SUMMONER: {
         FemaleSummoner: 1,
         FemaleSummonerEasy: 2,
         FemaleSummonerModerate: 3,
@@ -302,7 +303,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleSummonerExpert: 5,
         FemaleSummonerRare: 1
     },
-    Job.THIEF: {
+    FactoryKey.THIEF: {
         MaleThief: 1,
         MaleThiefEasy: 2,
         MaleThiefModerate: 3,
@@ -310,7 +311,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleThiefExpert1: 5, MaleThiefExpert2: 5, MaleThiefExpert3: 5,
         MaleThiefRare: 1
     },
-    Job.FEMALE_THIEF: {
+    FactoryKey.FEMALE_THIEF: {
         FemaleThief: 1,
         FemaleThiefEasy: 2,
         FemaleThiefModerate: 3,
@@ -318,7 +319,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleThiefExpert1: 5, FemaleThiefExpert2: 5, FemaleThiefExpert3: 5, FemaleThiefExpert4: 5,
         FemaleThiefRare: 1
     },
-    Job.MEDIATOR: {
+    FactoryKey.MEDIATOR: {
         MaleMediator: 1,
         MaleMediatorEasy: 2,
         MaleMediatorModerate: 3,
@@ -326,7 +327,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleMediatorExpert: 5,
         MaleMediatorRare: 1
     },
-    Job.FEMALE_MEDIATOR: {
+    FactoryKey.FEMALE_MEDIATOR: {
         FemaleMediator: 1,
         FemaleMediatorEasy: 2,
         FemaleMediatorModerate: 3,
@@ -334,7 +335,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleMediatorExpert: 5,
         FemaleMediatorRare: 1
     },
-    Job.ORACLE: {
+    FactoryKey.ORACLE: {
         MaleOracle: 1,
         MaleOracleEasy: 2,
         MaleOracleModerate: 3,
@@ -342,7 +343,7 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         MaleOracleExpert1: 5, MaleOracleExpert2: 5,
         MaleOracleRare: 1
     },
-    Job.FEMALE_ORACLE: {
+    FactoryKey.FEMALE_ORACLE: {
         FemaleOracle: 1,
         FemaleOracleEasy: 2,
         FemaleOracleModerate: 3,
@@ -350,130 +351,130 @@ factory_mappings: dict[Job, dict[type[RandomizedUnit], int]] = {
         FemaleOracleExpert1: 5, FemaleOracleExpert2: 5,
         FemaleOracleRare: 1
     },
-    Job.GEOMANCER: {
+    FactoryKey.GEOMANCER: {
         MaleGeomancer: 1,
         MaleGeomancerModerate: 2,
         MaleGeomancerAdvanced: 3,
         MaleGeomancerExpert1: 4, MaleGeomancerExpert2: 4, MaleGeomancerExpert3: 4,
         MaleGeomancerRare: 1
     },
-    Job.FEMALE_GEOMANCER: {
+    FactoryKey.FEMALE_GEOMANCER: {
         FemaleGeomancer: 1,
         FemaleGeomancerModerate: 2,
         FemaleGeomancerAdvanced1: 3, FemaleGeomancerAdvanced2: 3,
         FemaleGeomancerExpert1: 4, FemaleGeomancerExpert2: 4, FemaleGeomancerExpert3: 4,
         FemaleGeomancerRare: 1
     },
-    Job.LANCER: {
+    FactoryKey.LANCER: {
         MaleLancer: 1,
         MaleLancerModerate: 2,
         MaleLancerAdvanced: 3,
         MaleLancerExpert1: 4, MaleLancerExpert2: 4, MaleLancerExpert3: 4,
         MaleLancerRare: 1
     },
-    Job.FEMALE_LANCER: {
+    FactoryKey.FEMALE_LANCER: {
         FemaleLancer: 1,
         FemaleLancerModerate: 2,
         FemaleLancerAdvanced1: 3, FemaleLancerAdvanced2: 3,
         FemaleLancerExpert1: 4, FemaleLancerExpert2: 4, FemaleLancerExpert3: 4,
         FemaleLancerRare: 1
     },
-    Job.SAMURAI: {
+    FactoryKey.SAMURAI: {
         MaleSamurai: 2,
         MaleSamuraiAdvanced: 4,
         MaleSamuraiExpert: 6,
         MaleSamuraiRare: 1
     },
-    Job.FEMALE_SAMURAI: {
+    FactoryKey.FEMALE_SAMURAI: {
         FemaleSamurai: 2,
         FemaleSamuraiAdvanced1: 4, FemaleSamuraiAdvanced2: 4,
         FemaleSamuraiExpert: 6,
         FemaleSamuraiRare: 1
     },
-    Job.NINJA: {
+    FactoryKey.NINJA: {
         MaleNinja: 2,
         MaleNinjaAdvanced: 4,
         MaleNinjaExpert: 6,
         MaleNinjaRare: 1
     },
-    Job.FEMALE_NINJA: {
+    FactoryKey.FEMALE_NINJA: {
         FemaleNinja: 2,
         FemaleNinjaAdvanced1: 4, FemaleNinjaAdvanced2: 4,
         FemaleNinjaExpert: 6,
         FemaleNinjaRare: 1
     },
-    Job.CALCULATOR: {
+    FactoryKey.CALCULATOR: {
         MaleCalculator: 1,
         MaleCalculatorExpert: 2
     },
-    Job.FEMALE_CALCULATOR: {
+    FactoryKey.FEMALE_CALCULATOR: {
         FemaleCalculator: 1,
         FemaleCalculatorExpert: 2
     },
-    Job.BARD: {MaleBard: 1},
-    Job.DANCER: {FemaleDancer: 1},
-    Job.MIME: {MaleMime: 1},
-    Job.FEMALE_MIME: {FemaleMime: 1},
-    Job.YELLOW_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
-    Job.BLACK_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
-    Job.RED_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
-    Job.GOBLIN: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
-    Job.BLACK_GOBLIN: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
-    Job.GOBBLEDEGUCK: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
-    Job.BOMB: {Bomb: 1, Grenade: 1, Explosive: 1},
-    Job.GRENADE: {Bomb: 1, Grenade: 1, Explosive: 1},
-    Job.EXPLOSIVE: {Bomb: 1, Grenade: 1, Explosive: 1},
-    Job.RED_PANTHER: {RedPanther: 1, Cuar: 1, Vampire: 1},
-    Job.CUAR: {RedPanther: 1, Cuar: 1, Vampire: 1},
-    Job.VAMPIRE: {RedPanther: 1, Cuar: 1, Vampire: 1},
-    Job.PISCO_DEMON: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
-    Job.SQUIDLARKIN: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
-    Job.MINDFLARE: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
-    Job.SKELETON: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
-    Job.BONE_SNATCH: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
-    Job.LIVING_BONE: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
-    Job.GHOUL: {Ghoul: 1, Gust: 1, Revnant: 1},
-    Job.GUST: {Ghoul: 1, Gust: 1, Revnant: 1},
-    Job.REVNANT: {Ghoul: 1, Gust: 1, Revnant: 1},
-    Job.FLOTIBALL: {Flotiball: 1, Ahriman: 1, Plague: 1},
-    Job.AHRIMAN: {Flotiball: 1, Ahriman: 1, Plague: 1},
-    Job.PLAGUE: {Flotiball: 1, Ahriman: 1, Plague: 1},
-    Job.JURAVIS: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
-    Job.STEEL_HAWK: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
-    Job.COCATORIS: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
-    Job.URIBO: {Uribo: 1, Porky: 1, Wildbow: 1},
-    Job.PORKY: {Uribo: 1, Porky: 1, Wildbow: 1},
-    Job.WILDBOW: {Uribo: 1, Porky: 1, Wildbow: 1},
-    Job.WOODMAN: {Woodman: 1, Trent: 1, Taiju: 1},
-    Job.TRENT: {Woodman: 1, Trent: 1, Taiju: 1},
-    Job.TAIJU: {Woodman: 1, Trent: 1, Taiju: 1},
-    Job.BULL_DEMON: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
-    Job.MINITAURUS: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
-    Job.SACRED: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
-    Job.MORBOL: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
-    Job.OCHU: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
-    Job.GREAT_MORBOL: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
-    Job.BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
-    Job.KING_BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
-    Job.DARK_BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
-    Job.DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
-    Job.BLUE_DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
-    Job.RED_DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
-    Job.HYUDRA: {Hyudra: 1, Hydra: 1, Tiamat: 1},
-    Job.HYDRA: {Hyudra: 1, Hydra: 1, Tiamat: 1},
-    Job.TIAMAT: {Hyudra: 1, Hydra: 1, Tiamat: 1},
-    Job.HOLY_DRAGON: {HolyDragon: 1},
-    Job.BYBLOS: {Byblos: 1},
-    Job.STEEL_GIANT: {SteelGiant: 1},
-    Job.APANDA: {Apanda: 1},
-    Job.ARCHAIC_DEMON: {ArchaicDemon: 1, UltimaDemon: 1},
-    Job.ULTIMA_DEMON: {ArchaicDemon: 1, UltimaDemon: 1},
-    Job.VELIUS: {VeliusWithKit: 1},
-    Job.ZALERA: {ZaleraWithKit: 1},
-    Job.HASHMALUM: {HashmalumWithKit: 1},
-    Job.QUEKLAIN: {QueklainWithKit: 1},
-    Job.ADRAMELK: {AdramelkWithKit: 1},
-    Job.ELIDIBS: {Elidibs: 1}
+    FactoryKey.BARD: {MaleBard: 1},
+    FactoryKey.DANCER: {FemaleDancer: 1},
+    FactoryKey.MIME: {MaleMime: 1},
+    FactoryKey.FEMALE_MIME: {FemaleMime: 1},
+    FactoryKey.YELLOW_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
+    FactoryKey.BLACK_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
+    FactoryKey.RED_CHOCOBO: {YellowChocobo: 1, BlackChocobo: 1, RedChocobo: 1},
+    FactoryKey.GOBLIN: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
+    FactoryKey.BLACK_GOBLIN: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
+    FactoryKey.GOBBLEDEGUCK: {Goblin: 1, BlackGoblin: 1, Gobbledeguck: 1},
+    FactoryKey.BOMB: {Bomb: 1, Grenade: 1, Explosive: 1},
+    FactoryKey.GRENADE: {Bomb: 1, Grenade: 1, Explosive: 1},
+    FactoryKey.EXPLOSIVE: {Bomb: 1, Grenade: 1, Explosive: 1},
+    FactoryKey.RED_PANTHER: {RedPanther: 1, Cuar: 1, Vampire: 1},
+    FactoryKey.CUAR: {RedPanther: 1, Cuar: 1, Vampire: 1},
+    FactoryKey.VAMPIRE: {RedPanther: 1, Cuar: 1, Vampire: 1},
+    FactoryKey.PISCO_DEMON: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
+    FactoryKey.SQUIDLARKIN: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
+    FactoryKey.MINDFLARE: {PiscoDemon: 1, Squidlarkin: 1, Mindflare: 1},
+    FactoryKey.SKELETON: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
+    FactoryKey.BONE_SNATCH: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
+    FactoryKey.LIVING_BONE: {Skeleton: 1, BoneSnatch: 1, LivingBone: 1},
+    FactoryKey.GHOUL: {Ghoul: 1, Gust: 1, Revnant: 1},
+    FactoryKey.GUST: {Ghoul: 1, Gust: 1, Revnant: 1},
+    FactoryKey.REVNANT: {Ghoul: 1, Gust: 1, Revnant: 1},
+    FactoryKey.FLOTIBALL: {Flotiball: 1, Ahriman: 1, Plague: 1},
+    FactoryKey.AHRIMAN: {Flotiball: 1, Ahriman: 1, Plague: 1},
+    FactoryKey.PLAGUE: {Flotiball: 1, Ahriman: 1, Plague: 1},
+    FactoryKey.JURAVIS: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
+    FactoryKey.STEEL_HAWK: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
+    FactoryKey.COCATORIS: {Juravis: 1, SteelHawk: 1, Cocatoris: 1},
+    FactoryKey.URIBO: {Uribo: 1, Porky: 1, Wildbow: 1},
+    FactoryKey.PORKY: {Uribo: 1, Porky: 1, Wildbow: 1},
+    FactoryKey.WILDBOW: {Uribo: 1, Porky: 1, Wildbow: 1},
+    FactoryKey.WOODMAN: {Woodman: 1, Trent: 1, Taiju: 1},
+    FactoryKey.TRENT: {Woodman: 1, Trent: 1, Taiju: 1},
+    FactoryKey.TAIJU: {Woodman: 1, Trent: 1, Taiju: 1},
+    FactoryKey.BULL_DEMON: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
+    FactoryKey.MINITAURUS: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
+    FactoryKey.SACRED: {BullDemon: 1, Minitaurus: 1, Sacred: 1},
+    FactoryKey.MORBOL: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
+    FactoryKey.OCHU: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
+    FactoryKey.GREAT_MORBOL: {Morbol: 1, Ochu: 1, GreatMorbol: 1},
+    FactoryKey.BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
+    FactoryKey.KING_BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
+    FactoryKey.DARK_BEHEMOTH: {Behemoth: 1, KingBehemoth: 1, DarkBehemoth: 1},
+    FactoryKey.DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
+    FactoryKey.BLUE_DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
+    FactoryKey.RED_DRAGON: {Dragon: 1, BlueDragon: 1, RedDragon: 1},
+    FactoryKey.HYUDRA: {Hyudra: 1, Hydra: 1, Tiamat: 1},
+    FactoryKey.HYDRA: {Hyudra: 1, Hydra: 1, Tiamat: 1},
+    FactoryKey.TIAMAT: {Hyudra: 1, Hydra: 1, Tiamat: 1},
+    FactoryKey.HOLY_DRAGON: {HolyDragon: 1},
+    FactoryKey.BYBLOS: {Byblos: 1},
+    FactoryKey.STEEL_GIANT: {SteelGiant: 1},
+    FactoryKey.APANDA: {Apanda: 1},
+    FactoryKey.ARCHAIC_DEMON: {ArchaicDemon: 1, UltimaDemon: 1},
+    FactoryKey.ULTIMA_DEMON: {ArchaicDemon: 1, UltimaDemon: 1},
+    FactoryKey.VELIUS: {VeliusWithKit: 1},
+    FactoryKey.ZALERA: {ZaleraWithKit: 1},
+    FactoryKey.HASHMALUM: {HashmalumWithKit: 1},
+    FactoryKey.QUEKLAIN: {QueklainWithKit: 1},
+    FactoryKey.ADRAMELK: {AdramelkWithKit: 1},
+    FactoryKey.ELIDIBS: {Elidibs: 1}
 }
 
 base_shuffle_list: list[type[RandomizedUnit]] = [

@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from . import BattleMappingLists
+from .FactoryKey import FactoryKey
 from .RandomizedUnitFactory import RandomizedUnitFactory
 from .SpriteSet import SpriteSet
 from .. import FinalFantasyTacticsIIOptions
@@ -25,8 +26,8 @@ battle_levels = [
 def get_logic_adjusted_fight_level(fight_level: int, logical_difficulty: int):
     return battle_levels[logical_difficulty][fight_level]
 
-def get_eligible_destination_jobs(source_unit: SourceUnit, options: "FinalFantasyTacticsIIOptions") -> dict[Job, list[Job]]:
-    eligible_destination_job_table: dict[Job, list[Job]] = {}
+def get_eligible_destination_jobs(source_unit: SourceUnit, options: "FinalFantasyTacticsIIOptions") -> dict[Job, list[FactoryKey]]:
+    eligible_destination_job_table: dict[Job, list[FactoryKey]] = {}
     if source_unit.job.value in generic_jobs.keys():
         eligible_destination_job_table.update(generic_job_table)
         if options.cross_enemy_randomizer:  # if cross-class rando
@@ -92,11 +93,11 @@ def get_eligible_destination_jobs(source_unit: SourceUnit, options: "FinalFantas
 
 
 def get_randomized_mapping(
-        randomized_factories: dict[Job, RandomizedUnitFactory],
-        all_factories: dict[Job, RandomizedUnitFactory],
+        randomized_factories: dict[FactoryKey, RandomizedUnitFactory],
+        all_factories: dict[FactoryKey, RandomizedUnitFactory],
         fight_difficulty: int,
         source_unit: SourceUnit,
-        world: "FinalFantasyTacticsIvaliceIslandWorld"):
+        world: "FinalFantasyTacticsIvaliceIslandWorld") -> tuple[RandomizedMapping, FactoryKey]:
     eligible_factories = {
         job: factory for job, factory in randomized_factories.items()
         if factory.get_lowest_difficulty() <= fight_difficulty
@@ -104,7 +105,7 @@ def get_randomized_mapping(
     eligible_destination_job_table = get_eligible_destination_jobs(source_unit, world.options)
     eligible_destination_job_table = {
         job: options for job, options in eligible_destination_job_table.items()
-        if job in eligible_factories.keys()
+        if any(key in eligible_factories.keys() for key in options)
     }
     if len(eligible_destination_job_table) == 0:
         #print(f"Shuffle failed for source unit {source_unit}. Reverting to chaos for that unit.")
@@ -129,14 +130,17 @@ def get_randomized_mapping(
             }
     else:
         pass
-        #print(f"Shuffle succeeded for source unit {source_unit}.")
-    destination_job_key = world.random.choice(sorted(list(eligible_destination_job_table.keys())))
+        # print(f"Shuffle succeeded for source unit {source_unit}.")
+    sorted_keys = sorted(list(eligible_destination_job_table.keys()))
+    destination_job_key = world.random.choice(sorted_keys)
+    destination_factory_key = world.random.choice(sorted(list(eligible_destination_job_table[destination_job_key])))
     #chosen_destination_job = world.random.choice(eligible_destination_job_table[destination_job_key])
     #chosen_factory = eligible_factories[chosen_destination_job]
     #destination_unit = chosen_factory.get_unit(fight_difficulty)
-    new_mapping = RandomizedMapping(source_unit, destination_job_key)
+    new_mapping = RandomizedMapping(source_unit, destination_factory_key)
     new_mapping.battle_level = fight_difficulty
-    return new_mapping, destination_job_key
+    new_mapping.boss_unit = source_unit.immortal
+    return new_mapping, destination_factory_key
 
 def check_if_source_unit_randomized(source_unit: SourceUnit, options: "FinalFantasyTacticsIIOptions") -> bool:
     if source_unit.job.value in altima_jobs.keys():
@@ -211,6 +215,8 @@ def create_poach_mappings(enemy_rando_mapping):
                         break
                 if source_mapping is not None:
                     destination_job: Job = source_mapping.destination_unit
+                    if destination_job is None:
+                        destination_job = source_unit.job
                     if destination_job in monster_job_name_lookup.keys():
                         destination_job_name = monster_job_name_lookup[destination_job]
                         new_source = RandomizedPoachBattleSource(

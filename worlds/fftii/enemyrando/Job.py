@@ -1,6 +1,6 @@
 from enum import Enum, IntEnum, unique
 
-from worlds.fftii.data.logic.Monsters import MonsterNames
+from ..data.logic.Monsters import MonsterNames
 
 
 class Job(IntEnum):

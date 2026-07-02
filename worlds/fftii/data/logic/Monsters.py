@@ -529,6 +529,15 @@ large_monster_families = [
     MonsterFamilies.MALBORO, MonsterFamilies.DRAGON, MonsterFamilies.BEHEMOTH, MonsterFamilies.HYDRA
 ]
 
+flying_monster_families = [
+    MonsterFamilies.CHOCOBO, MonsterFamilies.PANTHER, MonsterFamilies.GHOST,
+    MonsterFamilies.AHRIMAN, MonsterFamilies.BIRD, MonsterFamilies.HYDRA
+]
+
+lava_monster_families = [
+    MonsterFamilies.BOMB, MonsterFamilies.GHOST
+]
+
 for monster in monster_locations:
     monster.compiled_requirements = [
         *monster.gallione_locations,

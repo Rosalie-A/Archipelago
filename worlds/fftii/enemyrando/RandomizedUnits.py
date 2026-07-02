@@ -3,7 +3,7 @@ from .Birthday import Month
 from .Items import Items
 from .Job import UnlockedJob, Job
 from .SpriteSet import SpriteSet
-from worlds.fftii.patchersuite.Unit import UnitGender
+from ..patchersuite.ENTD.Unit import UnitGender
 
 RANDOM_VALUE = 0xFE
 

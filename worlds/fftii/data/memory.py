@@ -65,7 +65,8 @@ unit_stats_address = 0x057F74
 unit_stat_size = 0x100
 unit_count = 16
 unit_stats_length = unit_stat_size * unit_count
-party_id_offset = 0x01
+unit_id_offset = 0x01
+party_id_offset = 0x02
 jp_offset = 0x6E
 job_amount = 20
 
@@ -491,6 +492,7 @@ victory_text_offsets = {
     LocationNames.ZARGHIDAS_SIDEQUEST.value: 0xA4FC25,
 
     LocationNames.END_SIDEQUEST.value: 0x9553FB,
+    "Dev Battle": 0x9D8278
 
 }
 

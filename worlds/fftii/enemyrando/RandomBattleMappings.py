@@ -1,11 +1,8 @@
 from .BattleMappings import BattleMapping
-from .EventCodes import EventCode
 from .Job import Job
-from .RandomizedUnitFactory import RandomizedUnitFactory
-from .RandomizedUnits import RandomizedUnit
 from .SourceUnit import SourceUnit
 from .SpriteSet import SpriteSet
-from worlds.fftii.patchersuite.Unit import UnitGender
+from ..patchersuite.ENTD.Unit import UnitGender
 
 DolbodarSwampEast1 = BattleMapping(1, 0, [
     SourceUnit(SpriteSet(SpriteSet.MONSTER), Job.BONE_SNATCH, UnitGender.MONSTER),

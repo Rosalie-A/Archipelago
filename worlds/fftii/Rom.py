@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import pkgutil
 
@@ -10,6 +11,8 @@ import bsdiff4
 import Utils
 from settings import get_settings
 from worlds.Files import APProcedurePatch, APTokenMixin, APPatchExtension
+from .Options import VanillaChangesKeys
+from .enemyrando.FactoryKey import FactoryKey
 from .enemyrando.RandomizedMappings import factory_mappings, all_boss_shuffle_lookup
 from .enemyrando.RandomizedUnitFactory import RandomizedUnitFactory
 from .enemyrando.EventCodes import EventCode
@@ -20,15 +23,25 @@ from .data.memory import victory_text_offsets, rare_battles_offset, dd_battles_o
 from .data.text import split_text_into_lines
 from .data.logic.FFTLocation import LocationNames
 from .enemyrando.RandomizedMapping import RandomizedMapping
-from .enemyrando.BattleMappings import valid_shuffle_source_units
 from .enemyrando.EventIDs import events
 from .enemyrando.Job import Job
-from .patchersuite.BATTLEBin import BATTLEBin
+from .patchersuite.ATTACKOut.ATTACKOut import ATTACKOut
+from .patchersuite.BATTLEBin.BATTLEBin import BATTLEBin
+from .patchersuite.PS1File import PS1File, PS1FileMetaclass
+from .patchersuite.SCUSBin.SCUSAbilitySecondaryData import FlagsFour
+from .patchersuite.SCUSBin.SCUSBin import SCUSBin
+from .patchersuite.SCUSBin.SCUSJobData import (EquippableItemsOne, EquippableItemsTwo,
+                                               EquippableItemsThree, EquippableItemsFour)
+from .patchersuite.REQUIREOut.REQUIREOut import REQUIREOut
 from .patchersuite.Sector import Sector
-from .patchersuite.ENTDEntry import ENTDEntry
+from .patchersuite.ENTD.ENTDEntry import ENTDEntry
 from .enemyrando.SourceUnit import SourceUnit
 from .enemyrando.SpriteSet import SpriteSet
-from .patchersuite.Unit import Unit, UnitTeam
+from .patchersuite.Transmooglifier.PatcherFunctions import apply_transmooglifier, apply_transmooglifier_entd
+from .patchersuite.WLDFACEBin.WLDFACEBin import WLDFACEBin
+from .patchersuite.WORLDBin.ShopSellingData import ShopSellingListTwo
+from .patchersuite.ENTD.Unit import Unit
+from .patchersuite.WORLDBin.WORLDBin import WORLDBin
 
 
 def get_base_rom_as_bytes() -> bytes:
@@ -67,7 +80,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         pass
 
     @staticmethod
-    def apply_enemy_rando(patch_dict, rom_data, seed, randomize_gariland, boss_shuffle):
+    def apply_enemy_rando(patch_dict, rom_data, seed, randomize_gariland, boss_shuffle, transmooglifier):
         mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
         for key, value in patch_dict.items():
             new_list = []
@@ -75,7 +88,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                 new_list.append(RandomizedMapping.from_json(entry))
             mapping_dict[EventCode(int(key))] = new_list
 
-        randomized_factories: dict[Job, RandomizedUnitFactory] = {
+        randomized_factories: dict[FactoryKey, RandomizedUnitFactory] = {
             job: RandomizedUnitFactory(mapping, Random(seed)) for job, mapping in factory_mappings.items()
         }
 
@@ -106,6 +119,11 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         used_units = []
         entd_entries: list[ENTDEntry] = list()
         for i in range(0x1D5):
+            if i == 0x101:
+                if len(transmooglifier) > 0:
+                    entd_data = full_entd[0x101 * ENTDEntry.total_length:0x102 * ENTDEntry.total_length]
+                    new_entd_entry = apply_transmooglifier_entd(entd_data, patch_dict)
+                    entd_entries.append(new_entd_entry)
             if i in events.keys():
                 mapping_list: list[RandomizedMapping] = []
                 if EventCode(i) in mapping_dict.keys():
@@ -129,15 +147,19 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                         if len(mapping_list) > 0:
                             for mapping_entry in mapping_list:
                                 if source_unit == mapping_entry.source_unit:
-                                    destination_unit = randomized_factories[mapping_entry.destination_unit].get_unit(
-                                        mapping_entry.battle_level)
-                                    if boss_shuffle == 1 or boss_shuffle == 3:
-                                        try:
-                                            destination_unit = all_boss_shuffle_lookup[mapping_entry.destination_unit]
-                                        except KeyError:
-                                            destination_unit = randomized_factories[
-                                                mapping_entry.destination_unit].get_unit(
-                                                mapping_entry.battle_level)
+                                    destination_unit = None
+                                    try:
+                                        destination_unit = randomized_factories[mapping_entry.destination_unit].get_unit(
+                                            mapping_entry.battle_level)
+                                    except KeyError:
+                                        if boss_shuffle == 1 or boss_shuffle == 3:
+                                            try:
+                                                destination_unit = all_boss_shuffle_lookup[
+                                                    mapping_entry.destination_unit]
+                                            except KeyError:
+                                                destination_unit = randomized_factories[
+                                                    mapping_entry.destination_unit].get_unit(
+                                                    mapping_entry.battle_level)
                                     if destination_unit is None:
                                         raise RuntimeError("Invalid enemy randomization.")
                                     if i == 0x193: # Dorter 2 exclude Gafgarion.
@@ -149,6 +171,14 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                                         if unit.job == Job.YELLOW_CHOCOBO:
                                             continue
                                     unit.set_new_data(destination_unit)
+                                    if mapping_entry.boss_unit:
+                                        current_level = unit.level
+                                        new_level = current_level + (mapping_entry.battle_level * 2)
+                                        if current_level >= 100:
+                                            new_level = min(199, new_level)
+                                        else:
+                                            new_level = min(99, new_level)
+                                        unit.level = new_level
                                     unit.apply_unit_data()
                 new_entd_entry.apply_data()
                 entd_entries.append(new_entd_entry)
@@ -181,16 +211,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         return new_iso_data
 
     @staticmethod
-    def apply_mfi_rando(patch_dict, rom_data):
-        battle_bin_raw_data = rom_data[BATTLEBin.start_sector_location:BATTLEBin.end_location]
-        battle_bin_sectors = []
-        for i in range(BATTLEBin.sector_count):
-            battle_bin_sectors.append(Sector(battle_bin_raw_data[i * Sector.sector_size:(i + 1) * Sector.sector_size]))
-        battle_bin_data = bytearray()
-        for sector in battle_bin_sectors:
-            battle_bin_data.extend(sector.data)
-        initial_length = len(battle_bin_data)
-        battle_bin = BATTLEBin(battle_bin_data)
+    def apply_mfi_rando(battle_bin: PS1FileMetaclass | BATTLEBin, patch_dict: dict):
         for map_mfi_data in battle_bin.map_mfi_datas:
             if map_mfi_data.index in mfi_location_id_to_name.keys():
                 #map_mfi_data.print_tracker_data()
@@ -198,20 +219,161 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                 for i in range(4):
                     map_mfi_data.mfi_datas[i].common_item = new_mfi_data[i]["Common"]
                     map_mfi_data.mfi_datas[i].rare_item = new_mfi_data[i]["Rare"]
-        battle_bin.apply_data()
-        assert len(battle_bin.all_data) == initial_length
-        for i, sector in enumerate(battle_bin_sectors):
-            sector.data = battle_bin.all_data[i * Sector.data_size:(i + 1) * Sector.data_size]
-            sector.all_data = []
-            sector.all_data.extend(sector.header)
-            sector.all_data.extend(sector.data)
-            sector.all_data.extend(sector.error)
-        new_iso_data = bytearray(rom_data)
-        new_sector_data: bytearray = bytearray()
-        for sector in battle_bin_sectors:
-            new_sector_data.extend(sector.all_data)
-        new_iso_data[BATTLEBin.start_sector_location:BATTLEBin.start_sector_location + len(new_sector_data)] = new_sector_data
-        return new_iso_data
+        battle_bin.apply_mfi_data()
+
+    @staticmethod
+    def apply_improved_shops_scus(scus_bin: PS1FileMetaclass | SCUSBin, patch_dict: dict):
+        better_shop_dict = {
+            "Asura Knife": 1,
+            "Javelin": 1
+        }
+        for item_data in scus_bin.item_datas:
+            if item_data.item_name in better_shop_dict.keys():
+                item_data.shop_availability = better_shop_dict[item_data.item_name]
+        scus_bin.apply_data()
+
+    @staticmethod
+    def apply_dev_battle(attack_out: PS1FileMetaclass | ATTACKOut, patch_dict: dict):
+        random = Random()
+        maps = {
+            "Igros": 0x09,
+            "Warjilis": 0x2A,
+            "Riovanes": 0x06,
+            "Nelveska": 0x46,
+            "Murond": 0x32,
+            "Orbonne": 0x38,
+            "Fort": 0x73,
+            "Tutorial": 0x66
+        }
+        entd = {
+            "Igros": 0x104,
+            "Warjilis": 0x105,
+            "Riovanes": 0x106,
+            "Nelveska": 0x107,
+            "Murond": 0x108,
+            "Orbonne": 0x109,
+            "Fort": 0x10A,
+            "Tutorial": 0x10B
+        }
+        daytime = {
+            "Igros": 1,
+            "Warjilis": 0,
+            "Riovanes": 1,
+            "Nelveska": 0,
+            "Murond": 1,
+            "Orbonne": 1,
+            "Fort": 1,
+            "Tutorial": 1
+        }
+        squad_1 = {
+            "Igros": 0x14E,
+            "Warjilis": 0x14F,
+            "Riovanes": 0x150,
+            "Nelveska": 0x151,
+            "Murond": 0x152,
+            "Orbonne": 0x154,
+            "Fort": 0x155,
+            "Tutorial": 0x157
+        }
+        squad_2 = {
+            "Igros": None,
+            "Warjilis": None,
+            "Riovanes": None,
+            "Nelveska": None,
+            "Murond": 0x153,
+            "Orbonne": None,
+            "Fort": 0x156,
+            "Tutorial": None
+        }
+        music = {
+            "Battle on the Bridge": 0x4D,
+            "Ultima, the Perfect Body": 0x13,
+            "Apoplexy Extended": 0x63,
+            "Trisection": 0x0C,
+            "Fighting 2": 0x52,
+            "Under the Stars": 0x09,
+            "Antidote": 0x0D,
+            "Treasure": 0x26,
+            "Ultima, the Nice Body": 0x12,
+            "Decisive Battle": 0x07,
+            "Fighting 1": 0x51
+        }
+        chosen_map_key = random.choice(list(maps.keys()))
+        chosen_map = maps[chosen_map_key]
+        chosen_entd = entd[chosen_map_key]
+        chosen_daytime = daytime[chosen_map_key]
+        chosen_daytime = random.randrange(0, chosen_daytime + 1)
+        chosen_weather = random.randrange(0, 5)
+        chosen_squad_1 = squad_1[chosen_map_key]
+        chosen_squad_2 = squad_2[chosen_map_key]
+        chosen_music_key = random.choice(list(music.keys()))
+        chosen_music = music[chosen_music_key]
+        attack_out.apply_dev_battle(
+            chosen_map,
+            chosen_entd,
+            chosen_daytime,
+            chosen_weather,
+            chosen_squad_1,
+            chosen_squad_2,
+            chosen_music)
+        logging.info(f"Map: {chosen_map_key}, Weather: {chosen_weather}, Daytime: {chosen_daytime}, Music: {chosen_music_key}")
+        attack_out.apply_data()
+
+    @staticmethod
+    def apply_job_adjustments(scus_bin: PS1FileMetaclass | SCUSBin, patch_dict: dict):
+        if VanillaChangesKeys.SWORDSKILL_SWORDS in patch_dict["VanillaChanges"]:
+            jobs_to_adjust = {
+                Job.HOLY_KNIGHT_DELITA: [EquippableItemsOne.KNIFE, EquippableItemsTwo.FLAIL],
+                Job.ARC_KNIGHT_DELITA: [EquippableItemsOne.KNIFE, EquippableItemsTwo.FLAIL],
+                Job.HOLY_SWORDSMAN: [EquippableItemsOne.KATANA, EquippableItemsOne.NINJA_BLADE],
+                Job.TEMPLE_KNIGHT: [EquippableItemsOne.KNIFE],
+                Job.DIVINE_KNIGHT_MELIADOUL: [EquippableItemsTwo.CROSSBOW, EquippableItemsTwo.POLEARM],
+                Job.DIVINE_KNIGHT_MELIADOUL_ENEMY: [EquippableItemsTwo.CROSSBOW]
+            }
+            for job_data in scus_bin.job_datas:
+                try:
+                    job = Job(job_data.job_index)
+                    if job in jobs_to_adjust.keys():
+                        adjustments = jobs_to_adjust[job]
+                        for adjustment in adjustments:
+                            if isinstance(adjustment, EquippableItemsOne):
+                                job_data.equip_one = job_data.equip_one & ~adjustment
+                            elif isinstance(adjustment, EquippableItemsTwo):
+                                job_data.equip_two = job_data.equip_two & ~adjustment
+                            elif isinstance(adjustment, EquippableItemsThree):
+                                job_data.equip_three = job_data.equip_three & ~adjustment
+                            elif isinstance(adjustment, EquippableItemsFour):
+                                job_data.equip_four = job_data.equip_four & ~adjustment
+                except ValueError:
+                    continue
+        if VanillaChangesKeys.MATERIA_BLADE in patch_dict["VanillaChanges"]:
+            for i in range(0x101, 0x109): # Braver through Cherry Blossom
+                current_flags = scus_bin.ability_secondary_datas[i].flags_four
+                new_flags = current_flags & ~FlagsFour.MATERIA_BLADE
+                new_flags = new_flags | FlagsFour.SWORD
+                scus_bin.ability_secondary_datas[i].flags_four = new_flags
+        if VanillaChangesKeys.RANDOM_MAGIC in patch_dict["VanillaChanges"]:
+            for i in range(0xA9, 0xB5): # All Truth and Untruth skills
+                scus_bin.ability_secondary_datas[i].x_var = 10
+            scus_bin.ability_secondary_datas[0xFF].x_var = 10 # Holy Bracelet
+        scus_bin.apply_data()
+
+    @staticmethod
+    def apply_improved_shops_world(world_bin: PS1FileMetaclass | WORLDBin, patch_dict: dict):
+        from . import item_name_lookup_by_game_id
+        for i in range(len(item_name_lookup_by_game_id)):
+            item_name = item_name_lookup_by_game_id[i]
+            if item_name == "Romanda Gun" or item_name == "Mythril Gun":
+                world_bin.shop_town_datas[i].shop_selling_byte_two |= (ShopSellingListTwo.DORTER |
+                                                                       ShopSellingListTwo.WARJILIS |
+                                                                       ShopSellingListTwo.ZARGHIDAS)
+        world_bin.apply_shop_data()
+
+    @staticmethod
+    def apply_mfi_tile_hack(battle_bin: PS1FileMetaclass | BATTLEBin, patch_dict: dict):
+        if patch_dict["MFILogic"] == 2:
+            battle_bin.all_data[0xF5398:0xF5398 + 4] = bytearray(4)
+            battle_bin.all_data[0xF53A0:0xF53A0 + 8] = bytearray(8)
 
     @staticmethod
     def patch_bin(caller, iso, placement_file):
@@ -221,7 +383,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         else:
             base_patch = pkgutil.get_data(__name__, "fftiivanillajobs.bsdiff4")
         rom_data = bsdiff4.patch(iso, base_patch)
-        rom_data = bytearray(rom_data)
+        rom_data: bytearray = bytearray(rom_data)
 
         if "RareBattles" in patch_dict.keys():
             if patch_dict["RareBattles"] == 1:
@@ -290,15 +452,59 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
             FinalFantasyTacticsIIPatchExtension.write_text_to_location(all_dd_bytes, dd_battles_offset, rom_data)
 
         if "MFIRandoMapping" in patch_dict.keys():
-            rom_data = FinalFantasyTacticsIIPatchExtension.apply_mfi_rando(patch_dict, rom_data)
+            rom_data = PS1File.extract_data_and_perform_task(
+                BATTLEBin,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_mfi_rando)
 
         rom_data = FinalFantasyTacticsIIPatchExtension.apply_enemy_rando(
             patch_dict["EnemyRandoMapping"],
             rom_data,
             patch_dict["Seed"],
             patch_dict["RandomizeGariland"],
-            patch_dict["BossShuffle"]
+            patch_dict["BossShuffle"],
+            patch_dict["Transmooglifier"]
         )
+
+        if VanillaChangesKeys.IMPROVED_SHOPS in patch_dict["VanillaChanges"]:
+            rom_data = PS1File.extract_data_and_perform_task(
+                SCUSBin,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_improved_shops_scus
+            )
+            rom_data = PS1File.extract_data_and_perform_task(
+                WORLDBin,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_improved_shops_world
+            )
+
+        if True:
+            rom_data = PS1File.extract_data_and_perform_task(
+                ATTACKOut,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_dev_battle
+            )
+
+        if True:
+            rom_data = PS1File.extract_data_and_perform_task(
+                SCUSBin,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_job_adjustments
+            )
+
+        if True:
+            rom_data = PS1File.extract_data_and_perform_task(
+                BATTLEBin, rom_data, patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_mfi_tile_hack
+            )
+
+        if len(patch_dict["Transmooglifier"]) > 0:
+            rom_data = apply_transmooglifier(rom_data, patch_dict)
 
         rom_name_text = patch_dict["RomName"]
         rom_name = bytearray(rom_name_text, 'utf-8')

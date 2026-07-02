@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+from enum import Enum, StrEnum
 
-from Options import Range, PerGameCommonOptions, OptionGroup, StartInventoryPool, DefaultOnToggle, Toggle, Choice
+from Options import Range, PerGameCommonOptions, OptionGroup, StartInventoryPool, DefaultOnToggle, Toggle, Choice, \
+    OptionSet
+from .patchersuite.Transmooglifier.TransmooglifierTemplates import transmooglifier_lookup
 
 
 # Main Options
@@ -22,7 +25,8 @@ class ZodiacStonesRequired(Range):
 class ZodiacStoneLocations(Choice):
     """Where can Zodiac Stones appear?
     Vanilla limits their possible locations to those events which had one in the vanilla game.
-    This limits the number maximum number of stones in the pool from 8-12, depending on sidequest and Altima options.
+    This limits the maximum number of stones in the pool from 8-12, depending on sidequest and Altima options.
+    Note that with fewer stones in the pool, potential Stone locations can have other items.
     Anywhere Local means stones can be at any location in your world.
     Anywhere means stones can be anywhere in the multiworld."""
     display_name = "Zodiac Stone Locations"
@@ -242,6 +246,39 @@ class RandomizeMoveFindItemRewards(Choice):
     option_on = 1
     option_split = 2
 
+# Vanilla Changes
+class VanillaChangesKeys(StrEnum):
+    SWORDSKILL_SWORDS = "SwordskillUsersSwordOnly"
+    MATERIA_BLADE = "MateriaBladeNotRequired"
+    RANDOM_MAGIC = "RandomMagicHitsIncreased"
+    IMPROVED_SHOPS = "ImprovedShops"
+
+class VanillaChanges(OptionSet):
+    """Controls changes from vanilla.
+    SwordskillUsersSwordOnly locks swordskill users like Orlandu and Beowulf to swords and knightswords.
+      Most impactful for enemy randomizer.
+    MateriaBladeNotRequired changes Limit to require any sword, not specifically the Materia Blade.
+    RandomMagicHitsIncreased increases the number of hits of Truth, Un-Truth, and Holy Bracelet to ten, like in WotL/TIC.
+    Improved Shops adds in an early katana and spear as well as adding guns to trade cities."""
+    display_name = "Vanilla Changes"
+    valid_keys = [e.value for e in VanillaChangesKeys]
+    default = [
+        VanillaChangesKeys.MATERIA_BLADE.value,
+        VanillaChangesKeys.RANDOM_MAGIC.value,
+        VanillaChangesKeys.IMPROVED_SHOPS.value
+    ]
+
+# Transmooglifier Options
+class EnableTransmooglifier(Toggle):
+    """Enables Transmooglifier, which gives Rad, Alicia, and Lavian new special jobs."""
+    display_name = "Enable Transmooglifier"
+
+class TransmooglifierOptions(OptionSet):
+    """Which jobs are options for Transmooglifier."""
+    display_name = "Transmooglifier Options"
+    valid_keys = list(transmooglifier_lookup.keys())
+    default = [key for key in valid_keys]
+
 # Unused options
 class StartingRegion(Choice):
     """What region to start in. Gallione is easiest, followed by Lesalia and Lionel. Fovoham, Zeltennia, and Limberry
@@ -288,6 +325,9 @@ class FinalFantasyTacticsIIOptions(PerGameCommonOptions):
     randomize_move_find_item_rewards: RandomizeMoveFindItemRewards
     exp_gain_multiplier: EXPGainMultiplier
     jp_gain_multiplier: JPGainMultiplier
+    vanilla_changes: VanillaChanges
+    enable_transmooglifier: EnableTransmooglifier
+    transmooglifier_options: TransmooglifierOptions
     start_inventory_from_pool: StartInventoryPool
 
 fftii_option_groups = [
@@ -332,6 +372,11 @@ fftii_option_groups = [
     ]),
     OptionGroup("QOL Options", [
         EXPGainMultiplier,
-        JPGainMultiplier
+        JPGainMultiplier,
+        VanillaChanges
+    ]),
+    OptionGroup("Transmooglifier Options", [
+        EnableTransmooglifier,
+        TransmooglifierOptions
     ])
 ]

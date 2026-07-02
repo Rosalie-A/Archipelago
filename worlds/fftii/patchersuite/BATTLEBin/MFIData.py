@@ -1,4 +1,4 @@
-from ..data.items import item_name_lookup_by_game_id
+from ...data.items import item_name_lookup_by_game_id
 
 
 class MFIData:

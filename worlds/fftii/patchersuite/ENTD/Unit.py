@@ -39,6 +39,9 @@ class Unit:
     flags2: int
     team: UnitTeam
 
+    level_offset = 0x03
+    level: int
+
     birthday_month_offset = 0x04
     birthday_month: int
 
@@ -92,6 +95,7 @@ class Unit:
         self.sprite_set = unit_data[self.sprite_set_offset]
         self.flags = unit_data[self.flags_offset]
         self.flags2 = unit_data[self.flags2_offset]
+        self.level = unit_data[self.level_offset]
         self.birthday_month = unit_data[self.birthday_month_offset]
         self.birthday_day = unit_data[self.birthday_day_offset]
         self.brave = unit_data[self.brave_offset]
@@ -181,6 +185,7 @@ class Unit:
         self.unit_data[self.flags2_offset] = self.flags2
         self.unit_data[self.unlocked_job_offset] = self.unlocked_job
         self.unit_data[self.unlocked_job_level_offset] = self.unlocked_job_level
+        self.unit_data[self.level_offset] = self.level
         self.unit_data[self.birthday_month_offset] = self.birthday_month
         self.unit_data[self.birthday_day_offset] = self.birthday_day
         self.unit_data[self.brave_offset] = self.brave

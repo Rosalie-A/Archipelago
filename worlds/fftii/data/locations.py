@@ -442,10 +442,10 @@ main_mfi_locations: list[LocationNames] = [
     LocationNames.MUROND_TEMPLE_2_MFI_2,
     LocationNames.MUROND_TEMPLE_2_MFI_3,
     LocationNames.MUROND_TEMPLE_2_MFI_4,
-    LocationNames.MUROND_TEMPLE_3_MFI_1,
-    LocationNames.MUROND_TEMPLE_3_MFI_2,
-    LocationNames.MUROND_TEMPLE_3_MFI_3,
-    LocationNames.MUROND_TEMPLE_3_MFI_4,
+    #LocationNames.MUROND_TEMPLE_3_MFI_1,
+    #LocationNames.MUROND_TEMPLE_3_MFI_2,
+    #LocationNames.MUROND_TEMPLE_3_MFI_3,
+    #LocationNames.MUROND_TEMPLE_3_MFI_4,
     LocationNames.UBS_1_MFI_1,
     LocationNames.UBS_1_MFI_2,
     LocationNames.UBS_1_MFI_3,
@@ -565,6 +565,33 @@ story_mfi_location_names: list[str] = [location.value for location in main_mfi_l
 sidequest_mfi_location_names: list[str] = [location.value for location in sidequest_mfi_locations]
 
 mfi_location_names = [*story_mfi_location_names, *sidequest_mfi_location_names]
+
+four_jump_mfi_locations: list[str] = [
+    LocationNames.BERVENIA_VOLCANO_MFI_4.value,
+    LocationNames.THIEVES_FORT_MFI_2.value,
+    LocationNames.GOLAND_STORY_MFI_3.value,
+    LocationNames.DORTER_CITY_MFI_1.value,
+    LocationNames.BRIDGE_MFI_2.value,
+    LocationNames.BRIDGE_MFI_3.value,
+    LocationNames.BRIDGE_MFI_4.value,
+    LocationNames.BERVENIA_CITY_MFI_3.value,
+    LocationNames.LIMBERRY_3_MFI_1.value
+]
+
+five_jump_mfi_locations: list[str] = [
+    LocationNames.DORTER_CITY_MFI_4.value,
+    LocationNames.YARDOW_MFI_2.value,
+    LocationNames.YARDOW_MFI_4.value
+]
+
+chocobo_ferry_exclusion_locations = [
+    LocationNames.LIMBERRY_3_MFI_1.value,
+    LocationNames.YARDOW_MFI_4.value
+]
+
+lava_mfi_locations: list[str] = [
+    LocationNames.BERVENIA_VOLCANO_MFI_2.value
+]
 
 linked_rewards: dict[LocationNames, list[LocationNames]] = {
     LocationNames.MANDALIA_STORY: [
@@ -691,7 +718,11 @@ location_sort_list: list[LocationNames] = [
     *sidequest_battles,
     *rare_battle_locations,
     *mfi_locations,
-    *job_unlock_locations
+    *job_unlock_locations,
+    LocationNames.MUROND_TEMPLE_3_MFI_1,
+    LocationNames.MUROND_TEMPLE_3_MFI_2,
+    LocationNames.MUROND_TEMPLE_3_MFI_3,
+    LocationNames.MUROND_TEMPLE_3_MFI_4,
 ]
 
 location_sort_list_names: list[str] = [

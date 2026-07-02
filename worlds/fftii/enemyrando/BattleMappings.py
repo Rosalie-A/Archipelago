@@ -3,7 +3,7 @@ from .Job import Job
 from .RandomizedUnitFactory import RandomizedUnitFactory
 from .SourceUnit import SourceUnit
 from .SpriteSet import SpriteSet
-from worlds.fftii.patchersuite.Unit import UnitGender
+from ..patchersuite.ENTD.Unit import UnitGender
 
 
 class BattleMapping:

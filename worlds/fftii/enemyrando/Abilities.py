@@ -1,8 +1,8 @@
-from enum import Enum, unique
+from enum import unique, IntEnum
 
 
 @unique
-class ActionAbility(Enum):
+class ActionAbility(IntEnum):
     NONE = 0x00
     JOB = 0xFF
     RANDOM = 0xFE
@@ -43,12 +43,14 @@ class ActionAbility(Enum):
     SATURATION = 0x7E
 
 @unique
-class ReactionAbility(Enum):
+class ReactionAbility(IntEnum):
     NONE = 0x0000
     RANDOM = 0xFE01
     MA_SAVE = 0xA701
     SPEED_SAVE = 0xA801
+    FACE_UP = 0xAE01
     COUNTER_MAGIC = 0xB301
+    COUNTER_TACKLE = 0xB401
     COUNTER_FLOOD = 0xB501
     ABSORB_USED_MP = 0xB601
     AUTO_POTION = 0xB901
@@ -60,26 +62,44 @@ class ReactionAbility(Enum):
     HAMEDO = 0xC501
 
 @unique
-class SupportAbility(Enum):
+class SupportAbility(IntEnum):
     NONE = 0x0000
     RANDOM = 0xFE01
     EQUIP_CROSSBOW = 0xCA01
+    EQUIP_AXE = 0xCC01
     HALF_OF_MP = 0xCE01
+    GAINED_JP_UP = 0xCF01
     DEFENSE_UP = 0xD201
     MAGIC_DEFEND_UP = 0xD401
+    CONCENTRATE = 0xD501
+    TRAIN = 0xD601
+    SECRET_HUNT = 0xD701
     MARTIAL_ARTS = 0xD801
+    MONSTER_TALK = 0xD901
+    THROW_ITEM = 0xDA01
     MAINTENANCE = 0xDB01
-    DEFEND = 0xDF01
     TWO_HANDS = 0xDC01
+    TWO_SWORDS = 0xDD01
+    MONSTER_SKILL = 0xDE01
+    DEFEND = 0xDF01
     SHORT_CHARGE = 0xE201
+    NON_CHARGE = 0xE301
 
 @unique
-class MovementAbility(Enum):
+class MovementAbility(IntEnum):
     NONE = 0x0000
     RANDOM = 0xFE01
     MOVE_PLUS_1 = 0xE601
     JUMP_PLUS_1 = 0xE901
     IGNORE_HEIGHT = 0xEC01
     MOVE_HP_UP = 0xED01
+    NO_WATER = 0xF101
+    TELEPORT = 0xF201
     TELEPORT_2 = 0xF301
+    ANY_WEATHER = 0xF401
+    ANY_GROUND = 0xF501
+    MOVE_IN_WATER = 0xF601
+    WALK_ON_WATER = 0xF701
+    MOVE_UNDER_WATER = 0xF901
+    FLOAT = 0xFA01
     FLY = 0xFB01

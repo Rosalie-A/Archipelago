@@ -1,6 +1,6 @@
 from .Job import Job, monster_families
 from .SpriteSet import SpriteSet
-from worlds.fftii.patchersuite.Unit import UnitGender
+from ..patchersuite.ENTD.Unit import UnitGender
 
 
 class SourceUnit:
@@ -45,7 +45,11 @@ class SourceUnit:
         return hash((self.sprite_set.value, job, self.gender.value))
 
     def __lt__(self, other):
+        if self.job.value == other.job.value:
+            return self.gender.value < other.gender.value
         return self.job.value < other.job.value
 
     def __gt__(self, other):
+        if self.job.value == other.job.value:
+            return self.gender.value > other.gender.value
         return self.job.value > other.job.value

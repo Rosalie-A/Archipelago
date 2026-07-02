@@ -89,15 +89,26 @@ all_characters: list[TextData] = [
     TextData("/", 0x44),
     TextData(":", 0x46, 4),
     TextData(".", 0x5F, 4),
+    TextData("{on}", 0x56, 8),
+    TextData("{or}", 0x57, 8),
+    TextData("{it}", 0x58),
+    TextData("{ic}", 0x59),
+    TextData("{ag}", 0x5A),
+    TextData("{ll}", 0x5B),
+    TextData("{ig}", 0x5C),
+    TextData("{ht}", 0x5D),
     TextData("(", 0x8D, 4),
     TextData(")", 0x8E, 4),
     TextData("\"", 0x91, 4),
     TextData("'", 0x93, 4),
     TextData("♪", 0xB2, 10),
     TextData("*", 0xB5, 10),
+    TextData("ヌ", 0xBC, 10),
+    TextData("{SP}", 0xFA, 4),
     TextData(",", 0xDA74, 4),
     #TextData(".", 0xD11C, 2),
 
+    TextData("{!!}", 0xD11A, 4),
     TextData("-", 0xD11D, 2),
     TextData("+", 0xD11E, 2),
     TextData("×", 0xD11F, 2),
@@ -105,6 +116,9 @@ all_characters: list[TextData] = [
 
     TextData("&", 0xD9B7),
     TextData("%", 0xD9B8),
+    TextData("←", 0xD9BA),
+    TextData("→", 0xD9BB),
+    TextData("·", 0xD9BC),
 
     TextData("{Aries}", 0xDA00, 10),
     TextData("{Taurus}", 0xDA01, 10),
@@ -125,17 +139,22 @@ all_characters: list[TextData] = [
     TextData("¥", 0xDA72, 6),
 
     TextData(" ", 0xDA73, 2),
-    TextData("{unitname}", 0xE1),
-    TextData("{Newline}", 0xF8),
+    TextData("{UN}", 0xE1),
+    TextData("{NL}", 0xF8),
     TextData("{End}", 0xFE),
-    TextData("{ColorNormal}", 0xE300, 0),
-    TextData("{ColorSpecial1}", 0xE304, 0),
-    TextData("{ColorSpecial2}", 0xE308, 0),
-    TextData("{ColorSpecial3}", 0xE3FF, 0)
+    TextData("{ColorNorm}", 0xE300, 0),
+    TextData("{ColorSpe1}", 0xE304, 0),
+    TextData("{ColorSpe2}", 0xE308, 0),
+    TextData("{ColorSpe4}", 0xE30C, 0),
+    TextData("{ColorSpe3}", 0xE3FF, 0)
 ]
 
 text_data_lookup = {
     text_data.character: text_data for text_data in all_characters
+}
+
+text_id_lookup = {
+    text_data.id: text_data.character for text_data in all_characters
 }
 
 max_text_width = 180
@@ -146,13 +165,13 @@ def create_text_for_offworld_item(player_name: str, item_name: str, classificati
     else:
         item_string = f"{item_name}"
     if classification == ItemClassification.progression:
-        item_string = "{ColorSpecial2}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe2}" + f"{item_string}" + "{ColorNorm}"
     elif classification == ItemClassification.useful:
         item_string = f"{item_string}"
     elif classification == ItemClassification.trap:
-        item_string = "{ColorSpecial1}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe1}" + f"{item_string}" + "{ColorNorm}"
     else:
-        item_string = "{ColorSpecial1}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe1}" + f"{item_string}" + "{ColorNorm}"
     return f"{player_name}'s {item_string}"
 
 def create_text_for_own_item(item_name: str, classification: ItemClassification):
@@ -161,13 +180,13 @@ def create_text_for_own_item(item_name: str, classification: ItemClassification)
     else:
         item_string = f"{item_name}"
     if classification == ItemClassification.progression:
-        item_string = "{ColorSpecial2}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe2}" + f"{item_string}" + "{ColorNorm}"
     elif classification == ItemClassification.useful:
         item_string = f"{item_string}"
     elif classification == ItemClassification.trap:
-        item_string = "{ColorSpecial1}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe1}" + f"{item_string}" + "{ColorNorm}"
     else:
-        item_string = "{ColorSpecial1}" + f"{item_string}" + "{ColorNormal}"
+        item_string = "{ColorSpe1}" + f"{item_string}" + "{ColorNorm}"
     return f"their own {item_string}"
 
 def split_text_into_lines(location_text: str) -> tuple[list[str], list[list[int]]]:
@@ -253,6 +272,6 @@ def split_text_into_lines(location_text: str) -> tuple[list[str], list[list[int]
         lines.append(current_line)
         byte_lines.append(current_bytes)
     for line in byte_lines[:-1]:
-        line.append(text_data_lookup["{Newline}"].id)
+        line.append(text_data_lookup["{NL}"].id)
     byte_lines[-1].append(text_data_lookup["{End}"].id)
     return lines, byte_lines

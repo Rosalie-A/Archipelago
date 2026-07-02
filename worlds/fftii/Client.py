@@ -234,13 +234,19 @@ class FinalFantasyTacticsIvaliceIslandClient(BizHawkClient):
         for unit_number in range(memory.battle_unit_count):
             current_unit_jobs = {}
             base_address = unit_number * memory.battle_unit_stat_size
+            unit_id_location = base_address + memory.unit_id_offset
             party_id_location = base_address + memory.party_id_offset
+            unit_id_data = formation_data[unit_id_location]
+            if unit_id_data == 0xFF:
+                continue
             unit_party_id_data = formation_data[party_id_location]
-            if unit_party_id_data == 0xFF:
+            if unit_party_id_data >= 0x15:
                 continue
             unit_team_data_location = base_address + memory.battle_unit_entd_flag_offset
             unit_team_data = formation_data[unit_team_data_location]
-            if unit_team_data & 0x30 != 0:
+            if unit_team_data & 0x30 != 0: # Check if Blue Team
+                continue
+            if unit_team_data & 0x08 != 0: # Check if controllable (i.e. not Guest)
                 continue
             for index, job in enumerate(memory.job_level_order):
                 job_byte_location = base_address + memory.battle_unit_job_level_offset + (index // 2)
@@ -248,6 +254,8 @@ class FinalFantasyTacticsIvaliceIslandClient(BizHawkClient):
                     job_nybble = (formation_data[job_byte_location] & 0xF0) >> 4
                 else:
                     job_nybble = formation_data[job_byte_location] & 0x0F
+                if job_nybble > 8:
+                    job_nybble = 0
                 current_unit_jobs[job] = job_nybble
             for job, requirements in unlock_dict.items():
                 job_ids = []

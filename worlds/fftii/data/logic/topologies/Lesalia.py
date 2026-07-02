@@ -53,7 +53,7 @@ BerveniaVolcano.connections = [
 BerveniaVolcano.locations = [
     RareBattleLocation(LocationNames.BERVENIA_VOLCANO_RARE, battle_level=8),
     MoveFindItemLocation(LocationNames.BERVENIA_VOLCANO_MFI_1, battle_level=0),
-    LavaMoveFindItemLocation(LocationNames.BERVENIA_VOLCANO_MFI_2, [CanLavaWalk], battle_level=0), # Lava check
+    LavaMoveFindItemLocation(LocationNames.BERVENIA_VOLCANO_MFI_2, battle_level=0), # Lava check
     MoveFindItemLocation(LocationNames.BERVENIA_VOLCANO_MFI_3, battle_level=0),
     MoveFindItemLocation(LocationNames.BERVENIA_VOLCANO_MFI_4, battle_level=0)
 ]

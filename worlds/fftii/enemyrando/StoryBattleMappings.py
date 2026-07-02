@@ -2,7 +2,7 @@ from .BattleMappings import BattleMapping
 from .Job import Job
 from .SourceUnit import SourceUnit
 from .SpriteSet import SpriteSet
-from worlds.fftii.patchersuite.Unit import UnitGender
+from ..patchersuite.ENTD.Unit import UnitGender
 
 
 SweegyWoods = BattleMapping(384, 1, [
