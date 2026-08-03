@@ -222,6 +222,13 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
         battle_bin.apply_mfi_data()
 
     @staticmethod
+    def apply_poach_reward_rando(scus_bin: PS1FileMetaclass | SCUSBin, patch_dict: dict):
+        for i, poach_data in enumerate(scus_bin.poach_datas):
+            scus_bin.poach_datas[i].common_item = patch_dict["PoachRewards"][i]["Common"]
+            scus_bin.poach_datas[i].rare_item = patch_dict["PoachRewards"][i]["Rare"]
+        scus_bin.apply_data()
+
+    @staticmethod
     def apply_improved_shops_scus(scus_bin: PS1FileMetaclass | SCUSBin, patch_dict: dict):
         better_shop_dict = {
             "Asura Knife": 1,
@@ -457,6 +464,14 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                 rom_data,
                 patch_dict,
                 FinalFantasyTacticsIIPatchExtension.apply_mfi_rando)
+
+        if "PoachRewards" in patch_dict.keys():
+            rom_data = PS1File.extract_data_and_perform_task(
+                SCUSBin,
+                rom_data,
+                patch_dict,
+                FinalFantasyTacticsIIPatchExtension.apply_poach_reward_rando
+            )
 
         rom_data = FinalFantasyTacticsIIPatchExtension.apply_enemy_rando(
             patch_dict["EnemyRandoMapping"],

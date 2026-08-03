@@ -74,7 +74,7 @@ def apply_transmooglifier_attack(attack_out: PS1FileMetaclass | ATTACKOut, patch
     attack_out.apply_transmooglifier_data()
 
 def apply_transmooglifier_world(world_bin: PS1FileMetaclass | WORLDBin, patch_dict: dict):
-    world_bin.portrait_data_table_sprite_palette[0x39] = 0x19
+    world_bin.portrait_data_table_sprite_palette[0x39] = 0x08
     world_bin.portrait_data_table_portrait[0x39] = 0x08
     world_bin.portrait_data_table_help_portrait[0x39] = 0x08
     world_bin.formation_sprite_table[0x39] = 0x18
@@ -187,9 +187,9 @@ def apply_transmooglifier(rom_data: bytearray, patch_dict: dict):
         WLDFACEBin, rom_data, patch_dict, apply_transmooglifier_wldface
     )
 
-    rom_data = PS1File.extract_data_and_perform_task(
-        WORLDLzw, rom_data, patch_dict, apply_transmooglifier_worldlzw
-    )
+    # rom_data = PS1File.extract_data_and_perform_task(
+    #     WORLDLzw, rom_data, patch_dict, apply_transmooglifier_worldlzw
+    # )
 
     # rom_data = PS1File.extract_data_and_perform_task(
     #     WLDHELPLzw, rom_data, patch_dict, apply_transmooglifier_wldhelplzw

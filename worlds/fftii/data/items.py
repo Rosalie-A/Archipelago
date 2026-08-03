@@ -140,7 +140,7 @@ special_character_names: list[str] = [
 ]
 
 rare_item_names: list[str] = [
-    "Zorlin Shape", "Sasuke Knife", "Iga Knife", "Koga Knife", "Nagrarock", "Materia Blade", "Defender",
+    "Zorlin Shape", "Sasuke Knife", "Iga Knife", "Koga Knife", "Blood Sword", "Nagrarock", "Materia Blade", "Defender",
     "Save the Queen", "Excalibur", "Ragnarok", "Chaos Blade", "Masamune", "Chirijiraden", "Faith Rod", "Healing Staff",
     "Mace of Zeus", "Sage Staff", "Scorpion Tail", "Stone Gun", "Blaze Gun", "Glacier Gun", "Blast Gun",
     "Ultimus Bow", "Yoichi Bow", "Perseus Bow", "Fairy Harp", "Madlemgen", "Holy Lance", "Dragon Whisker",

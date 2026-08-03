@@ -57,8 +57,7 @@ class RareBattles(Toggle):
     display_name = "Rare Battles"
 
 class PoachLocations(Toggle):
-    """Are poaches in the location pool? WARNING: Can be grindy and RNG-heavy.
-    Will be disabled if Enemy Randomizer is set to Randomized."""
+    """Are poaches in the location pool? WARNING: Can be grindy and RNG-heavy."""
     display_name = "Poach Locations"
 
 class LogicalDifficulty(Choice):
@@ -92,6 +91,15 @@ class StartingShopLevel(Range):
     range_start = 0
     range_end = 14
     default = 0
+
+class RandomizePoachRewards(Choice):
+    """Whether Fur Shop awards from poaching should be randomized.
+    Split will make the rare result (12% of the time) always be an item unavailable in shops,
+    while the common result will always be an item available in shops."""
+    display_name = "Randomize Poach Rewards"
+    option_off = 0
+    option_on = 1
+    option_split = 2
 
 # Filler item options
 class NormalItemWeight(Range):
@@ -270,11 +278,13 @@ class VanillaChanges(OptionSet):
 
 # Transmooglifier Options
 class EnableTransmooglifier(Toggle):
-    """Enables Transmooglifier, which gives Rad, Alicia, and Lavian new special jobs."""
+    """Enables Transmooglifier, which gives Rad, Alicia, and Lavian new special jobs.
+    Check the Transmooglifier wiki page at https://github.com/Rosalie-A/Archipelago/wiki/FFT-Transmooglifier-Reference
+    for more info."""
     display_name = "Enable Transmooglifier"
 
 class TransmooglifierOptions(OptionSet):
-    """Which jobs are options for Transmooglifier."""
+    """Which jobs are options for Transmooglifier. If fewer than three, the remained will be picked at random."""
     display_name = "Transmooglifier Options"
     valid_keys = list(transmooglifier_lookup.keys())
     default = [key for key in valid_keys]
@@ -306,6 +316,7 @@ class FinalFantasyTacticsIIOptions(PerGameCommonOptions):
     chemist_placement: ChemistPlacement
     early_pass: EarlyPass
     starting_shop_level: StartingShopLevel
+    randomize_poach_rewards: RandomizePoachRewards
     normal_item_weight: NormalItemWeight
     rare_item_weight: RareItemWeight
     bonus_gil_item_weight: BonusGilItemWeight
@@ -345,7 +356,8 @@ fftii_option_groups = [
     OptionGroup("Item Options", [
         ChemistPlacement,
         EarlyPass,
-        StartingShopLevel
+        StartingShopLevel,
+        RandomizePoachRewards
     ]),
     OptionGroup("Filler Options", [
         NormalItemWeight,

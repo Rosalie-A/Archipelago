@@ -1,5 +1,5 @@
 from .SkillsetTemplates import SkillsetMetaclass, BerserkArts, RedMagic, VanguardSkill, Hunting, UltimateTimeMagic, \
-    ReactionAbility, SupportAbility, MovementAbility
+    ReactionAbility, SupportAbility, MovementAbility, CatalogArts, DarkMagic, VampireArts, HighMagic
 from ..SCUSBin.SCUSJobData import EquippableItemsOne, EquippableItemsTwo, EquippableItemsThree, EquippableItemsFour, \
     StatusesOne, StatusesTwo, StatusesThree, StatusesFour, StatusesFive, Elements
 
@@ -192,7 +192,8 @@ class Testudo(TransmooglifierJob):
                        "of nearby allies.")
     skillset = VanguardSkill
 
-    innate_ability_one = ReactionAbility.WEAPON_GUARD
+    innate_ability_one = SupportAbility.DEFENSE_UP
+    innate_ability_two = SupportAbility.MAGIC_DEFEND_UP
     halved_elements = Elements.ALL
 
     move = 3
@@ -240,7 +241,7 @@ class Hunter(TransmooglifierJob):
     ma_growth = 50
     ma_multiplier = 70
 
-    equip_one = EquippableItemsOne.UNARMED | EquippableItemsOne.KNIFE
+    equip_one = EquippableItemsOne.UNARMED | EquippableItemsOne.KNIFE | EquippableItemsOne.NINJA_BLADE
     equip_two = EquippableItemsTwo.BOW | EquippableItemsTwo.CROSSBOW | EquippableItemsTwo.GUN
     equip_three = EquippableItemsThree.HAT
     equip_four = EquippableItemsFour.STANDARD_ACCESSORIES | EquippableItemsFour.CLOTHING
@@ -277,24 +278,23 @@ class TimeMaster(TransmooglifierJob):
 
 class Librarian(TransmooglifierJob):
     job_name = "Librarian"
-    job_description = ("Magic user with low power but {NL}"
-                       "has no cast times. Ultimate{NL}"
-                       "Time Magic contains several {NL}"
-                       "forbidden powers.")
-    skillset = UltimateTimeMagic
+    skillset = CatalogArts
 
-    move = 3
+    innate_ability_one = SupportAbility.MONSTER_TALK
+    innate_ability_two = MovementAbility.MOVE_FIND_ITEM
+
+    move = 4
     jump = 3
     c_evade = 5
 
     hp_growth = 9
-    hp_multiplier = 100
+    hp_multiplier = 125
     mp_growth = 9
     mp_multiplier = 110
     speed_growth = 100
     speed_multiplier = 100
     pa_growth = 50
-    pa_multiplier = 100
+    pa_multiplier = 90
     ma_growth = 50
     ma_multiplier = 130
 
@@ -303,11 +303,97 @@ class Librarian(TransmooglifierJob):
     equip_three = EquippableItemsThree.HAT
     equip_four = EquippableItemsFour.STANDARD_ACCESSORIES | EquippableItemsFour.CLOTHING | EquippableItemsFour.ROBE
 
+class DarkMagician(TransmooglifierJob):
+    job_name = "Dark_Magician"
+    skillset = DarkMagic
+
+    halved_elements = Elements.DARK
+
+    move = 3
+    jump = 3
+    c_evade = 5
+
+    hp_growth = 10
+    hp_multiplier = 100
+    mp_growth = 11
+    mp_multiplier = 120
+    speed_growth: int = 100
+    speed_multiplier: int = 105
+    pa_growth: int = 50
+    pa_multiplier: int = 105
+    ma_growth: int = 48
+    ma_multiplier: int = 115
+
+    equip_one = EquippableItemsOne.UNARMED | EquippableItemsOne.KNIFE
+    equip_two = EquippableItemsTwo.BOOK
+    equip_three = EquippableItemsThree.HAT | EquippableItemsThree.POLE
+    equip_four = EquippableItemsFour.STANDARD_ACCESSORIES | EquippableItemsFour.ROBE
+
+class VampireLord(TransmooglifierJob):
+    job_name = "Vampire_Lord"
+    skillset = VampireArts
+
+    weak_elements = Elements.HOLY | Elements.EARTH | Elements.WATER
+    absorbed_elements = Elements.DARK
+
+    innate_ability_one = MovementAbility.FLY
+
+    status_immunity_two = StatusesTwo.BLOOD_SUCK
+
+    move = 4
+    jump = 3
+    c_evade = 15
+
+    hp_growth = 8
+    hp_multiplier = 130
+    mp_growth = 11
+    mp_multiplier = 90
+    speed_growth: int = 100
+    speed_multiplier: int = 120
+    pa_growth: int = 45
+    pa_multiplier: int = 110
+    ma_growth: int = 50
+    ma_multiplier: int = 110
+
+    equip_one = EquippableItemsOne.UNARMED | EquippableItemsOne.SWORD
+    equip_two = EquippableItemsTwo.INSTRUMENT
+    equip_three = EquippableItemsThree.CLOTH | EquippableItemsThree.HAT | EquippableItemsThree.ARMOR
+    equip_four = EquippableItemsFour.STANDARD_ACCESSORIES | EquippableItemsFour.ROBE
+
+class Sage(TransmooglifierJob):
+    job_name = "Sage"
+    skillset = HighMagic
+
+    innate_ability_one = SupportAbility.HALF_OF_MP
+
+    move = 5
+    jump = 3
+    c_evade = 10
+
+    hp_growth = 10
+    hp_multiplier = 85
+    mp_growth = 11
+    mp_multiplier = 120
+    speed_growth: int = 100
+    speed_multiplier: int = 95
+    pa_growth: int = 50
+    pa_multiplier: int = 70
+    ma_growth: int = 40
+    ma_multiplier: int = 150
+
+    equip_one = EquippableItemsOne.UNARMED | EquippableItemsOne.ROD
+    equip_two = EquippableItemsTwo.BOOK | EquippableItemsTwo.STAFF
+    equip_three = EquippableItemsThree.HAT
+    equip_four = EquippableItemsFour.STANDARD_ACCESSORIES | EquippableItemsFour.ROBE
 
 transmooglifier_lookup = {
     "Berserker": Berserker,
     "Red Mage": RedMage,
     "Testudo": Testudo,
     "Hunter": Hunter,
-    "Time Master": TimeMaster
+    "Time Master": TimeMaster,
+    "Librarian": Librarian,
+    "Dark Magician": DarkMagician,
+    "Vampire Lord": VampireLord,
+    "Sage": Sage
 }

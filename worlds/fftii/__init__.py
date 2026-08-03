@@ -151,6 +151,7 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         self.excluded_monster_locations = []
 
         self.mfi_rewards = dict()
+        self.poach_rewards = list()
 
     @classmethod
     def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
@@ -413,14 +414,16 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
 
     def generate_early(self) -> None:
         self.apply_enemy_rando()
+
+        all_items = set(gear_item_names)
+        rare_items = set(rare_item_names)
+        common_items = all_items - rare_items
+        all_items = sorted(list(all_items))
+        rare_items = sorted(list(rare_items))
+        common_items = sorted(list(common_items))
+
         # Move-Find Item randomization
         if self.options.randomize_move_find_item_rewards > self.options.randomize_move_find_item_rewards.option_off:
-            all_items = set(gear_item_names)
-            rare_items = set(rare_item_names)
-            common_items = all_items - rare_items
-            all_items = sorted(list(all_items))
-            rare_items = sorted(list(rare_items))
-            common_items = sorted(list(common_items))
             for map_id, map_name in mfi_location_id_to_name.items():
                 self.mfi_rewards[map_id] = []
                 for i in range(4):
@@ -431,6 +434,16 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                         common_item = item_data_lookup[self.random.choice(common_items)].game_id
                         rare_item = item_data_lookup[self.random.choice(rare_items)].game_id
                     self.mfi_rewards[map_id].append((common_item, rare_item))
+
+        if self.options.randomize_poach_rewards > self.options.randomize_poach_rewards.option_off:
+            for i in range(len(monster_location_names)):
+                if self.options.randomize_poach_rewards == self.options.randomize_poach_rewards.option_on:
+                    common_item = item_data_lookup[self.random.choice(all_items)].game_id
+                    rare_item = item_data_lookup[self.random.choice(all_items)].game_id
+                else:
+                    common_item = item_data_lookup[self.random.choice(common_items)].game_id
+                    rare_item = item_data_lookup[self.random.choice(rare_items)].game_id
+                self.poach_rewards.append({"Common": common_item, "Rare": rare_item})
 
         # Story battles are always in
         included_locations: list[LocationNames] = []
@@ -945,6 +958,9 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     mfi_list.append(map_dict)
                 mfi_rando_dict[map_id] = mfi_list
             patch_dict["MFIRandoMapping"] = mfi_rando_dict
+
+        if self.options.randomize_poach_rewards > self.options.randomize_poach_rewards.option_off:
+            patch_dict["PoachRewards"] = self.poach_rewards
 
         rom_name_text = f'FFTII{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:9}'
         rom_name_text = rom_name_text[:20]

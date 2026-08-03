@@ -154,9 +154,9 @@ class WORLDBin(PS1File, TextFile):
         self.job_names[0x39] = job_one.job_name.ljust(16).replace(" ", "{NL}").replace("_", "{SP}")
         self.job_names[0x3A] = job_two.job_name.ljust(16).replace(" ", "{NL}").replace("_", "{SP}")
         self.job_names[0x3B] = job_three.job_name.ljust(16).replace(" ", "{NL}").replace("_", "{SP}")
-        self.job_descriptions[0x39] = (job_one.get_job_description_formatted().replace(" ", "{SP}")) + "{SP}"
-        self.job_descriptions[0x3A] = (job_two.get_job_description_formatted().replace(" ", "{SP}")) + "{SP}"
-        self.job_descriptions[0x3B] = (job_three.get_job_description_formatted().replace(" ", "{SP}"))
+        #self.job_descriptions[0x39] = (job_one.get_job_description_formatted().replace(" ", "{SP}")) + "{SP}"
+        #self.job_descriptions[0x3A] = (job_two.get_job_description_formatted().replace(" ", "{SP}")) + "{SP}"
+        #self.job_descriptions[0x3B] = (job_three.get_job_description_formatted().replace(" ", "{SP}"))
         self.skillset_names[0x50] = job_one.skillset.skillset_name.ljust(20).replace(" ", "{SP}")
         self.skillset_names[0x51] = job_two.skillset.skillset_name.ljust(20).replace(" ", "{SP}")
         self.skillset_names[0x52] = job_three.skillset.skillset_name.ljust(20).replace(" ", "{SP}")
@@ -180,12 +180,12 @@ class WORLDBin(PS1File, TextFile):
         assert len(job_name_result) == self.job_names_length, (len(job_name_result), self.job_names_length)
         self.all_data[self.job_names_offset:self.job_names_offset + self.job_names_length] = job_name_result
 
-        job_change_description_result = apply_string_table(self.job_change_descriptions)
-        assert len(job_change_description_result) == self.job_change_descriptions_length, \
-            (len(job_change_description_result), self.job_change_descriptions_length)
-        self.all_data[self.job_change_descriptions_offset:
-                      self.job_change_descriptions_offset +
-                      self.job_change_descriptions_length] = job_change_description_result
+        # job_change_description_result = apply_string_table(self.job_change_descriptions)
+        # assert len(job_change_description_result) == self.job_change_descriptions_length, \
+        #     (len(job_change_description_result), self.job_change_descriptions_length)
+        # self.all_data[self.job_change_descriptions_offset:
+        #               self.job_change_descriptions_offset +
+        #               self.job_change_descriptions_length] = job_change_description_result
 
         skillset_names_result = apply_string_table(self.skillset_names)
         assert len(skillset_names_result) == self.skillset_names_length, (len(skillset_names_result), self.skillset_names_length)
@@ -193,36 +193,36 @@ class WORLDBin(PS1File, TextFile):
                       self.skillset_names_offset +
                       self.skillset_names_length] = skillset_names_result
 
-        job_description_result = bytearray()
-        descriptions_to_cut = [0x0A, 0x0B, 0x0E, 0x13, 0x18, 0x1C, 0x21]
-        for i, data in enumerate(self.job_descriptions_datas):
-            if i in descriptions_to_cut:
-                job_description_result.extend([0x0C, 0xFE])
-            elif i == 0x39:
-                new_data = apply_string_table([self.transmooglifier_job_one.get_job_description_formatted().replace(" ", "{SP}")])
-                job_description_result.extend(new_data[:len(data) - 1])
-                if job_description_result[-1] != 0xFE:
-                    job_description_result.append(0xFE)
-            elif i == 0x3A:
-                new_data = apply_string_table(
-                    [self.transmooglifier_job_two.get_job_description_formatted().replace(" ", "{SP}")])
-                job_description_result.extend(new_data[:len(data) - 1])
-                if job_description_result[-1] != 0xFE:
-                    job_description_result.append(0xFE)
-            elif i == 0x3B:
-                new_data = apply_string_table(
-                    [self.transmooglifier_job_three.get_job_description_formatted().replace(" ", "{SP}")])
-                job_description_result.extend(new_data[:len(data) - 1])
-                if job_description_result[-1] != 0xFE:
-                    job_description_result.append(0xFE)
-            else:
-                job_description_result.extend(data)
-        difference = self.job_descriptions_length - len(job_description_result)
-        if difference > 0:
-            job_description_result[-1] = 0xFA
-            for i in range(difference - 1):
-                job_description_result.append(0xFA)
-            job_description_result.append(0xFE)
+        # job_description_result = bytearray()
+        # descriptions_to_cut = [0x0A, 0x0B, 0x0E, 0x13, 0x18, 0x1C, 0x21]
+        # for i, data in enumerate(self.job_descriptions_datas):
+        #     if i in descriptions_to_cut:
+        #         job_description_result.extend([0x0C, 0xFE])
+        #     elif i == 0x39:
+        #         new_data = apply_string_table([self.transmooglifier_job_one.get_job_description_formatted().replace(" ", "{SP}")])
+        #         job_description_result.extend(new_data[:len(data) - 1])
+        #         if job_description_result[-1] != 0xFE:
+        #             job_description_result.append(0xFE)
+        #     elif i == 0x3A:
+        #         new_data = apply_string_table(
+        #             [self.transmooglifier_job_two.get_job_description_formatted().replace(" ", "{SP}")])
+        #         job_description_result.extend(new_data[:len(data) - 1])
+        #         if job_description_result[-1] != 0xFE:
+        #             job_description_result.append(0xFE)
+        #     elif i == 0x3B:
+        #         new_data = apply_string_table(
+        #             [self.transmooglifier_job_three.get_job_description_formatted().replace(" ", "{SP}")])
+        #         job_description_result.extend(new_data[:len(data) - 1])
+        #         if job_description_result[-1] != 0xFE:
+        #             job_description_result.append(0xFE)
+        #     else:
+        #         job_description_result.extend(data)
+        # difference = self.job_descriptions_length - len(job_description_result)
+        # if difference > 0:
+        #     job_description_result[-1] = 0xFA
+        #     for i in range(difference - 1):
+        #         job_description_result.append(0xFA)
+        #     job_description_result.append(0xFE)
         #job_description_result = apply_string_table(self.job_descriptions)
         #assert len(job_description_result) == self.job_descriptions_length, (len(job_description_result), self.job_descriptions_length)
         #self.all_data[self.job_descriptions_offset:self.job_descriptions_offset + self.job_descriptions_length] = job_description_result

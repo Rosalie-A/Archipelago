@@ -5,18 +5,21 @@ class Ability(IntEnum):
     CURE = 0x01
     CURE_2 = 0x02
     RAISE = 0x05
+    RAISE_2 = 0x06
     PROTECT = 0x09
     PROTECT_2 = 0x0A
     SHELL = 0x0B
     SHELL_2 = 0x0C
     WALL = 0x0D
     ESUNA = 0x0E
+    HOLY = 0x0F
     FIRE = 0x10
     FIRE_2 = 0x11
     BOLT = 0x14
     BOLT_2 = 0x15
     ICE = 0x18
     ICE_2 = 0x19
+    FLARE = 0x1F
     HASTE = 0x20
     HASTE_2 = 0x21
     SLOW = 0x22
@@ -26,24 +29,49 @@ class Ability(IntEnum):
     REFLECT = 0x27
     QUICK = 0x29
     SPELL_ABSORB = 0x2F
+    LIFE_DRAIN = 0x30
+    ZOMBIE_ORACLE = 0x33
     CONFUSION_SONG = 0x37
     SLEEP = 0x3A
+    LICH = 0x49
     CHAKRA = 0x6A
+    REVIVE = 0x6B
     INSULT = 0x7C
     THREATEN = 0x77
+    MIMIC_DARAVON = 0x7D
     MAGIC_BREAK = 0x8E
     SPEED_BREAK = 0x8F
     POWER_BREAK = 0x90
     MIND_BREAK = 0x91
     YELL = 0x96
+    CHEER_UP = 0x97
     SCREAM = 0x99
     ULTIMA = 0x9A
+    DARK_HOLY = 0xA6
+    NIGHT_SWORD = 0xA5
+    LOSE_VOICE = 0xBF
+    BLOOD_SUCK_HUMAN = 0xC8
+    BIO_POISON = 0xCB
+    BIO_2_SLOW = 0xCE
+    BIO_3_UNDEAD = 0xD2
     LEG_AIM = 0xD5
+    MELT = 0xD8
+    TORNADO = 0xD9
+    QUAKE = 0xDA
     GRAVI_2 = 0xDE
+    FLARE_2 = 0xDF
+    MUTE = 0xE7
+    DESPAIR_2 = 0xE8
     RETURN_2 = 0xE9
     PROTECT_SPIRIT = 0x13C
     CLAM_SPIRIT = 0x13D
     GATHER_POWER = 0x143
+    DARK_WHISPER = 0x158
+    MIDGAR_SWARM = 0x15B
+    LIFEBREAK = 0x15C
+    GRAND_CROSS = 0x15E
+    DISPOSE = 0x161
+    ENERGY = 0x163
 
 
 class ReactionAbility(IntEnum):
@@ -89,6 +117,7 @@ class MovementAbility(IntEnum):
     MOVE_UNDER_WATER = 0x1F9
     FLOAT = 0x1FA
     FLY = 0x1FB
+    MOVE_FIND_ITEM = 0x1FD
 
 
 class SkillsetMetaclass(type):
@@ -108,9 +137,6 @@ class Skillset(object, metaclass=SkillsetMetaclass):
 
 class BerserkArts(Skillset):
     skillset_name = "Berserk Arts"
-    skillset_description = ("Berserker Job command.      {NL}"
-                            "Unleash primal fury at foes{NL}"
-                            "with a variety of angry techniques.")
 
     action_abilities = [
         Ability.INSULT, Ability.THREATEN, Ability.YELL, Ability.SCREAM, Ability.GATHER_POWER
@@ -118,9 +144,6 @@ class BerserkArts(Skillset):
 
 class RedMagic(Skillset):
     skillset_name = "Red Magic"
-    skillset_description = ("Red Mage Job command.      {NL}"
-                            "Wield an array of magic from{NL}"
-                            "multiple schools for varied combat.")
 
     action_abilities = [
         Ability.CURE, Ability.CURE_2, Ability.RAISE, Ability.PROTECT, Ability.SHELL,
@@ -130,9 +153,6 @@ class RedMagic(Skillset):
 
 class VanguardSkill(Skillset):
     skillset_name = "Vanguard Skill"
-    skillset_description = ("Testudo Job command.      {NL}"
-                            "Defends and supports allies{NL}"
-                            "with defensive techniques and spells.")
 
     action_abilities = [
         Ability.PROTECT_SPIRIT, Ability.PROTECT_2, Ability.CLAM_SPIRIT, Ability.SHELL_2,
@@ -141,9 +161,6 @@ class VanguardSkill(Skillset):
 
 class Hunting(Skillset):
     skillset_name = "Hunting"
-    skillset_description = ("Hunter Job command. Wears{NL}"
-                            "down enemies with precision weapon{NL}"
-                            "techniques.")
 
     action_abilities = [
         Ability.MAGIC_BREAK, Ability.SPEED_BREAK, Ability.POWER_BREAK, Ability.MIND_BREAK,
@@ -152,9 +169,6 @@ class Hunting(Skillset):
 
 class UltimateTimeMagic(Skillset):
     skillset_name = "Ultimate Time"
-    skillset_description = ("Time Master Job command. {NL}"
-                            "Time Magic containing forbidden{NL}"
-                            "techniques.")
 
     action_abilities = [
         Ability.HASTE_2, Ability.SLOW_2, Ability.STOP, Ability.QUICK, Ability.RETURN_2, Ability.GRAVI_2
@@ -163,4 +177,37 @@ class UltimateTimeMagic(Skillset):
         ReactionAbility.CRITICAL_QUICK,
         SupportAbility.SHORT_CHARGE, SupportAbility.MONSTER_SKILL, SupportAbility.DEFEND, SupportAbility.GAINED_JP_UP,
         MovementAbility.TELEPORT_2
+    ]
+
+class CatalogArts(Skillset):
+    skillset_name = "Catalog Arts"
+
+    action_abilities = [
+        Ability.LOSE_VOICE, Ability.MIMIC_DARAVON, Ability.MUTE, Ability.CHEER_UP,
+        Ability.PROTECT, Ability.SHELL, Ability.ENERGY, Ability.DISPOSE
+    ]
+
+class DarkMagic(Skillset):
+    skillset_name = "Dark Magic"
+
+    action_abilities = [
+        Ability.RAISE_2, Ability.REVIVE, Ability.ZOMBIE_ORACLE, Ability.BIO_POISON,
+        Ability.BIO_3_UNDEAD, Ability.DARK_HOLY, Ability.DARK_WHISPER, Ability.LICH,
+        Ability.LIFE_DRAIN
+    ]
+
+class VampireArts(Skillset):
+    skillset_name = "Vampiric Arts"
+
+    action_abilities = [
+        Ability.NIGHT_SWORD, Ability.BLOOD_SUCK_HUMAN, Ability.LIFEBREAK, Ability.BIO_2_SLOW,
+        Ability.DESPAIR_2
+    ]
+
+class HighMagic(Skillset):
+    skillset_name = "High Magic"
+
+    action_abilities = [
+        Ability.HOLY, Ability.FLARE, Ability.FLARE_2, Ability.MIDGAR_SWARM, Ability.QUAKE,
+        Ability.TORNADO, Ability.MELT, Ability.GRAND_CROSS
     ]

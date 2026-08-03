@@ -25,7 +25,7 @@ class ATTACKOut(PS1File, TextFile):
 
     job_count: int = 155
 
-    job_names_offset: int = 0xFBA9
+    job_names_offset: int = 0xFBAF
     job_names_length = 0x561
     job_names: list[str]
     job_names_data: bytearray

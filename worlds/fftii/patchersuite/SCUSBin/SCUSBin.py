@@ -1,4 +1,5 @@
 from .SCUSAbilityPrimaryData import SCUSAbilityPrimaryData
+from .SCUSPoachData import SCUSPoachData
 from .SCUSSkillsetData import SCUSSkillsetData
 from ..PS1File import PS1File
 from ..Sector import Sector
@@ -45,6 +46,12 @@ class SCUSBin(PS1File):
     skillset_data_total_length = skillset_data_length * skillset_data_count
     skillset_datas: list[SCUSSkillsetData]
 
+    poach_data_offset = 0x056864
+    poach_data_length = 2
+    poach_data_count = 48
+    poach_data_total_length = poach_data_length * poach_data_count
+    poach_datas: list[SCUSPoachData]
+
     all_data: bytearray
 
     def __init__(self, all_data: bytearray):
@@ -80,6 +87,12 @@ class SCUSBin(PS1File):
             self.skillset_datas.append(
                 SCUSSkillsetData(scus_skillset_data[i * self.skillset_data_length:(i + 1) * self.skillset_data_length], i))
 
+        self.poach_datas = list()
+        scus_poach_data = all_data[self.poach_data_offset:self.poach_data_offset + self.poach_data_total_length]
+        for i in range(self.poach_data_count):
+            self.poach_datas.append(SCUSPoachData(scus_poach_data[i * self.poach_data_length:(i + 1) * self.poach_data_length]))
+
+
     def apply_transmooglifier(self,
                               job_one: TransmooglifierJobMetaclass,
                               job_two: TransmooglifierJobMetaclass,
@@ -93,6 +106,28 @@ class SCUSBin(PS1File):
         self.ability_primary_datas[Ability.RETURN_2].jp_cost = 1200
         self.ability_primary_datas[Ability.GRAVI_2].jp_cost = 1000
         self.ability_primary_datas[MovementAbility.TELEPORT_2].jp_cost = 3500
+        self.ability_primary_datas[Ability.LOSE_VOICE].jp_cost = 500
+        self.ability_primary_datas[Ability.MUTE].jp_cost = 600
+        self.ability_primary_datas[Ability.ENERGY].jp_cost = 250
+        self.ability_primary_datas[Ability.DISPOSE].jp_cost = 450
+        self.ability_primary_datas[Ability.BIO_POISON].jp_cost = 100
+        self.ability_primary_datas[Ability.BIO_POISON].chance_to_learn = 70
+        self.ability_primary_datas[Ability.BIO_3_UNDEAD].jp_cost = 450
+        self.ability_primary_datas[Ability.DARK_HOLY].jp_cost = 850
+        self.ability_primary_datas[Ability.DARK_WHISPER].jp_cost = 600
+        self.ability_primary_datas[Ability.BLOOD_SUCK_HUMAN].jp_cost = 900
+        self.ability_primary_datas[Ability.LIFEBREAK].jp_cost = 500
+        self.ability_primary_datas[Ability.BIO_2_SLOW].jp_cost = 300
+        self.ability_primary_datas[Ability.DESPAIR_2].jp_cost = 450
+        self.ability_primary_datas[Ability.FLARE_2].jp_cost = 1000
+        self.ability_primary_datas[Ability.MIDGAR_SWARM].jp_cost = 800
+        self.ability_primary_datas[Ability.QUAKE].jp_cost = 750
+        self.ability_primary_datas[Ability.MELT].jp_cost = 750
+        self.ability_primary_datas[Ability.TORNADO].jp_cost = 750
+        self.ability_primary_datas[Ability.GRAND_CROSS].jp_cost = 4000
+
+
+
 
         self.job_datas[0x39].apply_transmooglifier_job(job_one, 0)
         self.job_datas[0x3A].apply_transmooglifier_job(job_two, 1)
@@ -133,3 +168,10 @@ class SCUSBin(PS1File):
             new_scus_skillset_data.extend(skillset_data.raw_data)
         assert len(new_scus_skillset_data) == self.skillset_data_total_length
         self.all_data[self.skillset_data_offset:self.skillset_data_offset + self.skillset_data_total_length] = new_scus_skillset_data
+
+        new_scus_poach_data: bytearray = bytearray()
+        for poach_data in self.poach_datas:
+            poach_data.apply_data()
+            new_scus_poach_data.extend(poach_data.raw_data)
+        assert len(new_scus_poach_data) == self.poach_data_total_length
+        self.all_data[self.poach_data_offset:self.poach_data_offset + self.poach_data_total_length] = new_scus_poach_data
