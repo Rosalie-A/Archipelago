@@ -25,6 +25,7 @@ class ActionAbility(IntEnum):
     SNIPE = 0x44
     SWORD_SKILL = 0x46
     DYCEDARG_ALL_MAGIC = 0x47
+    KLETIAN_ALL_MAGIC = 0x48
     DESTROY_SWORD = 0x4B
     HOLY_MAGIC = 0x4C
     VELIUS_FEAR = 0x67

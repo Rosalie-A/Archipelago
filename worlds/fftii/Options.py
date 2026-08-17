@@ -100,6 +100,9 @@ class RandomizePoachRewards(Choice):
     option_off = 0
     option_on = 1
     option_split = 2
+    option_weighted = 3
+    option_weighted_split = 4
+    default = 0
 
 # Filler item options
 class NormalItemWeight(Range):
@@ -244,6 +247,7 @@ class MoveFindItemLocationLogic(Choice):
     option_vanilla = 0
     option_chemist_innate = 1
     option_player_innate = 2
+    default = 0
 
 class RandomizeMoveFindItemRewards(Choice):
     """Should MFI tile rewards be randomized?
@@ -253,6 +257,9 @@ class RandomizeMoveFindItemRewards(Choice):
     option_off = 0
     option_on = 1
     option_split = 2
+    option_weighted = 3
+    option_weighted_split = 4
+    default = 0
 
 # Vanilla Changes
 class VanillaChangesKeys(StrEnum):
@@ -284,7 +291,7 @@ class EnableTransmooglifier(Toggle):
     display_name = "Enable Transmooglifier"
 
 class TransmooglifierOptions(OptionSet):
-    """Which jobs are options for Transmooglifier. If fewer than three, the remained will be picked at random."""
+    """Which jobs are options for Transmooglifier. If fewer than three, the remainder will be picked at random."""
     display_name = "Transmooglifier Options"
     valid_keys = list(transmooglifier_lookup.keys())
     default = [key for key in valid_keys]

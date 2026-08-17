@@ -173,7 +173,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
                                     unit.set_new_data(destination_unit)
                                     if mapping_entry.boss_unit:
                                         current_level = unit.level
-                                        new_level = current_level + (mapping_entry.battle_level * 2)
+                                        new_level = current_level + mapping_entry.battle_level
                                         if current_level >= 100:
                                             new_level = min(199, new_level)
                                         else:

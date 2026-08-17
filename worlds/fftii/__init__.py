@@ -421,6 +421,17 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
         all_items = sorted(list(all_items))
         rare_items = sorted(list(rare_items))
         common_items = sorted(list(common_items))
+        filler_lists = []
+        normal_weight = self.options.normal_item_weight.value
+        rare_weight = self.options.rare_item_weight.value
+        if normal_weight == rare_weight:
+            filler_lists = [shop_item_names, rare_item_names]
+        else:
+            # One instance of a list per weight value
+            for i in range(normal_weight):
+                filler_lists.append(shop_item_names)
+            for i in range(rare_weight):
+                filler_lists.append(rare_item_names)
 
         # Move-Find Item randomization
         if self.options.randomize_move_find_item_rewards > self.options.randomize_move_find_item_rewards.option_off:
@@ -430,9 +441,17 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                     if self.options.randomize_move_find_item_rewards == self.options.randomize_move_find_item_rewards.option_on:
                         common_item = item_data_lookup[self.random.choice(all_items)].game_id
                         rare_item = item_data_lookup[self.random.choice(all_items)].game_id
-                    else:
+                    elif self.options.randomize_move_find_item_rewards == self.options.randomize_move_find_item_rewards.option_split:
                         common_item = item_data_lookup[self.random.choice(common_items)].game_id
                         rare_item = item_data_lookup[self.random.choice(rare_items)].game_id
+                    elif self.options.randomize_move_find_item_rewards == self.options.randomize_move_find_item_rewards.option_weighted:
+                        chosen_weighted_list = self.random.choice(filler_lists)
+                        common_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
+                        rare_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
+                    else: # weighted split
+                        chosen_weighted_list = self.random.choice(filler_lists)
+                        common_item = item_data_lookup[self.random.choice(common_items)].game_id
+                        rare_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
                     self.mfi_rewards[map_id].append((common_item, rare_item))
 
         if self.options.randomize_poach_rewards > self.options.randomize_poach_rewards.option_off:
@@ -440,9 +459,17 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
                 if self.options.randomize_poach_rewards == self.options.randomize_poach_rewards.option_on:
                     common_item = item_data_lookup[self.random.choice(all_items)].game_id
                     rare_item = item_data_lookup[self.random.choice(all_items)].game_id
-                else:
+                elif self.options.randomize_poach_rewards == self.options.randomize_poach_rewards.option_split:
                     common_item = item_data_lookup[self.random.choice(common_items)].game_id
                     rare_item = item_data_lookup[self.random.choice(rare_items)].game_id
+                elif self.options.randomize_poach_rewards == self.options.randomize_poach_rewards.option_weighted:
+                    chosen_weighted_list = self.random.choice(filler_lists)
+                    common_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
+                    rare_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
+                else: # weighted split
+                    chosen_weighted_list = self.random.choice(filler_lists)
+                    common_item = item_data_lookup[self.random.choice(common_items)].game_id
+                    rare_item = item_data_lookup[self.random.choice(chosen_weighted_list)].game_id
                 self.poach_rewards.append({"Common": common_item, "Rare": rare_item})
 
         # Story battles are always in

@@ -1676,6 +1676,7 @@ class KnightBladeWithKit(KnightBlade):
 
 class Sorcerer(RandomizedUnit):
     job = Job.SORCERER
+    primary = ActionAbility.KLETIAN_ALL_MAGIC
     sprite_set = SpriteSet.KLETIAN
     gender = UnitGender.MALE
     difficulty = 8
