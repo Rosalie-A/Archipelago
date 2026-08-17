@@ -1,4 +1,4 @@
-from .logic.FFTLocation import LocationNames
+from .logic.SMRPGLocation import LocationNames
 
 cd_name_location = 0x9304
 cd_name = "SCUS_942.21"

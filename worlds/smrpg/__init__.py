@@ -1,33 +1,18 @@
-import pkgutil
-import os
-import sys
-from tempfile import gettempdir
 
-try:
-    import smrpgpatchbuilder
-except:
-    smrpgpatchbuilderzip = pkgutil.get_data(__name__, "smrpgpatchbuilder.zip")
-    file_path = os.path.join(gettempdir(), "smrpgpatchbuilder")
-    with open(os.path.join(file_path, "smrpgpatchbuilder.zip"), "wb") as file:
-        file.write(smrpgpatchbuilderzip)
-    sys.path.append(file_path)
-    import smrpgpatchbuilder
-
-
-import json
-import logging
-
-import Utils
 import settings
 import typing
 
-from typing import Dict, Any, TextIO
-from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, Entrance
+from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, Entrance, CollectionState
+from rule_builder.rules import False_, True_
 
-from worlds.AutoWorld import World, WebWorld
-from worlds.generic.Rules import add_rule
+from worlds.AutoWorld import World, WebWorld, LogicMixin
+from .Options import SMRPGOptions
+from .data.itempools import get_vanilla_pool
 
-from .data import items
+from .data.items import all_item_data
+from .data.logic.RequirementItems import DamagingSpells
+from .data.locations import all_location_data, SMRPGLocation
+from .data.logic.regions import all_regions, MariosPad
 
 
 class SMRPGSettings(settings.Group):
@@ -40,8 +25,22 @@ class SMRPGSettings(settings.Group):
     rom_file: RomFile = RomFile(RomFile.copy_to)
     rom_start: bool = False
 
+class SpellState(LogicMixin):
+    can_defeat_with_spells: dict[int, bool]  # per player
 
-class SMRPGIIWeb(WebWorld):
+    def init_mixin(self, multiworld: MultiWorld) -> None:
+        self.can_defeat_with_spells = {
+            player: False for player in multiworld.get_game_players("Super Mario RPG")
+        }
+        pass
+
+    def copy_mixin(self, new_state: CollectionState) -> CollectionState:
+        new_state.can_defeat_with_spells = {
+            player: can_defeat for player, can_defeat in self.can_defeat_with_spells.items()
+        }
+        return new_state
+
+class SMRPGWeb(WebWorld):
     theme = "grass"
     setup = Tutorial(
         "Multiworld Setup Guide",
@@ -64,366 +63,39 @@ class SMRPGWorld(World):
     Find all the Zodiac Stones and make your way to Murond Death City to confront Altima!
     """
     settings: typing.ClassVar[SMRPGSettings]
-    game = "Final Fantasy Tactics Ivalice Island"
-    #options_dataclass = SMRPGOptions
-    #options: SMRPGOptions
+    game = "Super Mario RPG"
+    options_dataclass = SMRPGOptions
+    options: SMRPGOptions
 
-    base_id = 0
     web = SMRPGWeb()
 
-    item_name_to_id = {item: item_data.id for item, item_data in item_table.items()}
-    location_name_to_id = {location.name: location.id for location in all_locations}
+    item_name_to_id = {item.name.value: item.game_id for item in all_item_data}
+    location_name_to_id = {location.name: location.id for location in all_location_data}
+    character_spells: dict[str, list[str]] = {}
+    damaging_spells = [member.name.value for member in DamagingSpells.members]
 
-    location_name_groups = location_groups
+    filler_items = None
 
-    filler_items: list[str] | None
-    included_locations: list[str]
-    murond_fights: list[str]
-    starting_pass: str
-    zodiac_stones_required: int
-    zodiac_stones_in_pool: int
-    enemy_rando_mapping: dict[EventCode, list[RandomizedMapping]]
-    poach_locations: dict[MonsterNames, list[RegionAccessRequirement]]
-    poach_hints: dict[MonsterNames, list[PoachHintLocation]]
-
-    version = "0.3.0"
+    version = "1.0.0"
     debug = False
     topology_present = debug
 
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
+        self.character_spells = {
+            "Mario": [],
+            "Mallow": [],
+            "Geno": [],
+            "Bowser": [],
+            "Toadstool": [],
+        }
         self.filler_items = None
-        self.included_locations = list()
-        self.murond_fights = list()
-        self.starting_pass = "Gallione Pass"
-        self.zodiac_stones_required = 0
-        self.poach_locations = dict()
-        self.poach_hints = dict()
-        self.poach_database: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
 
-    @classmethod
-    def stage_assert_generate(cls, multiworld: MultiWorld) -> None:
-        logging.info(f"Final Fantasy Tactics Ivalice Island APWorld v{cls.version} used for generation.")
+    def create_item(self, name: str) -> "SMRPGItem":
+        return SMRPGItem(name, ItemClassification.progression, self.item_name_to_id[name], self.player)
 
-    @classmethod
-    def stage_write_spoiler_header(cls, _multiworld: MultiWorld, spoiler_handle: TextIO):
-        spoiler_handle.write(f"\nFinal Fantasy Tactics Ivalice Island APWorld version: v{cls.version}\n")
-
-    def write_spoiler_end(self, spoiler_handle: TextIO) -> None:
-        if FinalFantasyTacticsIvaliceIslandWorld.debug:
-            spoiler_handle.write("\n")
-            for event_id, mapping_list in self.enemy_rando_mapping.items():
-                spoiler_handle.write("\n")
-                spoiler_handle.write(EventCode(event_id).name)
-                spoiler_handle.write("\n")
-                for mapping in mapping_list:
-                    spoiler_handle.write(f"- {mapping}\n")
-
-    def create_item(self, name: str) -> "FinalFantasyTacticsIIItem":
-        return FinalFantasyTacticsIIItem(name, item_table[name].classification, self.item_name_to_id[name], self.player)
-
-    def create_event(self, name: str) -> "FinalFantasyTacticsIIItem":
-        return FinalFantasyTacticsIIItem(name, ItemClassification.progression, None, self.player)
-
-    def create_enemy_rando_mapping(self):
-        # Switch modes based on settings
-        if self.options.enemy_randomizer == self.options.enemy_randomizer.option_boss_shuffle: # if unique enemy shuffle
-            source_units: list[SourceUnit] = valid_shuffle_source_units.copy()
-            destination_units = base_shuffle_list.copy()
-            if self.options.lucavi_randomizer >= self.options.lucavi_randomizer.option_lucavi: # if Zodiac bosses are in
-                source_units.extend(zodiac_shuffle_source_units)
-                destination_units.extend(zodiac_story_shuffle_list)
-                if self.options.sidequest_battles: # if sidequest zodiac bosses are in
-                    source_units.extend(zodiac_sidequest_source_units)
-                    destination_units.extend(sidequest_zodiac_shuffle_list)
-                if self.options.lucavi_randomizer == self.options.lucavi_randomizer.option_include_altima:
-                    source_units.extend(altima_source_units)
-                    destination_units.extend(altima_story_shuffle_list)
-            if self.options.sidequest_battles: # if sidequest bosses are in
-                source_units.extend(sidequest_shuffle_source_units)
-                destination_units.extend(sidequest_boss_shuffle_list)
-            # for each souorce unit, get a unit factory
-            assert len(source_units) == len(destination_units), (len(source_units), len(destination_units))
-            destination_unit_jobs = [unit.job for unit in destination_units]
-            unit_factories: dict[Job, RandomizedUnitFactory] = {
-                job.job: RandomizedUnitFactory({job: 1}, self.random) for job in destination_units
-            }
-            for source_unit in source_units:
-                assert source_unit.job in destination_unit_jobs, Job(source_unit.job).name
-            mapping_dict: dict[EventCode, list[RandomizedMapping]] = {}
-            for fight in BattleMappingLists.all_fights:
-                mapping_dict[fight.battle_id] = list()
-                for fight_source_unit in fight.source_units:
-                    if fight_source_unit in source_units:
-                        new_randomized_mapping = RandomizedMapping()
-                        new_randomized_mapping.source_unit = fight_source_unit
-                        logical_difficulty = self.options.logical_difficulty.value
-                        adjusted_battle_level = Logic.battle_levels[logical_difficulty][fight.battle_level]
-                        new_randomized_mapping.battle_level = adjusted_battle_level
-                        mapping_dict[fight.battle_id].append(new_randomized_mapping)
-            refined_dict = {key: value for key, value in mapping_dict.items() if len(value) > 0}
-            for battle_id, battle_mapping_list in refined_dict.items():
-                for mapping in battle_mapping_list:
-                    factory_options = {
-                        job: factory for job, factory in unit_factories.items()
-                        if factory.get_lowest_difficulty() <= mapping.battle_level
-                           and job in destination_unit_jobs
-                    }
-                    destination_job = self.random.choice(sorted(list(factory_options.keys())))
-                    destination_factory = factory_options[destination_job]
-                    mapping.destination_unit = destination_factory.get_unit(mapping.battle_level).job
-                    destination_unit_jobs.remove(destination_job)
-            self.enemy_rando_mapping = refined_dict
-        elif self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized: # Randomized enemies
-            randomized_factories: dict[Job, RandomizedUnitFactory] = {
-                job: RandomizedUnitFactory(mapping, self.random) for job, mapping in factory_mappings.items()
-            }
-            if self.options.enemy_randomizer_locality == self.options.enemy_randomizer_locality.option_battle:
-                if self.options.randomize_story_fights_only:
-                    fight_list = BattleMappingLists.all_story_fights
-                else:
-                    fight_list = BattleMappingLists.all_fights
-                for fight in fight_list:
-                    fight_mapping_list = []
-                    fight_difficulty = get_logic_adjusted_fight_level(
-                        fight.battle_level, self.options.logical_difficulty.value)
-                    working_factories = randomized_factories.copy()
-                    for source_unit in fight.source_units:
-                        if check_if_source_unit_randomized(source_unit, self.options):
-                            randomized_mapping, destination_job_key = get_randomized_mapping(
-                                working_factories,
-                                randomized_factories,
-                                fight_difficulty,
-                                source_unit,
-                                self
-                            )
-                            fight_mapping_list.append(randomized_mapping)
-                            if self.options.enemy_randomizer_method == self.options.enemy_randomizer_method.option_shuffle:
-                                if destination_job_key in working_factories:
-                                    working_factories.pop(destination_job_key)
-                    self.enemy_rando_mapping[fight.battle_id] = fight_mapping_list
-            if self.options.enemy_randomizer_locality == self.options.enemy_randomizer_locality.option_region:
-                if self.options.randomize_story_fights_only:
-                    region_fight_list = BattleMappingLists.story_fights_by_region
-                else:
-                    region_fight_list = BattleMappingLists.all_fights_by_region
-                for region in region_fight_list:
-                    region_source_units = set()
-                    region_mappings = []
-                    source_unit_difficulty: dict[SourceUnit, int] = {}
-                    for fight in region:
-                        fight_difficulty = get_logic_adjusted_fight_level(
-                            fight.battle_level, self.options.logical_difficulty.value)
-                        region_source_units.update(fight.source_units)
-                        for source_unit in fight.source_units:
-                            if source_unit in source_unit_difficulty.keys():
-                                source_unit_difficulty[source_unit] = min(
-                                    fight_difficulty, source_unit_difficulty[source_unit])
-                            else:
-                                source_unit_difficulty[source_unit] = fight_difficulty
-                    working_factories = randomized_factories.copy()
-                    for source_unit in sorted(list(region_source_units)):
-                        if check_if_source_unit_randomized(source_unit, self.options):
-                            randomized_mapping, destination_job_key = get_randomized_mapping(
-                                working_factories,
-                                randomized_factories,
-                                source_unit_difficulty[source_unit],
-                                source_unit,
-                                self
-                            )
-                            region_mappings.append(randomized_mapping)
-                            if self.options.enemy_randomizer_method == self.options.enemy_randomizer_method.option_shuffle:
-                                if destination_job_key in working_factories:
-                                    working_factories.pop(destination_job_key)
-                    for fight in region:
-                        self.enemy_rando_mapping[fight.battle_id] = region_mappings
-            if self.options.enemy_randomizer_locality == self.options.enemy_randomizer_locality.option_global:
-                if self.options.randomize_story_fights_only:
-                    fight_list = BattleMappingLists.all_story_fights
-                else:
-                    fight_list = BattleMappingLists.all_fights
-                all_source_units = set()
-                all_mappings = []
-                source_unit_difficulty: dict[SourceUnit, int] = {}
-                for fight in fight_list:  # for each fight
-                    fight_difficulty = get_logic_adjusted_fight_level(
-                        fight.battle_level, self.options.logical_difficulty.value)
-                    all_source_units.update(fight.source_units)
-                    for source_unit in fight.source_units:
-                        if source_unit in source_unit_difficulty.keys():
-                            source_unit_difficulty[source_unit] = min(
-                                fight_difficulty, source_unit_difficulty[source_unit])
-                        else:
-                            source_unit_difficulty[source_unit] = fight_difficulty
-                working_factories = randomized_factories.copy()
-                for source_unit in sorted(list(all_source_units)):
-                    if check_if_source_unit_randomized(source_unit, self.options):
-                        randomized_mapping, destination_job_key = get_randomized_mapping(
-                            working_factories,
-                            randomized_factories,
-                            source_unit_difficulty[source_unit],
-                            source_unit,
-                            self
-                        )
-                        all_mappings.append(randomized_mapping)
-                        if self.options.enemy_randomizer_method == self.options.enemy_randomizer_method.option_shuffle:
-                            if destination_job_key in working_factories:
-                                working_factories.pop(destination_job_key)
-                for fight in fight_list:
-                    self.enemy_rando_mapping[fight.battle_id] = all_mappings
-            pass
-
-
-    def generate_early(self) -> None:
-        self.enemy_rando_mapping: dict[EventCode, list[RandomizedMapping]] = {}
-        if self.options.enemy_randomizer > self.options.enemy_randomizer.option_disabled:
-            if self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized:
-                pass
-                #self.options.poach_locations.value = False
-            self.create_enemy_rando_mapping()
-            if self.options.poach_locations:
-                poach_mappings = create_poach_mappings(self.enemy_rando_mapping)
-                poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
-                for monster_name in monster_family_lookup.keys():
-                    self.poach_hints[monster_name] = list()
-                    self.poach_database[monster_name] = list()
-                    poach_locations[monster_name] = []
-                    for region, battle_sources in poach_mappings.items():
-                        for battle_source in battle_sources:
-                            if monster_name == battle_source.monster_name:
-                                battle_region_mapping = [
-                                    mapping for mapping in all_battle_region_mappings
-                                    if battle_source.fight_id in mapping.battle_ids
-                                ].pop()
-                                story_battle = battle_source.fight_id > 0x100
-                                requirement = RegionAccessRequirement(
-                                    battle_region_mapping.regions,
-                                    battle_source.battle_level,
-                                    story=story_battle
-                                )
-                                requirement.battle_id = battle_source.fight_id
-                                poach_locations[monster_name].append(requirement)
-                                poach_hint = PoachHintLocation(
-                                    battle_region_mapping.name,
-                                    battle_source.battle_level,
-                                    battle_source.fight_id)
-                                self.poach_hints[monster_name].append(poach_hint)
-                                self.poach_database[monster_name].append(requirement)
-                self.poach_locations = poach_locations
-        elif self.options.poach_locations:
-            poach_mappings = create_default_poach_mappings()
-            poach_locations: dict[MonsterNames, list[RegionAccessRequirement]] = dict()
-            for monster_name in monster_family_lookup.keys():
-                self.poach_hints[monster_name] = list()
-                self.poach_database[monster_name] = list()
-                poach_locations[monster_name] = []
-                for region, battle_sources in poach_mappings.items():
-                    for battle_source in battle_sources:
-                        if monster_name == battle_source.monster_name:
-                            battle_region_mapping = [
-                                mapping for mapping in all_battle_region_mappings
-                                if battle_source.fight_id in mapping.battle_ids
-                            ].pop()
-                            story_battle = battle_source.fight_id > 0x100
-                            requirement = RegionAccessRequirement(
-                                battle_region_mapping.regions,
-                                battle_source.battle_level,
-                                story=story_battle
-                            )
-                            requirement.battle_id = battle_source.fight_id
-                            poach_locations[monster_name].append(requirement)
-                            poach_hint = PoachHintLocation(
-                                battle_region_mapping.name,
-                                battle_source.battle_level,
-                                battle_source.fight_id)
-                            self.poach_hints[monster_name].append(poach_hint)
-                            self.poach_database[monster_name].append(requirement)
-
-        # Story battles are always in
-        included_locations: list[LocationNames] = []
-        included_locations.extend(story_battle_locations)
-        included_locations.extend(story_stone_locations)
-        included_locations.extend(altima_only_stone_locations)
-
-        # Character recruitment locations are always in if not tied to a sidequest
-        if self.options.sidequest_battles:
-            character_recruitments = character_recruit_locations
-        else:
-            character_recruitments = [
-                character for character in character_recruit_locations if character not in sidequest_battle_locations
-            ]
-        included_locations.extend(character_recruitments)
-
-        # Shop unlocks are always in
-        included_locations.extend(shop_unlock_locations)
-
-        # Ramza form unlocks are always in
-        included_locations.extend(ramza_job_unlock_locations)
-
-        # Optional locations
-        if self.options.sidequest_battles:
-            included_locations.extend(sidequest_battle_locations)
-            included_locations.extend(sidequest_stone_locations)
-        if self.options.job_unlocks:
-            included_locations.extend(job_unlock_locations)
-        if self.options.rare_battles:
-            included_locations.extend(rare_battle_locations)
-
-
-        if self.options.final_battles == self.options.final_battles.option_vanilla:
-            self.murond_fights.extend([fight.value for fight in default_murond_fights])
-
-        self.included_locations = [location.value for location in included_locations]
-
-        if self.options.poach_locations:
-            if self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized:
-                for monster_location in monster_locations:
-                    monster_name = monster_location.monster_name
-                    monster_family = monster_family_lookup[monster_name]
-                    total_requirements = []
-                    for monster in monster_families[monster_family]:
-                        total_requirements.extend(self.poach_locations[monster])
-                    if len(total_requirements) > 0:
-                        self.included_locations.append(f"Poach {monster_name.value}")
-            else:
-                self.included_locations.extend(monster_location_names)
-
-        # Make Zodiac Stones local if option is set
-
-        if self.options.zodiac_stone_locations == self.options.zodiac_stone_locations.option_anywhere_local:
-            self.options.local_items.value |= set(zodiac_stone_names)
-
-        self.zodiac_stones_required = self.options.zodiac_stones_required.value
-        self.zodiac_stones_in_pool = self.options.zodiac_stones_in_pool.value
-        # Determine number of zodiac stones based on options
-        if self.options.zodiac_stone_locations == self.options.zodiac_stone_locations.option_vanilla_stones:
-            max_stones = len(story_stone_locations)
-            if self.options.final_battles == self.options.final_battles.option_altima_only:
-                max_stones += len(altima_only_stone_locations)
-            if self.options.sidequest_battles:
-                max_stones += len(sidequest_stone_locations)
-            self.zodiac_stones_required = min(self.zodiac_stones_required, max_stones)
-            self.zodiac_stones_in_pool = min(self.zodiac_stones_in_pool, max_stones)
-        if self.zodiac_stones_in_pool < self.zodiac_stones_required:
-            self.zodiac_stones_in_pool = self.zodiac_stones_required
-
-        early_items_dict = {}
-        if self.options.early_pass:
-            early_pass = self.random.choice(["Fovoham Pass", "Lesalia Pass", "Murond Pass"])
-            early_items_dict.update({early_pass: 1})
-        if self.options.chemist_placement == self.options.chemist_placement.option_early:
-            early_items_dict["Chemist"] = 1
-        self.multiworld.early_items[self.player].update(early_items_dict)
-
-        if self.options.chemist_placement == self.options.chemist_placement.option_starting:
-            self.options.start_inventory_from_pool.value.update({"Chemist": 1})
-            #self.push_precollected(self.create_item("Chemist"))
-
-        if self.options.starting_shop_level > 0:
-            shop_level = self.options.starting_shop_level.value
-            self.options.start_inventory_from_pool.value.update({"Progressive Shop Level": shop_level})
-            #for i in range(shop_level):
-            #    self.push_precollected(self.create_item("Progressive Shop Level"))
+    def create_event(self, name: str) -> "SMRPGItem":
+        return SMRPGItem(name, ItemClassification.progression, None, self.player)
 
     def create_regions(self):
         menu = Region("Menu", self.player, self.multiworld)
@@ -433,263 +105,74 @@ class SMRPGWorld(World):
             self.multiworld.regions.append(region)
 
         # Will be adjusted for different starting regions.
-        starting_region = self.get_region("Gariland")
+        starting_region = self.get_region(MariosPad.name)
         menu.connect(starting_region)
-        self.options.start_inventory.value[self.starting_pass] = 1
-
-        # Debug lists
-        gallione_locations = []
-        fovoham_locations = []
-        lesalia_locations = []
-        lionel_locations = []
-        zeltennia_locations = []
-        limberry_locations = []
-        murond_locations = []
 
         # Define connections
-        locations_to_add = []
         for origin_region_data in all_regions:
             origin_region = self.get_region(origin_region_data.name)
             for connection in origin_region_data.connections:
+                rule = None
+                for requirement in connection.requirements:
+                    if rule is None:
+                        rule = False_()
+                    new_rule = requirement.get_rule_for_items_needed()
+                    rule |= new_rule
+                if rule is None:
+                    rule = True_()
                 connecting_region = self.get_region(connection.destination.name)
-                logic_object = LogicObject(self.player, self.options, 0, self.zodiac_stones_required)
                 if self.debug:
                     print(f"Connection: {origin_region.name} to {connecting_region.name}")
-                logic_object.requirements = create_logic_rule_for_list(
-                    connection.requirements,
-                    self.options,
-                    self.debug)
                 connection_name = f"{origin_region.name} to {connecting_region.name}"
-                new_entrance = Entrance(self.player, connection_name, origin_region)
-                new_entrance.access_rule = logic_object.logic_rule
-                origin_region.exits.append(new_entrance)
-                new_entrance.connect(connecting_region)
+                self.create_entrance(origin_region, connecting_region, rule, connection_name)
             for location in origin_region_data.locations:
-                if origin_region_data in gallione_regions:
-                    gallione_locations.append(location)
-                if origin_region_data in fovoham_regions:
-                    fovoham_locations.append(location)
-                if origin_region_data in lesalia_regions:
-                    lesalia_locations.append(location)
-                if origin_region_data in lionel_regions:
-                    lionel_locations.append(location)
-                if origin_region_data in zeltennia_regions:
-                    zeltennia_locations.append(location)
-                if origin_region_data in limberry_regions:
-                    limberry_locations.append(location)
-                if origin_region_data in murond_regions:
-                    murond_locations.append(location)
-                if not location.check_enabled(self.options):
-                    if self.debug:
-                        print(f"Excluding {location}")
-                    continue
-                new_location = FinalFantasyTacticsIILocation(
-                    self.player,
-                    location.name,
-                    self.location_name_to_id[location.name],
-                    origin_region
-                )
-                locations_to_add.append(new_location)
-        locations_to_add.sort(key=lambda loc: location_sort_list_names.index(loc.name))
-        for location in locations_to_add:
-            location.parent_region.locations.append(location)
-        for region in jobs_regions:
-            menu.connect(self.get_region(region.name))
-
-        poach_region = Region("Poaching", self.player, self.multiworld)
-        self.multiworld.regions.append(poach_region)
-        menu.connect(poach_region)
-        if self.options.poach_locations:
-            for poach_location in monster_location_names:
-                new_location = FinalFantasyTacticsIILocation(
-                    self.player, poach_location, self.location_name_to_id[poach_location], poach_region
-                )
-                if new_location.name in self.included_locations:
-                    poach_region.locations.append(new_location)
-
-        victory_location = self.get_location(LocationNames.AIRSHIPS_2_STORY.value)
-        victory_location.place_locked_item(self.create_item("Farlem"))
-
-        # Debug print list and number of locations for analysis purposes
-        if self.debug:
-            all_region_locations = {
-                "Gallione": gallione_locations,
-                "Fovoham": fovoham_locations,
-                "Lesalia": lesalia_locations,
-                "Lionel": lionel_locations,
-                "Zeltennia": zeltennia_locations,
-                "Limberry": limberry_locations,
-                "Murond": murond_locations
-            }
-            with open("fftlocations.txt", "w") as file:
-                for key, value in all_region_locations.items():
-                    locations = [location.name for location in value if location.name in self.included_locations]
-                    file.write(f"{key} Locations ({len(locations)}):\n")
-                    for location in locations:
-                        file.write(f"{location}\n")
-                    file.write("\n")
-
-        #for fight in self.murond_fights:
-        #    self.get_location(fight).place_locked_item(self.create_item(self.random.choice(rare_item_names)))
+                if location.check_enabled(self.options):
+                    new_location = SMRPGLocation(
+                        self.player,
+                        location.name,
+                        self.location_name_to_id[location.name],
+                        origin_region)
+                    origin_region.locations.append(new_location)
 
         if self.debug:
             from Utils import visualize_regions
-            visualize_regions(self.get_region("Menu"), f"fftdiagram{self.player}.puml")
+            visualize_regions(menu, f"smrpgdiagram{self.player}.puml")
 
     def create_items(self):
-
-        # Get all world map passes we don't start with
-        world_map_passes = [item for item in world_map_pass_names if item != self.starting_pass]
-        self.push_precollected(self.create_item(self.starting_pass))
-
-        # Squire is always unlocked
-        self.options.start_inventory.value["Squire"] = 1
-        self.push_precollected(self.create_item("Squire"))
-
-        # If we don't have jobs in the pool, we "start" with them all
-        if not self.options.job_unlocks:
-            for job_name in earned_job_names:
-                self.options.start_inventory.value[job_name] = 1
-                self.push_precollected(self.create_item(job_name))
-
-        # Pick Zodiac Stones to place ingame
-        zodiac_stones_in_game = self.random.sample(zodiac_stone_names, k=self.zodiac_stones_in_pool)
-
-        # Handle major items
-        major_items = [
-           *world_map_passes, *shop_levels, *special_character_names, *ramza_job_levels
-        ]
-
-        # Place Zodiac Stones if stones are in vanilla spots. Otherwise, add them to itempool.
-        if self.options.zodiac_stone_locations == self.options.zodiac_stone_locations.option_vanilla_stones:
-            stone_locations = [location.value for location in story_stone_locations]
-            if self.options.sidequest_battles:
-                stone_locations.extend([location.value for location in sidequest_stone_locations])
-            if self.options.final_battles == self.options.final_battles.option_altima_only:
-                stone_locations.extend([location.value for location in altima_only_stone_locations])
-            stone_locations_pruned = self.random.sample(stone_locations, k=self.zodiac_stones_in_pool)
-            self.random.shuffle(stone_locations)
-            for stone in zodiac_stones_in_game:
-                self.get_location(stone_locations_pruned.pop()).place_locked_item(self.create_item(stone))
-        else:
-            major_items.extend(zodiac_stones_in_game)
-
-        # Add jobs if they're items
-        if self.options.job_unlocks:
-            major_items.extend(earned_job_names)
-
-        # Get unfilled location count.
-        world_locations = self.multiworld.get_unfilled_locations(self.player)
-        location_count = len(world_locations)
-
-        # Get filler item count and determine filler pool
-        filler_item_count = location_count - len(major_items)
-        filler_items = self.determine_filler_item_pool(filler_item_count)
-
-        # Create items
-        itempool = [*major_items, *filler_items]
+        itempool = []
+        vanilla_pool = get_vanilla_pool(self.options)
+        for item in all_item_data:
+            if item.name in vanilla_pool.keys():
+                for i in range(vanilla_pool[item.name]):
+                    itempool.append(item.name)
         for item in map(self.create_item, itempool):
             self.multiworld.itempool.append(item)
 
-    def determine_filler_item_pool(self, filler_item_count: int) -> list[str]:
+    def collect(self, state: CollectionState, item: Item) -> bool:
+        change = super().collect(state, item)
+        if change and not state.can_defeat_with_spells[self.player] and item.name in self.damaging_spells:
+            for character in self.character_spells.keys():
+                if state.has(character, self.player) and item.name in self.character_spells[character]:
+                    state.can_defeat_with_spells[self.player] = True
+                    break
+        return change
 
-        filler_lists = []
-        normal_weight = self.options.normal_item_weight.value
-        rare_weight = self.options.rare_item_weight.value
-        gil_weight = self.options.bonus_gil_item_weight.value
-        jp_weight = self.options.jp_boon_item_weight.value
-
-        # Shortcut if everything's the same weight (or if someone gets funny and sets them all to zero)
-        if normal_weight == rare_weight == gil_weight == jp_weight:
-            filler_lists = [shop_item_names, rare_item_names, gil_item_names_weighted, jp_item_names_weighted]
-        else:
-            # One instance of a list per weight value
-            for i in range(normal_weight):
-                filler_lists.append(shop_item_names)
-            for i in range(rare_weight):
-                filler_lists.append(rare_item_names)
-            for i in range(gil_weight):
-                filler_lists.append(gil_item_names_weighted)
-            for i in range(jp_weight):
-                filler_lists.append(jp_item_names_weighted)
-        all_filler = []
-        for filler_list in filler_lists:
-            all_filler.extend(filler_list)
-        filler_set = set(all_filler)
-        self.filler_items = sorted(list(filler_set))
-
-        return_list = []
-        # For every itempool slot, just pull a random item from each pool in order based on weight
-        # Could change this if we want the weights to be random and not static
-        for i in range(filler_item_count):
-            chosen_list = filler_lists[i % len(filler_lists)]
-            chosen_item = self.random.choice(chosen_list)
-            return_list.append(chosen_item)
-        return return_list
+    def remove(self, state: CollectionState, item: Item) -> bool:
+        change = super().remove(state, item)
+        if change and state.can_defeat_with_spells[self.player] and item.name in self.damaging_spells:
+            state.can_defeat_with_spells[self.player] = False
+            for character in self.character_spells.keys():
+                if state.has(character, self.player):
+                    for spell_name in self.character_spells[character]:
+                        if spell_name in self.damaging_spells and state.has(spell_name):
+                            state.can_defeat_with_spells[self.player] = True
+                            break
+                    if state.can_defeat_with_spells[self.player]:
+                        break
+        return change
 
     def set_rules(self):
-        # Locations that aren't real don't get rules set, of course
-        for location in all_locations:
-            if location.name not in self.included_locations:
-                continue
-
-            ap_location = self.get_location(location.name)
-            if location.name in monster_location_names:
-                # Poach locations rules
-                if self.options.enemy_randomizer == self.options.enemy_randomizer.option_randomized:
-                    # Enemy rando logic
-                    monster_object = monster_locations_lookup[location.name[6:]]
-                    monster_family_name = monster_family_lookup[monster_object.monster_name]
-                    monster_family = [
-                        monster_locations_lookup[monster_name.value] for monster_name in
-                        monster_families[monster_family_name]
-                    ]
-                    breed_logic_object = PoachLogicObject(self.player, self.options)
-                    breed_logic_object.requirements = []
-                    for monster in monster_family:
-                        breed_logic_object.requirements.extend(self.poach_locations[monster.monster_name])
-                    add_rule(
-                        ap_location,
-                        lambda state,
-                               breed_object=breed_logic_object: breed_object.poach_logic_rule(state)
-                                                                and state.has("Mediator", self.player))
-                else:
-                    # Normal poach logic
-                    monster_object = monster_locations_lookup[location.name[6:]]
-                    monster_family_name = monster_family_lookup[monster_object.monster_name]
-                    monster_family = [
-                        monster_locations_lookup[monster_name.value] for monster_name in
-                        monster_families[monster_family_name]
-                    ]
-                    poach_logic_object = PoachLogicObject(self.player, self.options)
-                    poach_logic_object.requirements = monster_object.compiled_requirements
-                    breed_logic_object = PoachLogicObject(self.player, self.options)
-                    breed_logic_object.requirements = []
-                    for monster in monster_family:
-                        breed_logic_object.requirements.extend(monster.compiled_requirements)
-                    add_rule(
-                        ap_location,
-                        lambda state,
-                               poach_object=poach_logic_object,
-                               breed_object=breed_logic_object: poach_object.poach_logic_rule(state) or
-                                      (breed_object.poach_logic_rule(state) and state.has("Mediator", self.player)))
-            else:
-                # Regular location rules
-                logic_object = LogicObject(self.player, self.options, location.battle_level, self.zodiac_stones_required)
-                if self.debug:
-                    print(f"\n{location.name} requirements (Battle level {location.battle_level}):")
-                logic_object.requirements = create_logic_rule_for_list(
-                    location.requirements, self.options, self.debug)
-                add_rule(ap_location, logic_object.logic_rule)
-                if location.name in rare_battle_location_names:
-                    add_rule(ap_location, lambda state: state.has("Progressive Shop Level",  self.player, 8))
-
-        # Victory condition
-        add_rule(
-            self.get_location(LocationNames.AIRSHIPS_2_STORY.value),
-            lambda state: state.has_group("Zodiac Stones", self.player, self.zodiac_stones_required)
-                          and state.can_reach_region("Murond Death City", self.player))
-        self.multiworld.completion_condition[self.player] = lambda state: state.has("Farlem", self.player)
+        pass
 
     def pre_fill(self) -> None:
         pass
@@ -698,134 +181,12 @@ class SMRPGWorld(World):
         pass
 
     def generate_output(self, output_directory: str) -> None:
-        patch_dict: dict[str, Any] = dict()
-        # Hash of the MW seed to associate with save file
-        patch_dict["SeedHash"] = self.multiworld.seed % 0x7FFF
-        patch_dict["Seed"] = self.multiworld.seed + self.player
-        patch_dict["APJobs"] = self.options.job_unlocks.value
-        patch_dict["RareBattles"] = self.options.rare_battles.value
-        patch_dict["Sidequests"] = self.options.sidequest_battles.value
-        patch_dict["FinalBattles"] = self.options.final_battles.value
-        patch_dict["RequiredStones"] = self.zodiac_stones_required
-        patch_dict["EXPMultiplier"] = self.options.exp_gain_multiplier.value
-        patch_dict["JPMultiplier"] = self.options.jp_gain_multiplier.value
-        patch_dict["RandomizeGariland"] = self.options.randomize_gariland.value
-        patch_dict["LocationDict"] = self.create_location_dict()
-
-        new_enemy_rando_dict = {}
-        for key, value in self.enemy_rando_mapping.items():
-            new_list = []
-            for mapping in value:
-                new_list.append(mapping.to_json())
-            new_enemy_rando_dict[key.value] = new_list
-        patch_dict["EnemyRandoMapping"] = new_enemy_rando_dict
-
-        rom_name_text = f'FFTII{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:9}'
-        rom_name_text = rom_name_text[:20]
-        rom_name = bytearray(rom_name_text, 'utf-8')
-        rom_name.extend([0] * (20 - len(rom_name)))
-        patch_dict["RomName"] = f'FFTII{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:9}'
-
-        patch_dict["OutputFile"] = f'{self.multiworld.get_out_file_name_base(self.player)}'
-
-        patch = FinalFantasyTacticsIIProcedurePatch(player=self.player, player_name=self.player_name)
-        patch.write_file("patch_file.json", json.dumps(patch_dict).encode("UTF-8"))
-        rom_path = os.path.join(
-            output_directory, f"{self.multiworld.get_out_file_name_base(self.player)}" f"{patch.patch_file_ending}"
-        )
-        patch.write(rom_path)
-
-    def create_location_dict(self):
-        locations = self.get_locations()
-        location_dict = dict()
-        for location in locations:
-            if location.name not in locations_with_text:
-                continue
-            item_locations = [location.name]
-            if location.name in linked_reward_names.keys():
-                for linked_location in linked_reward_names[location.name]:
-                    item_locations.append(linked_location)
-            item_strings = []
-            is_any_progression: bool = False
-            for location_name in item_locations:
-                ap_location = self.get_location(location_name)
-                item = ap_location.item
-                if item.classification & ItemClassification.progression:
-                    is_any_progression = True
-                    classification = ItemClassification.progression
-                elif item.classification & ItemClassification.useful:
-                    classification = ItemClassification.useful
-                elif item.classification & ItemClassification.trap:
-                    classification = ItemClassification.trap
-                else:
-                    classification = ItemClassification.filler
-                player = item.player
-                if player == self.player:
-                    text = create_text_for_own_item(item.name, classification)
-                else:
-                    other_game = self.multiworld.game[player]
-                    other_player_name = (self.multiworld.player_name[player]
-                                         .replace("{", "")
-                                         .replace("}", ""))
-                    is_fft = other_game == "Final Fantasy Tactics Ivalice Island"
-                    text = create_text_for_offworld_item(other_player_name,
-                                                         item.name,
-                                                         classification,
-                                                         is_fft)
-                item_strings.append(text)
-            if len(item_strings) > 1:
-                if len(item_strings) == 2:
-                    item_strings[-1] = " and " + item_strings[-1]
-                else:
-                    for index, string in enumerate(item_strings[0:-1]):
-                        item_strings[index] = string + ", "
-                    item_strings[-1] = "and " + item_strings[-1]
-            terminator = "!" if is_any_progression else "."
-            final_item_string = (f"{self.player_name.replace("{", "").replace("}", "")}'s party found "
-                                 + "".join(item_strings) + terminator)
-            location_dict[location.name] = final_item_string
-        return location_dict
-
-    def modify_multidata(self, multidata: dict):
-        import base64
-        rom_name_text = f'FFTII{Utils.__version__.replace(".", "")[0:3]}_{self.player}_{self.multiworld.seed:9}'
-        rom_name_text = rom_name_text[:20]
-        rom_name = bytearray(rom_name_text, 'utf-8')
-        rom_name.extend([0] * (20 - len(rom_name)))
-        new_name = base64.b64encode(bytes(rom_name)).decode()
-        multidata["connect_names"][new_name] = multidata["connect_names"][self.multiworld.player_name[self.player]]
+        pass
 
     def get_filler_item_name(self) -> str:
         if self.filler_items is None:
             self.filler_items = ["Potion"]
         return self.random.choice(self.filler_items)
-
-    def fill_slot_data(self) -> Dict[str, Any]:
-        return_dict = self.options.as_dict(
-            "bonus_gil_item_size",
-            "jp_boon_size",
-            "sidequest_battles",
-            "rare_battles",
-            "final_battles",
-            "poach_locations",
-            "job_unlocks",
-            "logical_difficulty",
-            "enemy_randomizer"
-        )
-        return_dict["zodiac_stones_required"] = self.zodiac_stones_required
-        poach_hints = {}
-        for monster_name, hints in self.poach_hints.items():
-            hint_list = [hint.get_text() for hint in hints]
-            poach_hints[monster_name.value] = hint_list
-        return_dict["poach_hints"] = poach_hints
-        poach_database = {}
-        for monster_name, requirements in self.poach_database.items():
-            requirement_list = []
-            for requirement in requirements:
-                requirement_list.append(requirement.to_json())
-            poach_database[monster_name.value] = requirement_list
-        return_dict["poach_database"] = poach_database
-        return return_dict
 
 
 class SMRPGItem(Item):
