@@ -241,7 +241,7 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
 
     @staticmethod
     def apply_dev_battle(attack_out: PS1FileMetaclass | ATTACKOut, patch_dict: dict):
-        random = Random()
+        random = Random(patch_dict["Seed"])
         maps = {
             "Igros": 0x09,
             "Warjilis": 0x2A,
@@ -323,7 +323,6 @@ class FinalFantasyTacticsIIPatchExtension(APPatchExtension):
             chosen_squad_1,
             chosen_squad_2,
             chosen_music)
-        logging.info(f"Map: {chosen_map_key}, Weather: {chosen_weather}, Daytime: {chosen_daytime}, Music: {chosen_music_key}")
         attack_out.apply_data()
 
     @staticmethod

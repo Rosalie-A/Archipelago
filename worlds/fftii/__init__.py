@@ -924,9 +924,6 @@ class FinalFantasyTacticsIvaliceIslandWorld(World):
 
 
         # Victory condition
-        victory_rule = HasGroupUnique("Zodiac Stones", count=FromWorldAttr("zodiac_stones_required"))
-        victory_rule &= CanReachRegion("Murond Death City")
-        self.set_rule(self.get_location(LocationNames.AIRSHIPS_2_STORY.value), victory_rule)
         self.set_completion_rule(Has("Farlem"))
 
     def pre_fill(self) -> None:
