@@ -20,22 +20,67 @@ class MaxCharacters(Range):
 class AllowEarlyAllySwitching(DefaultOnToggle):
     """placeholder"""
     display_name = "Allow Early Ally Switching"
-
-class AvailableCharacters(OptionSet):
+    
+class StartingCharacterCount(Range):
     """placeholder"""
-    valid_keys = [*characters, *random_characters]
-    default = [*characters]
-    display_name = "Available Characters"
-
-class StartingCharacters(OptionSet):
+    range_start = 1
+    range_end = 5
+    default = 3
+    display_name = "Starting Character Count"
+    
+class LeadCharacter(Choice):
     """placeholder"""
-    valid_keys = [*characters, *random_characters]
-    default = "Random Three"
-    display_name = "Starting Characters"
-
-class PlayAsStartingCharacter(Toggle):
+    option_mario = 0
+    option_mallow = 1
+    option_geno = 2
+    option_bowser = 3
+    option_toadstool = 4
+    default = 0
+    display_name = "Lead Character"
+    
+class MarioPlacement(Choice):
     """placeholder"""
-    display_name = "Play As Starting Character"
+    option_starting = 0
+    option_available = 1
+    option_absent = 2
+    default = 1
+    display_name = "Mario Placement"
+    
+class MallowPlacement(Choice):
+    """placeholder"""
+    option_starting = 0
+    option_available = 1
+    option_absent = 2
+    default = 1
+    display_name = "Mallow Placement"
+    
+class GenoPlacement(Choice):
+    """placeholder"""
+    option_starting = 0
+    option_available = 1
+    option_absent = 2
+    default = 1
+    display_name = "Geno Placement"
+    
+class BowserPlacement(Choice):
+    """placeholder"""
+    option_starting = 0
+    option_available = 1
+    option_absent = 2
+    default = 1
+    display_name = "Bowser Placement"
+    
+class ToadstoolPlacement(Choice):
+    """placeholder"""
+    option_starting = 0
+    option_available = 1
+    option_absent = 2
+    default = 1
+    display_name = "Toadstool Placement"
+
+class PlayAsLeadCharacter(Toggle):
+    """placeholder"""
+    display_name = "Play As Lead Character"
 
 # Equipment
 
@@ -857,9 +902,14 @@ class SMRPGOptions(PerGameCommonOptions):
     shuffle_characters: ShuffleCharacters
     max_characters: MaxCharacters
     allow_early_ally_switching: AllowEarlyAllySwitching
-    available_characters: AvailableCharacters
-    starting_characters: StartingCharacters
-    play_as_starting_character: PlayAsStartingCharacter
+    starting_character_count: StartingCharacterCount
+    lead_character: LeadCharacter
+    mario_placement: MarioPlacement
+    mallow_placement: MallowPlacement
+    geno_placement: GenoPlacement
+    bowser_placement: BowserPlacement
+    toadstool_placement: ToadstoolPlacement
+    play_as_lead_character: PlayAsLeadCharacter
     equipment_permissions: EquipmentPermissions
     equipment_properties: EquipmentProperties
     ignore_namesake_properties: IgnoreNamesakeProperties

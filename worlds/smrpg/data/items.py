@@ -1,5 +1,5 @@
 from .ItemNames import ItemNames
-from .. import DamagingSpells
+from .logic.RequirementItems import DamagingSpells
 
 
 class ItemData:
@@ -273,6 +273,59 @@ other_item_data: list[ItemData] = [
     ItemData(ItemNames.COINS_150, 3021),
 ]
 
+boss_item_data: list[ItemData] = [
+    ItemData(ItemNames.HAMMER_BROS, 4000),
+    ItemData(ItemNames.CROCO_1, 4001),
+    ItemData(ItemNames.MACK, 4002),
+    ItemData(ItemNames.PANDORITE, 4003),
+    ItemData(ItemNames.BELOME_1, 4004),
+    ItemData(ItemNames.BOWYER, 4005),
+    ItemData(ItemNames.CROCO_2, 4006),
+    ItemData(ItemNames.PUNCHINELLO_1, 4007),
+    ItemData(ItemNames.BOOSTER_1, 4008),
+    ItemData(ItemNames.BUNDT_1, 4009),
+    ItemData(ItemNames.KNIFE_GUY_CRATE_GUY, 4010),
+    ItemData(ItemNames.KING_CALAMARI, 4011),
+    ItemData(ItemNames.HIDON, 4012),
+    ItemData(ItemNames.JOHNNY_1, 4013),
+    ItemData(ItemNames.YARIDOVICH, 4014),
+    ItemData(ItemNames.MOKURA, 4015),
+    ItemData(ItemNames.BELOME_2, 4016),
+    ItemData(ItemNames.JAGGER, 4017),
+    ItemData(ItemNames.JINX_1, 4018),
+    ItemData(ItemNames.JINX_2, 4019),
+    ItemData(ItemNames.JINX_3, 4020),
+    ItemData(ItemNames.CULEX_1, 4021),
+    ItemData(ItemNames.BOX_BOY, 4022),
+    ItemData(ItemNames.MEGASMILAX, 4023),
+    ItemData(ItemNames.DODO, 4024),
+    ItemData(ItemNames.BIRDETTA, 4025),
+    ItemData(ItemNames.VALENTINA, 4026),
+    ItemData(ItemNames.CZAR_DRAGON, 4027),
+    ItemData(ItemNames.AXEM_RANGERS, 4028),
+    ItemData(ItemNames.CHESTER, 4029),
+    ItemData(ItemNames.KAMEK, 4030),
+    ItemData(ItemNames.BOOMER, 4031),
+    ItemData(ItemNames.EXOR, 4032),
+    ItemData(ItemNames.COUNTDOWN, 4033),
+    ItemData(ItemNames.CLOAKER_DOMINO, 4034),
+    ItemData(ItemNames.CLERK, 4035),
+    ItemData(ItemNames.MANAGER, 4036),
+    ItemData(ItemNames.DIRECTOR, 4037),
+    ItemData(ItemNames.GUNYOLK, 4038),
+    ItemData(ItemNames.SMITHY, 4039),
+]
+
+remake_boss_item_data: list[ItemData] = [
+    ItemData(ItemNames.PUNCHINELLO_2, 4039),
+    ItemData(ItemNames.BOOSTER_2, 4040),
+    ItemData(ItemNames.BUNDT_2, 4041),
+    ItemData(ItemNames.JOHNNY_2, 4042),
+    ItemData(ItemNames.BELOME_3, 4043),
+    ItemData(ItemNames.JINX_4, 4044),
+    ItemData(ItemNames.CULEX_2, 4045),
+]
+
 all_item_data: list[ItemData] = [
     *basic_item_data,
     *unique_item_data,
@@ -281,7 +334,9 @@ all_item_data: list[ItemData] = [
     *remake_key_item_data,
     *character_item_data,
     *spell_item_data,
-    *other_item_data
+    *other_item_data,
+    *boss_item_data,
+    *remake_boss_item_data
 ]
 
 damaging_spell_names = [
@@ -292,5 +347,7 @@ progression_item_names = [
     *[item.name for item in key_item_data],
     *[item.name for item in remake_key_item_data],
     *[item.name for item in spell_item_data if item.name in damaging_spell_names],
-    *[item.name for item in character_item_data]
+    *[item.name for item in character_item_data],
+    *[item.name for item in boss_item_data],
+    *[item.name for item in remake_boss_item_data]
 ]

@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Self, override
 from BaseClasses import CollectionState, MultiWorld
 from rule_builder.rules import Rule, HasAll, True_, False_, HasAny, HasAllCounts, Has, HasGroupUnique
 from .RequirementItem import RequirementItemMetaclass
+from ... import LocationNames, ItemNames
 
 if TYPE_CHECKING:
     from ...Options import SMRPGOptions
@@ -16,6 +17,34 @@ class RequirementMetaclass(type):
     other_requirements_or: list[Self] = []
     other_requirements_and: list[Self] = []
     name: str = " ".join(re.split(r'(?=[A-Z, 0-9])', __name__)).strip()
+
+    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
+        return HasAll(*[item.name.value for item in self.items_needed])
+
+    def unpack_requirements(self, options: "SMRPGOptions", total_items_needed_rule: Rule["SMRPGWorld"] = True_()) -> Rule["SMRPGWorld"]:
+        if not self.check_option_enabled(options):
+            return False_()
+        items_needed_rule = self.get_rule_for_items_needed()
+        if len(self.other_requirements_and) == 0 and len(self.other_requirements_or) == 0:
+            return items_needed_rule & total_items_needed_rule
+        unpacked_requirements: list[list[RequirementMetaclass]] = list()
+        for requirement in self.other_requirements_or:
+            unpacked_requirements_entry: list[RequirementMetaclass] = self.other_requirements_and.copy()
+            unpacked_requirements_entry.append(requirement)
+            unpacked_requirements.append(unpacked_requirements_entry)
+        running_and_rule = True_()
+        running_or_rule = False_()
+        for requirement_list in unpacked_requirements:
+            for requirement in requirement_list:
+                running_and_rule &= requirement.unpack_requirements(options, items_needed_rule)
+            running_or_rule |= running_and_rule
+        return running_or_rule
+
+
+
+    @staticmethod
+    def check_option_enabled(options: "SMRPGOptions") -> bool:
+        return True
 
 class Requirement(metaclass=RequirementMetaclass):
     """
@@ -52,51 +81,39 @@ class Requirement(metaclass=RequirementMetaclass):
     def __str__(self):
         return self.__repr__()
 
-    def get_rule(self) -> Rule["SMRPGWorld"]:
-        return self.unpack_requirements(True_())
 
-    @classmethod
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
-        return HasAll(*[item.name.value for item in self.items_needed])
-
-    def unpack_requirements(self, total_items_needed_rule: Rule["SMRPGWorld"]) -> Rule["SMRPGWorld"]:
-        items_needed_rule = self.get_rule_for_items_needed()
-        if len(self.other_requirements_and) == 0 and len(self.other_requirements_or) == 0:
-            return items_needed_rule & total_items_needed_rule
-        unpacked_requirements: list[list[RequirementMetaclass]] = list()
-        for requirement in self.other_requirements_or:
-            unpacked_requirements_entry: list[RequirementMetaclass] = self.other_requirements_and
-            unpacked_requirements_entry.append(requirement)
-            unpacked_requirements.append(unpacked_requirements_entry)
-        running_and_rule = True_()
-        running_or_rule = False_()
-        for requirement_list in unpacked_requirements:
-            for requirement in requirement_list:
-                running_and_rule &= requirement.unpack_requirements(items_needed_rule)
-            running_or_rule |= running_and_rule
-        return running_or_rule
-
-    @staticmethod
-    def check_option_enabled(options: "SMRPGOptions") -> bool:
-        return True
 
 class GroupRequirement(Requirement):
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
-        return HasAny(*[item.name.value for item in self.items_needed])
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+        return HasAny(*[item.name.value for item in cls.items_needed])
 
 class StarPieceRequirement(Requirement):
     count: int = -1
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
+
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
         from .RequirementItems import StarPiece
-        return Has(StarPiece.name.value, count=self.count)
+        return Has(StarPiece.name.value, count=cls.count)
 
 class BossesRequirement(Requirement):
     count: int = -1
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
+
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
         from .RequirementItems import BossFights
-        return HasGroupUnique(BossFights.name, count=self.count)
+        return HasGroupUnique(BossFights.name, count=cls.count)
 
-
+def get_rule_from_requirements(requirements: list[RequirementMetaclass], options: "SMRPGOptions") -> Rule["SMRPGWorld"]:
+    rule = None
+    for requirement in requirements:
+        if rule is None:
+            rule = False_()
+        new_rule = requirement.unpack_requirements(options)
+        rule |= new_rule
+    if rule is None:
+        rule = True_()
+    return rule
 
 @dataclasses.dataclass()
 class CanDamageWithSpells(Rule["SMRPGWorld"], game="Super Mario RPG"):
@@ -110,6 +127,47 @@ class CanDamageWithSpells(Rule["SMRPGWorld"], game="Super Mario RPG"):
         def _evaluate(self, state: CollectionState) -> bool:
             return state.can_defeat_with_spells[self.player]
 
+location_name_lookup: dict[ItemNames, LocationNames] = {
+    ItemNames.MUSHROOM_WAY: LocationNames.MUSHROOM_WAY_BOSS_FIGHT,
+    ItemNames.MUSHROOM_KINGDOM: LocationNames.MUSHROOM_KINGDOM_BOSS_FIGHT,
+    ItemNames.FOREST_MAZE: LocationNames.FOREST_MAZE_BOSS_FIGHT,
+    ItemNames.MOLEVILLE_MINES: LocationNames.MOLEVILLE_MINES_SECOND_BOSS_FIGHT,
+    ItemNames.BOOSTER_TOWER: LocationNames.BOOSTER_TOWER_BALCONY_BOSS_FIGHT,
+    ItemNames.SEASIDE_TOWN: LocationNames.SEASIDE_TOWN_BOSS_FIGHT,
+    ItemNames.BELOME_TEMPLE: LocationNames.BELOME_TEMPLE_BOSS_FIGHT,
+    ItemNames.NIMBUS_LAND: LocationNames.NIMBUS_LAND_FINAL_BOSS_FIGHT
+}
+
+@dataclasses.dataclass()
+class CanBeatLocation(Rule["SMRPGWorld"], game="Super Mario RPG"):
+    location_name: ItemNames
+
+    @override
+    def _instantiate(self, world: "SMRPGWorld") -> Rule.Resolved:
+        return self.Resolved(self.location_name, player=world.player)
+
+    class Resolved(Rule.Resolved):
+        location_name: ItemNames
+
+
+
+        @override
+        def _evaluate(self, state: CollectionState) -> bool:
+            location = state.multiworld.get_location(
+                location_name_lookup[self.location_name],
+                self.player)
+            if location.item:
+                item = location.item.name
+                return state.has(item, self.player)
+            else:
+                return False
+
 class SpellsRequirement(Requirement):
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
         return CanDamageWithSpells()
+
+class LocationClearRequirement(Requirement):
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+        return CanBeatLocation(cls.items_needed[0].name)

@@ -50,7 +50,7 @@ MushroomWay.locations = [
     BossFightLocation(LocationNames.MUSHROOM_WAY_BOSS_FIGHT),
     SMRPGLocation(LocationNames.MUSHROOM_WAY_BOSS_REWARD),
     StarPieceLocation(LocationNames.MUSHROOM_WAY_BOSS_STAR_PIECE),
-    CharacterRecruitLocation(LocationNames.MUSHROOM_WAY_CHARACTER_JOIN),
+    CharacterRecruitLocation(LocationNames.MUSHROOM_WAY_CHARACTER_RECRUIT),
     SMRPGLocation(LocationNames.MUSHROOM_WAY_FIRST_CHEST),
     SMRPGLocation(LocationNames.MUSHROOM_WAY_FIRST_TOAD_REWARD),
     SMRPGLocation(LocationNames.MUSHROOM_WAY_SECOND_CHEST),

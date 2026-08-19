@@ -139,8 +139,8 @@ BeanValley.connections = [
 
 BeanValley.locations = [
     InvisibleFlagLocation(LocationNames.BEAN_VALLEY_BEANSTALK_BLOCK_FLAG),
-    SMRPGLocation(LocationNames.BEAN_VALLEY_BOSS_FIGHT),
-    BossFightLocation(LocationNames.BEAN_VALLEY_BOSS_REWARD),
+    BossFightLocation(LocationNames.BEAN_VALLEY_BOSS_FIGHT),
+    SMRPGLocation(LocationNames.BEAN_VALLEY_BOSS_REWARD),
     StarPieceLocation(LocationNames.BEAN_VALLEY_BOSS_STAR_PIECE),
     SMRPGLocation(LocationNames.BEAN_VALLEY_BOTTOM_LEFT_PIRANHA_PIPE_CHEST),
     SMRPGLocation(LocationNames.BEAN_VALLEY_BOTTOM_RIGHT_PIRANHA_PIPE_LOWER_CHEST),

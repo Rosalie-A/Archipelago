@@ -23,7 +23,7 @@ KeroSewers.locations = [
     SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_LOWER_CHEST),
     SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_BEFORE_LANDS_END),
     SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_AFTER_LANDS_END),
-    BossFightLocation(LocationNames.KERO_SEWERS_BOSS),
+    BossFightLocation(LocationNames.KERO_SEWERS_BOSS_FIGHT),
     StarPieceLocation(LocationNames.KERO_SEWERS_BOSS_STAR_PIECE),
     EXPStarLocation(LocationNames.KERO_SEWERS_FOUR_RAT_ROOM_CHEST),
     SMRPGLocation(LocationNames.KERO_SEWERS_STAIRWAY_ROOM_LEFT_CHEST),
@@ -116,7 +116,7 @@ ForestMaze.connections = [
 ForestMaze.locations = [
     SMRPGLocation(LocationNames.FOREST_MAZE_1ST_ROOM_CHEST),
     SMRPGLocation(LocationNames.FOREST_MAZE_BEFORE_MAZE_CHEST),
-    BossFightLocation(LocationNames.FOREST_MAZE_BOSS),
+    BossFightLocation(LocationNames.FOREST_MAZE_BOSS_FIGHT),
     StarPieceLocation(LocationNames.FOREST_MAZE_BOSS_STAR_PIECE),
     SMRPGLocation(LocationNames.FOREST_MAZE_BOTTOM_RIGHT_STUMP_CHEST),
     CharacterRecruitLocation(LocationNames.FOREST_MAZE_CHARACTER_RECRUIT),

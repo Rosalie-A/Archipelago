@@ -58,7 +58,7 @@ MolevilleMinesInner.locations = [
     SMRPGLocation(LocationNames.MOLEVILLE_MINES_NEAR_FINAL_TRAIN_TRACKS_CHEST),
     RemakeBossFightLocation(LocationNames.MOLEVILLE_MINES_POSTGAME_BOSS_FIGHT, [PostgameMolevilleAccess]),
     RemakeLocation(LocationNames.MOLEVILLE_MINES_POSTGAME_PRIZE, [PostgameMolevilleAccess]),
-    StarPieceLocation(LocationNames.MOLEVILLE_MINES_POSTGAME_BOSS_STAR_PIECE, [PostgameMolevilleAccess]),
+    RemakeStarPieceLocation(LocationNames.MOLEVILLE_MINES_POSTGAME_BOSS_STAR_PIECE, [PostgameMolevilleAccess]),
 
 ]
 
@@ -204,5 +204,5 @@ MarrymoreChapel.locations = [
     InvisibleFlagLocation(LocationNames.MARRYMORE_ALTAR_FLAG),
     BossFightLocation(LocationNames.MARRYMORE_BOSS_FIGHT, [CanAccessMarrymoreBoss]),
     StarPieceLocation(LocationNames.MARRYMORE_BOSS_STAR_PIECE, [CanAccessMarrymoreBoss]),
-    CharacterRecruitLocation(LocationNames.MARRYMORE_CHARACTER_JOIN),
+    CharacterRecruitLocation(LocationNames.MARRYMORE_CHARACTER_RECRUIT),
 ]

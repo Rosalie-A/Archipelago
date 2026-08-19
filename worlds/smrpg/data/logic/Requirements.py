@@ -1,4 +1,4 @@
-from .Requirement import Requirement, BossesRequirement
+from .Requirement import Requirement, BossesRequirement, LocationClearRequirement
 from .RequirementItems import *
 from ...Options import SMRPGOptions
 
@@ -65,25 +65,25 @@ class NotEarlyGame(BossesRequirement):
 class HasDamagingSpells(Requirement):
     items_needed = [DamagingSpells]
 
-class HasMushroomKingdom(Requirement):
+class HasMushroomKingdom(LocationClearRequirement):
     items_needed = [MushroomKingdom]
 
-class HasBanditsWay(Requirement):
+class HasBanditsWay(LocationClearRequirement):
     items_needed = [BanditsWay]
 
-class HasForestMaze(Requirement):
+class HasForestMaze(LocationClearRequirement):
     items_needed = [ForestMaze]
 
-class HasMolevilleMines(Requirement):
+class HasMolevilleMines(LocationClearRequirement):
     items_needed = [MolevilleMines]
 
-class HasBelomeTemple(Requirement):
+class HasBelomeTemple(LocationClearRequirement):
     items_needed = [BelomeTemple]
 
-class HasBoosterTower(Requirement):
+class HasBoosterTower(LocationClearRequirement):
     items_needed = [BoosterTower]
 
-class HasSeasideTown(Requirement):
+class HasSeasideTown(LocationClearRequirement):
     items_needed = [SeasideTown]
 
 class HasMallowForBanditsWay(Requirement):
@@ -100,7 +100,7 @@ class HasHammerBrosForBanditsWay(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.bandits_way_gate == options.bandits_way_gate.option_hammer_bros
 
-class HasMushroomWayForBanditsWay(Requirement):
+class HasMushroomWayForBanditsWay(LocationClearRequirement):
     items_needed = [MushroomWay]
 
     @staticmethod
@@ -134,7 +134,7 @@ class HasMackForKeroSewers(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.kero_sewers_gate == options.kero_sewers_gate.option_mack
 
-class HasMushroomKingdomForKeroSewers(Requirement):
+class HasMushroomKingdomForKeroSewers(LocationClearRequirement):
     items_needed = [MushroomKingdom]
 
     @staticmethod
@@ -195,7 +195,7 @@ class HasBowyerForPipeVaultAccess(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.pipe_vault_gate == options.pipe_vault_gate.option_bowyer
 
-class HasForestMazeForPipeVaultAccess(Requirement):
+class HasForestMazeForPipeVaultAccess(LocationClearRequirement):
     items_needed = [ForestMaze]
 
     @staticmethod
@@ -222,7 +222,7 @@ class HasGenoForMolevilleMinesAccess(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.moleville_gate == options.moleville_gate.option_geno
 
-class HasForestMazeForMolevilleMinesAccess(Requirement):
+class HasForestMazeForMolevilleMinesAccess(LocationClearRequirement):
     items_needed = [ForestMaze]
 
     @staticmethod
@@ -237,7 +237,7 @@ class HasBowyerForMolevilleMinesAccess(Requirement):
         return options.moleville_gate == options.moleville_gate.option_bowyer
 
 class HasBoshiForMolevilleMinesAccess(Requirement):
-    items_needed = [Boshi]
+    items_needed = [RaceCookies]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -261,20 +261,27 @@ class CanAccessInnerMolevilleMines(Requirement):
     items_needed = [BambinoBomb]
     other_requirements_or = [CanAccessMolevilleMines]
 
-class PostgameMolevilleAccess(Requirement):
-    items_needed = [BambinoBomb, StayVoucher, MolevilleMines]
-    other_requirements_and = [NotEarlyGame]
-
-class CanAccessTreasureSeller1(Requirement):
+class CanClearMolevilleMines(LocationClearRequirement):
     items_needed = [MolevilleMines]
 
-class CanAccessTreasureSeller2(Requirement):
+class PostgameMolevilleAccess(Requirement):
+    items_needed = [BambinoBomb, StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearMolevilleMines]
+
+class CanAccessTreasureSeller1(LocationClearRequirement):
+    items_needed = [MolevilleMines]
+
+class CanClearSunkenShip(LocationClearRequirement):
     items_needed = [SunkenShip]
-    other_requirements_or = [CanAccessTreasureSeller1]
+
+class CanAccessTreasureSeller2(Requirement):
+    other_requirements_and = [CanClearSunkenShip, NotEarlyGame, CanAccessTreasureSeller1]
+
+class CanClearBarrelVolcano(LocationClearRequirement):
+    items_needed = [BarrelVolcano]
 
 class CanAccessTreasureSeller3(Requirement):
-    items_needed = [BarrelVolcano]
-    other_requirements_or = [CanAccessTreasureSeller1]
+    other_requirements_and = [CanClearBarrelVolcano, NotEarlyGame, CanAccessTreasureSeller1]
 
 class HasMarioForBoosterTowerAccess(Requirement):
     items_needed = [Mario]
@@ -312,7 +319,7 @@ class HasToadstoolForBoosterTowerAccess(Requirement):
         return options.booster_tower_gate == options.booster_tower_gate.option_toadstool
 
 class HasMolevilleMinesForBoosterTowerAccess(Requirement):
-    items_needed = [MolevilleMines]
+    other_requirements_and = [CanClearMolevilleMines]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -357,12 +364,15 @@ class CanAccessCurtain(Requirement):
     other_requirements_or = [HasMarioDollForCurtainAccess, CurtainOpen]
     other_requirements_and = [NotEarlyGame]
 
+class CanClearBoosterTower(LocationClearRequirement):
+    items_needed = [BoosterTower]
+
 class PostgameCurtainAccess(Requirement):
-    items_needed = [StayVoucher, BoosterTower]
-    other_requirements_and = [NotEarlyGame]
+    items_needed = [StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearBoosterTower]
 
 class HasBoosterTowerForBoosterHill(Requirement):
-    items_needed = [BoosterTower]
+    other_requirements_and = [CanClearBoosterTower]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -388,7 +398,7 @@ class CanAccessBoosterHill(Requirement):
     ]
 
 class HasBoosterTowerForMarrymore(Requirement):
-    items_needed = [BoosterTower]
+    other_requirements_and = [CanClearBoosterTower]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -402,7 +412,7 @@ class HasKnifeGuyCrateGuyForMarrymore(Requirement):
         return options.marrymore_gate == options.marrymore_gate.option_knife_guy_crate_guy
 
 class HasBoosterHillForMarrymore(Requirement):
-    items_needed = [BoosterHill]
+    other_requirements_and = [CanAccessBoosterHill]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -425,9 +435,12 @@ class CanAccessMarrymoreBoss(Requirement):
     items_needed = [member for member in WeddingGear.members]
     other_requirements_and = [CanAccessMarrymoreChapel, NotEarlyGame]
 
+class CanClearMarrymore(LocationClearRequirement):
+    items_needed = [Marrymore]
+
 class PostgameMarrymoreAccess(Requirement):
-    items_needed = [StayVoucher, Marrymore]
-    other_requirements_and = [NotEarlyGame]
+    items_needed = [StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearMarrymore]
 
 class HasToadstoolForSeaAccess(Requirement):
     items_needed = [Toadstool]
@@ -437,7 +450,7 @@ class HasToadstoolForSeaAccess(Requirement):
         return options.sea_gate == options.sea_gate.option_toadstool
 
 class HasMarrymoreForSeaAccess(Requirement):
-    items_needed = [Marrymore]
+    other_requirements_and = [CanClearMarrymore]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -469,16 +482,14 @@ class CanAccessSea(Requirement):
         HasToadstoolForSeaAccess, HasMarrymoreForSeaAccess,
         HasBundtForSeaAccess, HasFourStarPiecesForSeaAccess, SeaOpen
     ]
-
-class CanClearSunkenShip(Requirement):
-    other_requirements_and = [CanAccessSea, NotEarlyGame]
-
-class PostgameSunkenShipAccess(Requirement):
-    items_needed = [StayVoucher, SunkenShip]
     other_requirements_and = [NotEarlyGame]
 
+class PostgameSunkenShipAccess(Requirement):
+    items_needed = [StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearSunkenShip]
+
 class HasSunkenShipForSeasideBossAccess(Requirement):
-    items_needed = [SunkenShip]
+    other_requirements_and = [CanClearSunkenShip]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -519,15 +530,19 @@ class HasYaridovichForLandsEnd(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.lands_end_gate == options.lands_end_gate.option_yaridovich
 
-class HasSeasideTownForLandsEnd(Requirement):
+class CanClearSeasideTown(LocationClearRequirement):
     items_needed = [SeasideTown]
+
+class HasSeasideTownForLandsEnd(Requirement):
+    other_requirements_and = [CanClearSeasideTown]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.lands_end_gate == options.lands_end_gate.option_seaside_town
 
 class HasSeasideElderForLandsEnd(Requirement):
-    items_needed = [ShedKey, SeasideTown]
+    items_needed = [ShedKey]
+    other_requirements_and = [CanClearSeasideTown]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -574,12 +589,15 @@ class CanAccessTempleBoss(Requirement):
     other_requirements_or = [HasTempleKeyForTempleBossAccess, TempleBossOpen]
     other_requirements_and = [NotEarlyGame, CanAccessLandsEnd]
 
+class CanClearBelomeTemple(LocationClearRequirement):
+    items_needed = [BelomeTemple]
+
 class PostgameTempleBossAccess(Requirement):
-    items_needed = [StayVoucher, BelomeTemple]
-    other_requirements_and = [NotEarlyGame]
+    items_needed = [StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearBelomeTemple]
 
 class HasLandsEndForMonstroTown(Requirement):
-    other_requirements_and = [NotEarlyGame, CanAccessTempleBoss]
+    other_requirements_and = [NotEarlyGame, CanClearBelomeTemple]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -604,13 +622,18 @@ class CanAccessMonstroTown(Requirement):
         HasLandsEndForMonstroTown, HasBelome2ForMonstroTown, MonstroTownOpen
     ]
 
+class CanClearDojo(LocationClearRequirement):
+    items_needed = [Dojo]
+
 class PostgameDojoBossAccess(Requirement):
-    items_needed = [StayVoucher, Dojo]
-    other_requirements_and = [NotEarlyGame]
+    items_needed = [StayVoucher]
+    other_requirements_and = [NotEarlyGame, CanClearDojo]
+
+class CanClearBeanValley(LocationClearRequirement):
+    items_needed = [BeanValley]
 
 class HasBeanValleyForNimbusLand(Requirement):
-    items_needed = [BeanValley]
-    other_requirements_and = [NotEarlyGame]
+    other_requirements_and = [CanClearBeanValley, NotEarlyGame]
 
     @staticmethod
     def check_option_enabled(options: "SMRPGOptions") -> bool:
@@ -669,7 +692,7 @@ class CanAccessLateNimbus(Requirement):
 class CanClearNimbusBoss(Requirement):
     other_requirements_and = [CanAccessLateNimbus, NotEarlyGame]
 
-class HasNimbusLandForBarrelVolcano(Requirement):
+class HasNimbusLandForBarrelVolcano(LocationClearRequirement):
     items_needed = [NimbusLand]
 
     @staticmethod
@@ -694,11 +717,9 @@ class CanAccessBarrelVolcano(Requirement):
     other_requirements_or = [
         HasNimbusLandForBarrelVolcano, HasValentinaForBarrelVolcano, BarrelVolcanoOpen
     ]
+    other_requirements_and = [NotEarlyGame]
 
-class CanClearBarrelVolcano(Requirement):
-    other_requirements_and = [CanAccessBarrelVolcano, NotEarlyGame]
-
-class HasBarrelVolcanoForBowsersKeep(Requirement):
+class HasBarrelVolcanoForBowsersKeep(LocationClearRequirement):
     items_needed = [BarrelVolcano]
 
     @staticmethod
@@ -749,7 +770,7 @@ class HasExorForFactory(Requirement):
     def check_option_enabled(options: "SMRPGOptions") -> bool:
         return options.factory_gate == options.factory_gate.option_exor
 
-class HasBowsersKeepForFactory(Requirement):
+class HasBowsersKeepForFactory(LocationClearRequirement):
     items_needed = [BowsersKeep]
 
     @staticmethod

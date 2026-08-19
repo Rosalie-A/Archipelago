@@ -241,6 +241,8 @@ class BossFights(RequirementItemGroup):
         Punchinello1, Punchinello2, Smithy, Valentina, Yaridovich
     ]
 
+boss_fight_names = [boss.name.value for boss in BossFights.members]
+
 class MushroomWay(RequirementItem):
     name = ItemNames.MUSHROOM_WAY
 

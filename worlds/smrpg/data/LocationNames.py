@@ -1,7 +1,7 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class LocationNames(Enum):
+class LocationNames(StrEnum):
     BANDITS_WAY_BOSS_FIGHT = "Bandit's Way Boss Fight"
     BANDITS_WAY_BOSS_REWARD_1 = "Bandit's Way Boss Reward 1"
     BANDITS_WAY_BOSS_REWARD_2 = "Bandit's Way Boss Reward 2"
@@ -178,7 +178,7 @@ class LocationNames(Enum):
     BOWSERS_KEEP_BATTLE_DOOR_BOSS_FIGHT = "Bowser's Keep Battle Door Boss Fight"
     BOWSERS_KEEP_BATTLE_DOOR_STAR_PIECE = "Bowser's Keep Battle Door Star Piece"
     GRATE_GUYS_CASINO_LOTW_PRIZE = "Grate Guy's Casino Lotw Prize"
-    FOREST_MAZE_BOSS = "Forest Maze Boss"
+    FOREST_MAZE_BOSS_FIGHT = "Forest Maze Boss Fight"
     FOREST_MAZE_CHARACTER_RECRUIT = "Forest Maze Character Recruit"
     FOREST_MAZE_1ST_ROOM_CHEST = "Forest Maze 1st Room Chest"
     FOREST_MAZE_FIRST_CHEST_AFTER_UNDERGROUND = "Forest Maze First Chest After Underground"
@@ -212,7 +212,7 @@ class LocationNames(Enum):
     KERO_SEWERS_BEFORE_BOSS_LOWER_CHEST = "Kero Sewers Before Boss Lower Chest"
     KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_AFTER_LANDS_END = "Kero Sewers Before Boss Upper Chest, After Land's End"
     KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_BEFORE_LANDS_END = "Kero Sewers Before Boss Upper Chest, Before Land's End"
-    KERO_SEWERS_BOSS = "Kero Sewers Boss"
+    KERO_SEWERS_BOSS_FIGHT = "Kero Sewers Boss Fight"
     KERO_SEWERS_FOUR_RAT_ROOM_CHEST = "Kero Sewers Four Rat Room Chest"
     KERO_SEWERS_STAIRWAY_ROOM_LEFT_CHEST = "Kero Sewers Stairway Room Left Chest"
     KERO_SEWERS_STAIRWAY_ROOM_RIGHT_CHEST = "Kero Sewers Stairway Room Right Chest"
@@ -287,7 +287,7 @@ class LocationNames(Enum):
     MARRYMORE_POSTGAME_PRIZE = "Marrymore Postgame Prize"
     MARRYMORE_BOSS_STAR_PIECE = "Marrymore Boss Star Piece"
     MARRYMORE_POSTGAME_BOSS_STAR_PIECE = "Marrymore Postgame Boss Star Piece"
-    MARRYMORE_CHARACTER_JOIN = "Marrymore Character Join"
+    MARRYMORE_CHARACTER_RECRUIT = "Marrymore Character Recruit"
     MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_5 = "Marrymore Suite Total Stays Prize 5"
     MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_1 = "Marrymore Suite Total Stays Prize 1"
     MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_4 = "Marrymore Suite Total Stays Prize 4"
@@ -394,7 +394,7 @@ class LocationNames(Enum):
     MUSHROOM_WAY_FLOWER_JUMP_LEFT_CHEST = "Mushroom Way Flower Jump Left Chest"
     MUSHROOM_WAY_SECOND_TOAD_REWARD = "Mushroom Way Second Toad Reward"
     MUSHROOM_WAY_BOSS_REWARD = "Mushroom Way Boss Reward"
-    MUSHROOM_WAY_CHARACTER_JOIN = "Mushroom Way Character Join"
+    MUSHROOM_WAY_CHARACTER_RECRUIT = "Mushroom Way Character Recruit"
     MUSHROOM_WAY_LEFT_FREESTANDING_ITEM = "Mushroom Way Left Freestanding Item (remake)"
     MUSHROOM_WAY_SECOND_ROOM_RIGHT_CHEST = "Mushroom Way Second Room Right Chest"
     MUSHROOM_WAY_RIGHT_FREESTANDING_ITEM = "Mushroom Way Right Freestanding Item (remake)"

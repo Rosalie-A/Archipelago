@@ -3,20 +3,20 @@ from collections import Counter
 from worlds.smrpg import SMRPGOptions
 from worlds.smrpg.data.ItemNames import ItemNames
 from worlds.smrpg.data.items import unique_item_data, key_item_data, character_item_data, spell_item_data, ItemData, \
-    remake_unique_item_data, remake_key_item_data
+    remake_unique_item_data, remake_key_item_data, boss_item_data, remake_boss_item_data
 
 def get_vanilla_pool(options: SMRPGOptions):
     vanilla_dict = {
         ItemNames.MUSHROOM: 6,
         ItemNames.COINS_5: 5,
-        ItemNames.FLOWER: 69,
+        #ItemNames.FLOWER: 69,
+        ItemNames.FLOWER: 12,
         ItemNames.FLOWER_TAB: 11,
         ItemNames.RECOVERY_MUSHROOM: 26,
-        ItemNames.NOTHING: 34,
+        ItemNames.NOTHING: 1,
         ItemNames.FROG_COIN: 65,
         ItemNames.COINS_10: 34,
         ItemNames.PICK_ME_UP: 3,
-        ItemNames.STAR_PIECE: 7,
         ItemNames.KEROKERO_COLA: 9,
         ItemNames.EXP_STAR: 8,
         ItemNames.COINS_50: 2,
@@ -51,7 +51,7 @@ def get_vanilla_pool(options: SMRPGOptions):
     }
     vanilla_pool = Counter(vanilla_dict)
     return_pool = vanilla_pool.copy()
-    singleton_items: list[ItemData] = [*unique_item_data, *key_item_data]
+    singleton_items: list[ItemData] = [*unique_item_data, *key_item_data, *boss_item_data]
 
     if options.spells_anywhere:
         singleton_items.extend(spell_item_data)
@@ -66,7 +66,7 @@ def get_vanilla_pool(options: SMRPGOptions):
     for item in singleton_items:
         return_pool[item.name] = 1
 
-    remake_items: list[ItemData] = [*remake_unique_item_data, *remake_key_item_data]
+    remake_items: list[ItemData] = [*remake_unique_item_data, *remake_key_item_data, *remake_boss_item_data]
 
     remake_pool = dict()
     for item in remake_items:
