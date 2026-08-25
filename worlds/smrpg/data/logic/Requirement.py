@@ -3,7 +3,8 @@ import re
 from typing import TYPE_CHECKING, Self, override
 
 from BaseClasses import CollectionState, MultiWorld
-from rule_builder.rules import Rule, HasAll, True_, False_, HasAny, HasAllCounts, Has, HasGroupUnique
+from rule_builder.options import OptionFilter
+from rule_builder.rules import Rule, HasAll, True_, False_, HasAny, HasAllCounts, Has, HasGroupUnique, Or, Filtered
 from .RequirementItem import RequirementItemMetaclass
 from ... import LocationNames, ItemNames
 
@@ -17,34 +18,24 @@ class RequirementMetaclass(type):
     other_requirements_or: list[Self] = []
     other_requirements_and: list[Self] = []
     name: str = " ".join(re.split(r'(?=[A-Z, 0-9])', __name__)).strip()
+    rule: Rule["SMRPGWorld"] = None
+    option_filter: OptionFilter = None
 
-    def get_rule_for_items_needed(self) -> Rule["SMRPGWorld"]:
-        return HasAll(*[item.name.value for item in self.items_needed])
-
-    def unpack_requirements(self, options: "SMRPGOptions", total_items_needed_rule: Rule["SMRPGWorld"] = True_()) -> Rule["SMRPGWorld"]:
-        if not self.check_option_enabled(options):
-            return False_()
-        items_needed_rule = self.get_rule_for_items_needed()
-        if len(self.other_requirements_and) == 0 and len(self.other_requirements_or) == 0:
-            return items_needed_rule & total_items_needed_rule
-        unpacked_requirements: list[list[RequirementMetaclass]] = list()
-        for requirement in self.other_requirements_or:
-            unpacked_requirements_entry: list[RequirementMetaclass] = self.other_requirements_and.copy()
-            unpacked_requirements_entry.append(requirement)
-            unpacked_requirements.append(unpacked_requirements_entry)
-        running_and_rule = True_()
-        running_or_rule = False_()
-        for requirement_list in unpacked_requirements:
-            for requirement in requirement_list:
-                running_and_rule &= requirement.unpack_requirements(options, items_needed_rule)
-            running_or_rule |= running_and_rule
-        return running_or_rule
+    def get_rule(self) -> Rule["SMRPGWorld"]:
+        if self.rule is None:
+            rule = HasAll(*[item.name.value for item in self.items_needed])
+        else:
+            rule = self.rule
+        if self.option_filter is not None:
+            rule = Filtered(rule, options=[self.option_filter])
+        return rule
 
 
+    def get_name(self):
+        return " ".join(re.split(r'(?=[A-Z, 0-9])', self.__name__)).strip()
 
-    @staticmethod
-    def check_option_enabled(options: "SMRPGOptions") -> bool:
-        return True
+    def __repr__(self):
+        return self.get_name()
 
 class Requirement(metaclass=RequirementMetaclass):
     """
@@ -78,10 +69,11 @@ class Requirement(metaclass=RequirementMetaclass):
         self.other_requirements_or = other_requirements_or
         self.other_requirements_and = other_requirements_and
 
-    def __str__(self):
-        return self.__repr__()
 
-
+class OpenRequirement(Requirement):
+    @classmethod
+    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+        return True_()
 
 class GroupRequirement(Requirement):
     @classmethod
@@ -92,28 +84,26 @@ class StarPieceRequirement(Requirement):
     count: int = -1
 
     @classmethod
-    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+    def get_rule(cls) -> Rule["SMRPGWorld"]:
         from .RequirementItems import StarPiece
-        return Has(StarPiece.name.value, count=cls.count)
+        rule = Has(StarPiece.name.value, count=cls.count)
+        if cls.option_filter is not None:
+            rule = Filtered(rule, options=[cls.option_filter])
+        return rule
 
 class BossesRequirement(Requirement):
     count: int = -1
 
     @classmethod
-    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+    def get_rule(cls) -> Rule["SMRPGWorld"]:
         from .RequirementItems import BossFights
         return HasGroupUnique(BossFights.name, count=cls.count)
 
 def get_rule_from_requirements(requirements: list[RequirementMetaclass], options: "SMRPGOptions") -> Rule["SMRPGWorld"]:
-    rule = None
-    for requirement in requirements:
-        if rule is None:
-            rule = False_()
-        new_rule = requirement.unpack_requirements(options)
-        rule |= new_rule
-    if rule is None:
-        rule = True_()
-    return rule
+    if len(requirements) == 0:
+        return True_()
+    else:
+        return requirements[0].get_rule()
 
 @dataclasses.dataclass()
 class CanDamageWithSpells(Rule["SMRPGWorld"], game="Super Mario RPG"):
@@ -134,8 +124,13 @@ location_name_lookup: dict[ItemNames, LocationNames] = {
     ItemNames.MOLEVILLE_MINES: LocationNames.MOLEVILLE_MINES_SECOND_BOSS_FIGHT,
     ItemNames.BOOSTER_TOWER: LocationNames.BOOSTER_TOWER_BALCONY_BOSS_FIGHT,
     ItemNames.SEASIDE_TOWN: LocationNames.SEASIDE_TOWN_BOSS_FIGHT,
+    ItemNames.SUNKEN_SHIP: LocationNames.SUNKEN_SHIP_FINAL_BOSS_FIGHT,
     ItemNames.BELOME_TEMPLE: LocationNames.BELOME_TEMPLE_BOSS_FIGHT,
-    ItemNames.NIMBUS_LAND: LocationNames.NIMBUS_LAND_FINAL_BOSS_FIGHT
+    ItemNames.SEALED_DOOR: LocationNames.MONSTRO_TOWN_SEALED_DOOR_BOSS_FIGHT,
+    ItemNames.NIMBUS_LAND: LocationNames.NIMBUS_LAND_FINAL_BOSS_FIGHT,
+    ItemNames.BARREL_VOLCANO: LocationNames.BARREL_VOLCANO_SECOND_BOSS_FIGHT,
+    ItemNames.BOWSERS_KEEP: LocationNames.BOWSERS_KEEP_THIRD_BOSS_FIGHT,
+    ItemNames.FACTORY: LocationNames.FACTORY_FINAL_BOSS_FIGHT
 }
 
 @dataclasses.dataclass()
@@ -147,9 +142,7 @@ class CanBeatLocation(Rule["SMRPGWorld"], game="Super Mario RPG"):
         return self.Resolved(self.location_name, player=world.player)
 
     class Resolved(Rule.Resolved):
-        location_name: ItemNames
-
-
+        location_name: ItemNames # noqa
 
         @override
         def _evaluate(self, state: CollectionState) -> bool:
@@ -164,10 +157,18 @@ class CanBeatLocation(Rule["SMRPGWorld"], game="Super Mario RPG"):
 
 class SpellsRequirement(Requirement):
     @classmethod
-    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
+    def get_rule(cls) -> Rule["SMRPGWorld"]:
         return CanDamageWithSpells()
 
 class LocationClearRequirement(Requirement):
     @classmethod
-    def get_rule_for_items_needed(cls) -> Rule["SMRPGWorld"]:
-        return CanBeatLocation(cls.items_needed[0].name)
+    def get_rule(cls) -> Rule["SMRPGWorld"]:
+        rule = None
+        for item in cls.items_needed:
+            if rule is None:
+                rule = CanBeatLocation(item.name)
+            else:
+                rule &= CanBeatLocation(item.name)
+        if cls.option_filter is not None:
+            rule = Filtered(rule, options=[cls.option_filter])
+        return rule

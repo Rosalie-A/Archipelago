@@ -200,7 +200,8 @@ key_item_data: list[ItemData] = [
     ItemData(ItemNames.RING, 232),
     ItemData(ItemNames.CROWN, 233),
     ItemData(ItemNames.GOLD_PAINT, 234),
-    ItemData(ItemNames.MARIO_DOLL, 235)
+    ItemData(ItemNames.MARIO_DOLL, 235),
+    ItemData(ItemNames.RACE_COOKIES, 236),
 ]
 
 remake_key_item_data: list[ItemData] =  [
@@ -271,6 +272,9 @@ other_item_data: list[ItemData] = [
     ItemData(ItemNames.COINS_50, 3019),
     ItemData(ItemNames.COINS_100, 3020),
     ItemData(ItemNames.COINS_150, 3021),
+    ItemData(ItemNames.NO_STAR, 3022),
+    ItemData(ItemNames.NO_CHARACTER, 3023),
+
 ]
 
 boss_item_data: list[ItemData] = [
@@ -349,5 +353,9 @@ progression_item_names = [
     *[item.name for item in spell_item_data if item.name in damaging_spell_names],
     *[item.name for item in character_item_data],
     *[item.name for item in boss_item_data],
-    *[item.name for item in remake_boss_item_data]
+    *[item.name for item in remake_boss_item_data],
+    ItemNames.STAR_PIECE,
+    ItemNames.FIRST_MIMIC_LAUNCHER,
+    ItemNames.SECOND_MIMIC_LAUNCHER,
+    ItemNames.THIRD_MIMIC_LAUNCHER,
 ]

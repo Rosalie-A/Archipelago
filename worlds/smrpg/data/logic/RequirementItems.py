@@ -314,7 +314,7 @@ class Crown(RequirementItem):
 
 class WeddingGear(RequirementItemGroup):
     name = "Wedding Gear"
-    members = [Shoes, Ring, Brooch, Crown]
+    members: list[RequirementItemMetaclass] = [Shoes, Ring, Brooch, Crown]
 
 class StarPiece(RequirementItem):
     name = ItemNames.STAR_PIECE
@@ -378,3 +378,12 @@ class BrightCard(RequirementItem):
 
 class ExtraShinyStone(RequirementItem):
     name = ItemNames.EXTRA_SHINY_STONE
+
+class MimicLauncher1(RequirementItem):
+    name = ItemNames.FIRST_MIMIC_LAUNCHER
+
+class MimicLauncher2(RequirementItem):
+    name = ItemNames.SECOND_MIMIC_LAUNCHER
+
+class MimicLauncher3(RequirementItem):
+    name = ItemNames.THIRD_MIMIC_LAUNCHER

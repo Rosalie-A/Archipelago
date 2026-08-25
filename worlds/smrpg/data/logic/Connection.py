@@ -14,3 +14,6 @@ class Connection:
             requirements = list()
         self.destination = destination
         self.requirements = requirements
+
+    def __repr__(self):
+        return self.destination.name

@@ -55,5 +55,8 @@ class RemakeBossFightLocation(BossFightLocation, RemakeLocation):
 class RemakeStarPieceLocation(StarPieceLocation, RemakeLocation):
     pass
 
-class EXPStarLocation(SMRPGLocation):
+class ChestLocation(SMRPGLocation):
+    pass
+
+class EXPStarLocation(ChestLocation):
     pass

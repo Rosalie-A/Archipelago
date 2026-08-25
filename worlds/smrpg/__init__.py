@@ -1,8 +1,11 @@
+import json
+from typing import Any
 
 import settings
 import typing
 
 from BaseClasses import MultiWorld, ItemClassification, Tutorial, Item, Region, Entrance, CollectionState
+from Fill import fill_restrictive
 from Options import OptionError
 from rule_builder.rules import False_, True_, Has, CanReachLocation
 
@@ -14,19 +17,18 @@ from .data.itempools import get_vanilla_pool
 
 from .data.items import all_item_data, progression_item_names, character_item_data, boss_item_data, \
     remake_boss_item_data, spell_item_data
-from .data.logic.Requirement import get_rule_from_requirements, CanDamageWithSpells
+from .data.logic.Requirement import get_rule_from_requirements, CanDamageWithSpells, CanBeatLocation
 from .data.logic.RequirementItems import DamagingSpells, BossFights, boss_fight_names
 from .data.locations import all_location_data, SMRPGLocation, character_locations, boss_locations, \
     remake_boss_locations, star_piece_locations, remake_star_piece_locations
-from .data.logic.SMRPGLocation import BossFightLocation, StarPieceLocation, CharacterRecruitLocation
+from .data.logic.SMRPGLocation import BossFightLocation, StarPieceLocation, CharacterRecruitLocation, ChestLocation
 from .data.logic.regions import all_regions, MariosPad
 from ..generic.Rules import set_rule, add_item_rule
-from ..ror2.items import classification
 
 
 class SMRPGSettings(settings.Group):
     class RomFile(settings.UserFilePath):
-        """File name of the Final Fantasy Tactics ISO"""
+        """File name of the SMRPG ROM"""
         description = "Super Mario RPG USA ROM File"
         copy_to = "Super Mario RPG - Legend of the Seven Stars (USA).sfc "
         md5s = ["d0b68d68d9efc0558242f5476d1c5b81"]
@@ -86,8 +88,8 @@ class SMRPGWorld(World):
 
     item_name_groups = {
         "Boss Fights": [
-            *[boss.name for boss in boss_item_data],
-            *[boss.name for boss in remake_boss_item_data]
+            *[boss.name.value for boss in boss_item_data],
+            *[boss.name.value for boss in remake_boss_item_data]
         ]
     }
 
@@ -129,12 +131,12 @@ class SMRPGWorld(World):
         for origin_region_data in all_regions:
             origin_region = self.get_region(origin_region_data.name)
             for connection in origin_region_data.connections:
+                if self.debug:
+                    print(f"Connection: {origin_region.name} to {connection.destination.name}")
                 rule = get_rule_from_requirements(connection.requirements, self.options)
                 connecting_region = self.get_region(connection.destination.name)
-                if self.debug:
-                    print(f"Connection: {origin_region.name} to {connecting_region.name}")
                 connection_name = f"{origin_region.name} to {connecting_region.name}"
-                self.create_entrance(origin_region, connecting_region, rule, connection_name)
+                self.create_entrance(origin_region, connecting_region, rule, connection_name, True)
             for location in origin_region_data.locations:
                 if location.check_enabled(self.options):
                     new_location = SMRPGLocation(
@@ -143,28 +145,47 @@ class SMRPGWorld(World):
                         self.location_name_to_id[location.name],
                         origin_region)
                     origin_region.locations.append(new_location)
-                    rule = get_rule_from_requirements(location.requirements, self.options)
-                    self.set_rule(new_location, rule)
+                    rule2 = get_rule_from_requirements(location.requirements, self.options)
+                    self.set_rule(new_location, rule2)
                     if issubclass(location.__class__, BossFightLocation):
                         add_item_rule(new_location, lambda item: item.name in boss_fight_names)
                     elif issubclass(location.__class__, StarPieceLocation):
-                        add_item_rule(new_location, lambda item: item.name in [ItemNames.STAR_PIECE, ItemNames.NOTHING])
+                        add_item_rule(new_location, lambda item: item.name in [ItemNames.STAR_PIECE, ItemNames.NO_STAR])
                     elif issubclass(location.__class__, CharacterRecruitLocation):
-                        add_item_rule(new_location, lambda item: item.name in [*[character.name for character in character_item_data], ItemNames.NOTHING])
+                        add_item_rule(new_location, lambda item: item.name in [*[character.name for character in character_item_data], ItemNames.NO_CHARACTER])
+                    elif issubclass(location.__class__, ChestLocation):
+                        add_item_rule(new_location,
+                                      lambda item: item.name not in [
+                                          *boss_fight_names,
+                                          ItemNames.STAR_PIECE,
+                                          ItemNames.NO_CHARACTER,
+                                          ItemNames.NO_STAR,
+                                          *[character.name for character in character_item_data]
+                                      ])
                     else:
-                        add_item_rule(new_location, lambda item: item.name not in [*boss_fight_names, ItemNames.STAR_PIECE, *[character.name for character in character_item_data]])
+                        add_item_rule(new_location,
+                                      lambda item: item.name not in [
+                                          *boss_fight_names,
+                                          ItemNames.STAR_PIECE,
+                                          ItemNames.NO_CHARACTER,
+                                          ItemNames.NO_STAR,
+                                          ItemNames.FIRST_MIMIC_LAUNCHER,
+                                          ItemNames.SECOND_MIMIC_LAUNCHER,
+                                          ItemNames.THIRD_MIMIC_LAUNCHER,
+                                          ItemNames.EXP_STAR,
+                                          *[character.name for character in character_item_data]
+                                      ])
 
-                    new_location.rule_builder_rule = rule
+                    new_location.rule_builder_rule = rule2
 
         if self.debug:
             from Utils import visualize_regions
-            visualize_regions(self.get_region(self.origin_region_name), f"smrpgdiagram{self.player}.puml")
+            visualize_regions(self.get_region(self.origin_region_name), f"smrpgdiagram{self.player}.puml", show_entrance_rules=True)
 
     def place_characters(self):
         character_list = [character.name for character in character_item_data]
         lead_character = character_list[self.options.lead_character]
         starting_characters = set()
-        self.placed_characters = set()
         starting_characters.add(lead_character)
         if self.options.mario_placement == self.options.mario_placement.option_starting:
             starting_characters.add(ItemNames.MARIO)
@@ -181,7 +202,7 @@ class SMRPGWorld(World):
         self.placed_characters.add(lead_character)
         starting_characters = sorted(list(starting_characters))
         while len(starting_characters) < 4:
-            starting_characters.append("Nothing")
+            starting_characters.append(ItemNames.NO_CHARACTER)
         remaining_slots = [
             self.get_location(LocationNames.STARTER_CHARACTER_2),
             self.get_location(LocationNames.STARTER_CHARACTER_3),
@@ -190,24 +211,60 @@ class SMRPGWorld(World):
         ]
         for character, location in zip(starting_characters, remaining_slots):
             location.place_locked_item(self.create_item(character))
-            if character != "Nothing":
-                self.placed_characters.add(character)
-
-    def place_bosses(self):
-        boss_list = [boss.name for boss in boss_item_data]
-        boss_location_list = [boss for boss in boss_locations]
+        available_characters = set()
+        if self.options.mario_placement == self.options.mario_placement.option_available:
+            available_characters.add(ItemNames.MARIO)
+        if self.options.mallow_placement == self.options.mallow_placement.option_available:
+            available_characters.add(ItemNames.MALLOW)
+        if self.options.geno_placement == self.options.geno_placement.option_available:
+            available_characters.add(ItemNames.GENO)
+        if self.options.bowser_placement == self.options.bowser_placement.option_available:
+            available_characters.add(ItemNames.BOWSER)
+        if self.options.toadstool_placement == self.options.toadstool_placement.option_available:
+            available_characters.add(ItemNames.TOADSTOOL)
+        available_characters.remove(lead_character)
+        available_characters = sorted(list(available_characters))
+        remaining_slots = [
+            self.get_location(LocationNames.MUSHROOM_WAY_CHARACTER_RECRUIT),
+            self.get_location(LocationNames.FOREST_MAZE_CHARACTER_RECRUIT),
+            self.get_location(LocationNames.MOLEVILLE_MINES_CHARACTER_RECRUIT),
+            self.get_location(LocationNames.MARRYMORE_CHARACTER_RECRUIT),
+        ]
+        while len(available_characters) < 4:
+            available_characters.append(ItemNames.NO_CHARACTER)
+        available_characters = [self.create_item(character) for character in available_characters]
+        self.random.shuffle(available_characters)
+        star_pieces = [self.create_item(ItemNames.STAR_PIECE) for i in range(self.options.total_star_pieces.value)]
+        star_locations = star_piece_locations.copy()
         if self.options.enable_remake_content:
-            boss_list.extend([boss.name for boss in remake_boss_item_data])
-            boss_location_list.extend([boss for boss in remake_boss_locations])
+            star_locations.extend(remake_star_piece_locations)
+        star_locations = [self.get_location(location) for location in star_locations]
+        while len(star_pieces) < len(star_locations):
+            star_pieces.append(self.create_item(ItemNames.NO_STAR))
+        self.random.shuffle(star_pieces)
+        self.random.shuffle(star_locations)
+        boss_list = [self.create_item(boss.name) for boss in boss_item_data]
+        boss_location_list = [self.get_location(boss) for boss in boss_locations]
+        if self.options.enable_remake_content:
+            boss_list.extend([self.create_item(boss.name) for boss in remake_boss_item_data])
+            boss_location_list.extend([self.get_location(boss) for boss in remake_boss_locations])
         self.random.shuffle(boss_list)
-        for boss, location in zip(boss_list, boss_location_list):
-            ap_location = self.get_location(location)
-            ap_location.place_locked_item(self.create_item(boss))
-            if boss == ItemNames.MOKURA:
-                if hasattr(ap_location, "rule_builder_rule"):
-                    current_rule = ap_location.rule_builder_rule
-                    new_rule = current_rule & CanDamageWithSpells()
-                    self.set_rule(ap_location, new_rule)
+        self.random.shuffle(boss_location_list)
+        all_pre_locations = [*remaining_slots, *star_locations, *boss_location_list]
+        all_pre_items = [*available_characters, *star_pieces, *boss_list]
+        fill_restrictive(
+            self.multiworld,
+            self.multiworld.get_all_state(),
+            all_pre_locations,
+            all_pre_items,
+            True,
+            True,
+            False,
+            lambda loc: print(f"placing {loc.item.name} at {loc.name}.") if self.debug else None,
+            allow_partial=False,
+            name=f"SMRPG Player {self.player} Pre Fill Step")
+
+
 
     def place_spells(self):
         all_spells = [spell.name for spell in spell_item_data]
@@ -252,24 +309,19 @@ class SMRPGWorld(World):
             if self.options.lead_character != self.options.lead_character.option_toadstool:
                 self.character_spells["Toadstool"] = []
 
-    def place_star_pieces(self):
-        star_pieces = self.options.total_star_pieces.value
-        star_locations = star_piece_locations.copy()
-        if self.options.enable_remake_content:
-            star_locations.extend(remake_star_piece_locations)
-        self.random.shuffle(star_locations)
-        for location in star_locations:
-            if star_pieces > 0:
-                self.get_location(location).place_locked_item(self.create_item(ItemNames.STAR_PIECE))
-                star_pieces -= 1
-            else:
-                self.get_location(location).place_locked_item(self.create_item(ItemNames.NOTHING))
-
     def pre_fill(self) -> None:
-        #self.place_characters()
-        #self.place_bosses()
+        self.place_characters()
         self.place_spells()
-        self.place_star_pieces()
+
+    def get_pre_fill_items2(self) -> list["Item"]:
+        prefill_list = [self.create_item(boss.name) for boss in boss_item_data]
+        if self.options.enable_remake_content:
+            prefill_list.extend([self.create_item(boss.name) for boss in remake_boss_item_data])
+        prefill_list.extend([self.create_item(character.name) for character in character_item_data])
+        prefill_list.extend([self.create_item(spell.name) for spell in spell_item_data])
+        for i in range(self.options.total_star_pieces.value):
+            prefill_list.append(self.create_item("Star Piece"))
+        return prefill_list
 
     def create_items(self):
         itempool = []
@@ -311,11 +363,11 @@ class SMRPGWorld(World):
 
     def set_rules(self):
         if self.options.win_condition == self.options.win_condition.option_factory:
-            victory_condition_rule = CanReachLocation(LocationNames.FACTORY_FINAL_BOSS_FIGHT)
+            victory_condition_rule = CanBeatLocation(ItemNames.FACTORY)
         elif self.options.win_condition == self.options.win_condition.option_smithy:
             victory_condition_rule = Has(ItemNames.SMITHY)
         elif self.options.win_condition == self.options.win_condition.option_sealed_door:
-            victory_condition_rule = CanReachLocation(LocationNames.MONSTRO_TOWN_SEALED_DOOR_BOSS_FIGHT)
+            victory_condition_rule = CanBeatLocation(ItemNames.SEALED_DOOR)
         else: # self.options.win_condition == self.options.win_condition.option_stars:
             victory_condition_rule = Has(ItemNames.STAR_PIECE, self.options.star_pieces_required.value)
         self.set_completion_rule(victory_condition_rule)
@@ -323,12 +375,25 @@ class SMRPGWorld(World):
     def generate_basic(self):
         pass
 
+    def create_location_dict(self):
+        locations = self.get_locations()
+        location_dict = dict()
+        for location in locations:
+            ap_location = self.get_location(location.name)
+            item = ap_location.item
+            player = item.player
+            location_dict[ap_location] = item.name
+        return location_dict
+
     def generate_output(self, output_directory: str) -> None:
-        pass
+        patch_dict: dict[str, Any] = dict()
+        # Hash of the MW seed to associate with save file
+        patch_dict["Seed"] = self.multiworld.seed + self.player
+        patch_dict["LocationDict"] = self.create_location_dict()
 
     def get_filler_item_name(self) -> str:
         if self.filler_items is None:
-            self.filler_items = ["Potion"]
+            self.filler_items = ["Mushroom"]
         return self.random.choice(self.filler_items)
 
 

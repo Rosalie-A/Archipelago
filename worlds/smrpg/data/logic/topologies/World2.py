@@ -1,7 +1,7 @@
 from ..Connection import Connection
 from ..Requirements import *
 from ..SMRPGLocation import SMRPGLocation, LocationNames, InvisibleFlagLocation, UnusedLocation, StarPieceLocation, \
-    BossFightLocation, CharacterRecruitLocation, EXPStarLocation
+    BossFightLocation, CharacterRecruitLocation, EXPStarLocation, ChestLocation
 from ..regions import MushroomKingdom
 
 from ..regions.World2 import *
@@ -20,14 +20,14 @@ KeroSewers.connections = [
 
 KeroSewers.locations = [
     InvisibleFlagLocation(LocationNames.KERO_GATE_FLAG),
-    SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_LOWER_CHEST),
-    SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_BEFORE_LANDS_END),
-    SMRPGLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_AFTER_LANDS_END),
+    ChestLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_LOWER_CHEST),
+    ChestLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_BEFORE_LANDS_END),
+    ChestLocation(LocationNames.KERO_SEWERS_BEFORE_BOSS_UPPER_CHEST_AFTER_LANDS_END),
     BossFightLocation(LocationNames.KERO_SEWERS_BOSS_FIGHT),
     StarPieceLocation(LocationNames.KERO_SEWERS_BOSS_STAR_PIECE),
     EXPStarLocation(LocationNames.KERO_SEWERS_FOUR_RAT_ROOM_CHEST),
-    SMRPGLocation(LocationNames.KERO_SEWERS_STAIRWAY_ROOM_LEFT_CHEST),
-    SMRPGLocation(LocationNames.KERO_SEWERS_STAIRWAY_ROOM_RIGHT_CHEST)
+    ChestLocation(LocationNames.KERO_SEWERS_STAIRWAY_ROOM_LEFT_CHEST),
+    ChestLocation(LocationNames.KERO_SEWERS_STAIRWAY_ROOM_RIGHT_CHEST)
 ]
 
 MidasRiver.connections = [
@@ -64,14 +64,14 @@ RoseWay.connections = [
 
 RoseWay.locations = [
     InvisibleFlagLocation(LocationNames.ROSE_WAY_DIRT_PATCH_FLAG),
-    SMRPGLocation(LocationNames.ROSE_WAY_FIVE_CHEST_AREA_BOTTOM_LEFT_CHEST),
-    SMRPGLocation(LocationNames.ROSE_WAY_FIVE_CHEST_AREA_TOP_MIDDLE_CHEST),
-    SMRPGLocation(LocationNames.ROSE_WAY_FIVE_CHEST_BOTTOM_RIGHT_CHEST),
-    SMRPGLocation(LocationNames.ROSE_WAY_FIVE_CHEST_TOP_LEFT_CHEST),
-    SMRPGLocation(LocationNames.ROSE_WAY_FIVE_CHEST_TOP_RIGHT_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_FIVE_CHEST_AREA_BOTTOM_LEFT_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_FIVE_CHEST_AREA_TOP_MIDDLE_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_FIVE_CHEST_BOTTOM_RIGHT_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_FIVE_CHEST_TOP_LEFT_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_FIVE_CHEST_TOP_RIGHT_CHEST),
     SMRPGLocation(LocationNames.ROSE_WAY_FREESTANDING_FLOWER),
     SMRPGLocation(LocationNames.ROSE_WAY_FREESTANDING_MUSHROOM),
-    SMRPGLocation(LocationNames.ROSE_WAY_SWINGING_SHY_GUY_CHEST),
+    ChestLocation(LocationNames.ROSE_WAY_SWINGING_SHY_GUY_CHEST),
     UnusedLocation(LocationNames.ROSE_WAY_FREESTANDING_COIN_1),
     UnusedLocation(LocationNames.ROSE_WAY_FREESTANDING_COIN_2),
     UnusedLocation(LocationNames.ROSE_WAY_FREESTANDING_COIN_3),
@@ -90,18 +90,18 @@ RoseTown.locations = [
     InvisibleFlagLocation(LocationNames.ROSE_TOWN_GARDENER_BUCKET_FLAG, [CanAccessGardener]),
     InvisibleFlagLocation(LocationNames.ROSE_TOWN_GARDENER_HYDRANT_FLAG, [CanAccessGardener]),
     InvisibleFlagLocation(LocationNames.ROSE_TOWN_GARDENER_LEAF_FLAG, [CanAccessGardener]),
-    SMRPGLocation(LocationNames.ROSE_TOWN_GARDENER_LEFT_CHEST, [CanAccessGardenerChests]),
-    SMRPGLocation(LocationNames.ROSE_TOWN_GARDENER_RIGHT_CHEST, [CanAccessGardenerChests]),
+    ChestLocation(LocationNames.ROSE_TOWN_GARDENER_LEFT_CHEST, [CanAccessGardenerChests]),
+    ChestLocation(LocationNames.ROSE_TOWN_GARDENER_RIGHT_CHEST, [CanAccessGardenerChests]),
     SMRPGLocation(LocationNames.ROSE_TOWN_INN_TOAD_GIFT),
     SMRPGLocation(LocationNames.ROSE_TOWN_GAZ_GIFT, [HasForestMaze]),
-    SMRPGLocation(LocationNames.ROSE_TOWN_SHOP_LEFT_CHEST),
-    SMRPGLocation(LocationNames.ROSE_TOWN_SHOP_RIGHT_CHEST),
+    ChestLocation(LocationNames.ROSE_TOWN_SHOP_LEFT_CHEST),
+    ChestLocation(LocationNames.ROSE_TOWN_SHOP_RIGHT_CHEST),
     InvisibleFlagLocation(LocationNames.ROSE_TOWN_SIGN_FLAG),
     InvisibleFlagLocation(LocationNames.ROSE_TOWN_SINK_FLAG),
-    SMRPGLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_LEFT_CHEST),
+    ChestLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_LEFT_CHEST),
     SMRPGLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_MAZE_SECRET_PRIZE, [CanAccessForestMaze]),
-    SMRPGLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_RIGHT_CHEST),
-    SMRPGLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_TOP_FLOOR_CHEST),
+    ChestLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_RIGHT_CHEST),
+    ChestLocation(LocationNames.ROSE_TOWN_UPPER_HOUSE_TOP_FLOOR_CHEST),
 ]
 
 ForestMazeEntrance.connections = [
@@ -114,23 +114,23 @@ ForestMaze.connections = [
 ]
 
 ForestMaze.locations = [
-    SMRPGLocation(LocationNames.FOREST_MAZE_1ST_ROOM_CHEST),
-    SMRPGLocation(LocationNames.FOREST_MAZE_BEFORE_MAZE_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_1ST_ROOM_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_BEFORE_MAZE_CHEST),
     BossFightLocation(LocationNames.FOREST_MAZE_BOSS_FIGHT),
     StarPieceLocation(LocationNames.FOREST_MAZE_BOSS_STAR_PIECE),
-    SMRPGLocation(LocationNames.FOREST_MAZE_BOTTOM_RIGHT_STUMP_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_BOTTOM_RIGHT_STUMP_CHEST),
     CharacterRecruitLocation(LocationNames.FOREST_MAZE_CHARACTER_RECRUIT),
-    SMRPGLocation(LocationNames.FOREST_MAZE_FIRST_CHEST_AFTER_UNDERGROUND),
-    SMRPGLocation(LocationNames.FOREST_MAZE_MIDDLE_LEFT_STUMP_CHEST),
-    SMRPGLocation(LocationNames.FOREST_MAZE_SECRET_BOTTOM_MIDDLE_CHEST),
-    SMRPGLocation(LocationNames.FOREST_MAZE_SECRET_BOTTOM_RIGHT_CHEST),
-    SMRPGLocation(LocationNames.FOREST_MAZE_SECRET_LEFT_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_FIRST_CHEST_AFTER_UNDERGROUND),
+    ChestLocation(LocationNames.FOREST_MAZE_MIDDLE_LEFT_STUMP_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_SECRET_BOTTOM_MIDDLE_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_SECRET_BOTTOM_RIGHT_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_SECRET_LEFT_CHEST),
     InvisibleFlagLocation(LocationNames.FOREST_MAZE_SECRET_MUSHROOMS_FLAG),
     InvisibleFlagLocation(LocationNames.FOREST_MAZE_SECRET_STUMP_FLAG),
-    SMRPGLocation(LocationNames.FOREST_MAZE_SECRET_TOP_MIDDLE_CHEST),
-    SMRPGLocation(LocationNames.FOREST_MAZE_SECRET_TOP_RIGHT_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_SECRET_TOP_MIDDLE_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_SECRET_TOP_RIGHT_CHEST),
     InvisibleFlagLocation(LocationNames.FOREST_MAZE_SECRET_WIGGLER_FLAG),
-    SMRPGLocation(LocationNames.FOREST_MAZE_WIGGLER_CHEST),
+    ChestLocation(LocationNames.FOREST_MAZE_WIGGLER_CHEST),
 ]
 
 PipeVaultEntrance.connections = [
@@ -148,12 +148,12 @@ PipeVault.locations = [
     InvisibleFlagLocation(LocationNames.PIPE_VAULT_EXTERIOR_FLAG),
     SMRPGLocation(LocationNames.PIPE_VAULT_GOOMBA_THUMPIN_FIRST_PRIZE),
     SMRPGLocation(LocationNames.PIPE_VAULT_GOOMBA_THUMPIN_SECOND_PRIZE),
-    SMRPGLocation(LocationNames.PIPE_VAULT_NIPPER_ROOM_FIRST_CHEST),
-    SMRPGLocation(LocationNames.PIPE_VAULT_NIPPER_ROOM_SECOND_CHEST),
+    ChestLocation(LocationNames.PIPE_VAULT_NIPPER_ROOM_FIRST_CHEST),
+    ChestLocation(LocationNames.PIPE_VAULT_NIPPER_ROOM_SECOND_CHEST),
     InvisibleFlagLocation(LocationNames.PIPE_VAULT_RED_PIPE_FLAG),
-    SMRPGLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_BACK_CHEST),
-    SMRPGLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_FRONT_CHEST),
-    SMRPGLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_MIDDLE_CHEST),
+    ChestLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_BACK_CHEST),
+    ChestLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_FRONT_CHEST),
+    ChestLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_MIDDLE_CHEST),
     UnusedLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_FREESTANDING_COIN_1),
     UnusedLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_FREESTANDING_COIN_2),
     UnusedLocation(LocationNames.PIPE_VAULT_SLIDE_ROOM_FREESTANDING_COIN_3),
@@ -167,7 +167,7 @@ YosterIsle.connections = [
 ]
 
 YosterIsle.locations = [
-    SMRPGLocation(LocationNames.YOSTER_ISLE_ENTRANCE_CHEST),
+    ChestLocation(LocationNames.YOSTER_ISLE_ENTRANCE_CHEST),
     SMRPGLocation(LocationNames.YOSTER_ISLE_FIRST_RACE_PRIZE_ITEM_1, [HasRaceCookies]),
     SMRPGLocation(LocationNames.YOSTER_ISLE_FIRST_RACE_PRIZE_ITEM_2, [HasRaceCookies]),
     SMRPGLocation(LocationNames.YOSTER_ISLE_FIRST_RACE_PRIZE_ITEM_3, [HasRaceCookies]),

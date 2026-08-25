@@ -1,7 +1,7 @@
 from ..Connection import Connection
 from ..Requirements import *
 from ..SMRPGLocation import SMRPGLocation, LocationNames, InvisibleFlagLocation, StarPieceLocation, BossFightLocation, \
-    EXPStarLocation
+    EXPStarLocation, ChestLocation
 from ..regions.World4 import SeasideTown
 from ..regions.World5 import BeanValley
 
@@ -26,7 +26,7 @@ NimbusLand.locations = [
     SMRPGLocation(LocationNames.NIMBUS_LAND_DREAM_CUSHION_1ST_ITEM),
     SMRPGLocation(LocationNames.NIMBUS_LAND_DREAM_CUSHION_2ND_ITEM),
     SMRPGLocation(LocationNames.NIMBUS_LAND_GARRO_CHECK),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_SHOP_CHEST),
+    ChestLocation(LocationNames.NIMBUS_LAND_SHOP_CHEST),
     InvisibleFlagLocation(LocationNames.NIMBUS_OUTDOOR_FLAG),
 ]
 
@@ -36,18 +36,20 @@ NimbusCastle.connections = [
 ]
 
 NimbusCastle.locations = [
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_5_DOOR_ROOM_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_BUSINESS_CENTRE_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_EAST_TWO_LEVEL_ROOM_LOWER_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_EAST_TWO_LEVEL_ROOM_UPPER_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_GIANT_EGG_PRIZE),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_SINGLE_GOLD_BIRD_ROOM_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_5_DOOR_ROOM_CHEST_LIBERATED),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_5_DOOR_ROOM_CHEST_OCCUPIED),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_BUSINESS_CENTRE_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_EAST_TWO_LEVEL_ROOM_LOWER_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_EAST_TWO_LEVEL_ROOM_UPPER_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_SINGLE_GOLD_BIRD_ROOM_CHEST),
     SMRPGLocation(LocationNames.NIMBUS_CASTLE_WEST_CELLAR_CIVILIAN),
     SMRPGLocation(LocationNames.NIMBUS_CASTLE_WEST_CELLAR_GUARD),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_WEST_STAIRWAY_ROOM_LEFT_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_WEST_STAIRWAY_ROOM_RIGHT_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_WEST_TWO_LEVEL_ROOM_CHEST),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_DODOS_STATUE_GAME_PRIZE),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_WEST_STAIRWAY_ROOM_LEFT_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_WEST_STAIRWAY_ROOM_RIGHT_CHEST),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_WEST_TWO_LEVEL_ROOM_CHEST),
+    BossFightLocation(LocationNames.NIMBUS_CASTLE_STATUE_KEEPER_BOSS_FIGHT),
+    StarPieceLocation(LocationNames.NIMBUS_CASTLE_STATUE_KEEPER_BOSS_STAR_PIECE),
+    SMRPGLocation(LocationNames.NIMBUS_CASTLE_STATUE_GAME_PRIZE),
     InvisibleFlagLocation(LocationNames.NIMBUS_PLANT_FLAG),
 
 ]
@@ -58,8 +60,9 @@ NimbusCastleInner.connections = [
 ]
 
 NimbusCastleInner.locations = [
-    SMRPGLocation(LocationNames.NIMBUS_LAND_GIANT_EGG_BOSS_FIGHT),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_GIANT_EGG_BOSS_STAR_PIECE),
+    BossFightLocation(LocationNames.NIMBUS_CASTLE_GIANT_EGG_BOSS_FIGHT),
+    StarPieceLocation(LocationNames.NIMBUS_CASTLE_GIANT_EGG_BOSS_STAR_PIECE),
+    SMRPGLocation(LocationNames.NIMBUS_CASTLE_GIANT_EGG_PRIZE),
 
 ]
 
@@ -71,14 +74,12 @@ NimbusCastleDeep.locations = [
     InvisibleFlagLocation(LocationNames.NIMBUS_BIRD_FLAG),
     InvisibleFlagLocation(LocationNames.NIMBUS_HOT_SPRINGS_FLAG),
     SMRPGLocation(LocationNames.NIMBUS_CASTLE_POST_INVASION_NORTH_CELLAR),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_FINAL_BOSS_FIGHT),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_FINAL_BOSS_STAR_PIECE),
+    BossFightLocation(LocationNames.NIMBUS_LAND_FINAL_BOSS_FIGHT),
+    StarPieceLocation(LocationNames.NIMBUS_LAND_FINAL_BOSS_STAR_PIECE),
     SMRPGLocation(LocationNames.NIMBUS_LAND_POST_INVASION_OFF_CLOUD_ITEM),
     SMRPGLocation(LocationNames.NIMBUS_LAND_POST_INVASION_UPPER_RIGHT_HOUSE),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_STATUE_KEEPER_BOSS_FIGHT),
-    SMRPGLocation(LocationNames.NIMBUS_LAND_STATUE_KEEPER_BOSS_STAR_PIECE),
     EXPStarLocation(LocationNames.NIMBUS_CASTLE_POST_THRONE_CHEST_OCCUPIED),
-    SMRPGLocation(LocationNames.NIMBUS_CASTLE_POST_THRONE_CHEST_UNOCCUPIED),
+    ChestLocation(LocationNames.NIMBUS_CASTLE_POST_THRONE_CHEST_UNOCCUPIED),
 
 ]
 
@@ -95,17 +96,17 @@ BarrelVolcano.locations = [
     BossFightLocation(LocationNames.BARREL_VOLCANO_FIRST_BOSS_FIGHT),
     StarPieceLocation(LocationNames.BARREL_VOLCANO_FIRST_BOSS_STAR_PIECE),
     SMRPGLocation(LocationNames.BARREL_VOLCANO_FIRST_DONUT_LIFT_ROOM_LEFT_FREESTANDING_FROG_COIN),
-    SMRPGLocation(LocationNames.BARREL_VOLCANO_HINOPIO_SHOP_CHEST),
+    ChestLocation(LocationNames.BARREL_VOLCANO_HINOPIO_SHOP_CHEST),
     InvisibleFlagLocation(LocationNames.BARREL_VOLCANO_INN_SIGN_FLAG),
     SMRPGLocation(LocationNames.BARREL_VOLCANO_LAVA_POOL_FREESTANDING_FROG_COIN),
     SMRPGLocation(LocationNames.BARREL_VOLCANO_REVERSE_LAVA_RECOIL_FROG_COIN),
-    SMRPGLocation(LocationNames.BARREL_VOLCANO_SAVE_ROOM_LOWER_CHEST),
-    SMRPGLocation(LocationNames.BARREL_VOLCANO_SAVE_ROOM_UPPER_CHEST),
+    ChestLocation(LocationNames.BARREL_VOLCANO_SAVE_ROOM_LOWER_CHEST),
+    ChestLocation(LocationNames.BARREL_VOLCANO_SAVE_ROOM_UPPER_CHEST),
     SMRPGLocation(LocationNames.BARREL_VOLCANO_SECOND_ARROW_SIGN_ROOM_LEFT_CHEST),
     BossFightLocation(LocationNames.BARREL_VOLCANO_SECOND_BOSS_FIGHT),
     StarPieceLocation(LocationNames.BARREL_VOLCANO_SECOND_BOSS_STAR_PIECE),
-    SMRPGLocation(LocationNames.BARREL_VOLCANO_SECRET_ROOM_LEFT_CHEST),
-    SMRPGLocation(LocationNames.BARREL_VOLCANO_SECRET_ROOM_RIGHT_CHEST),
+    ChestLocation(LocationNames.BARREL_VOLCANO_SECRET_ROOM_LEFT_CHEST),
+    ChestLocation(LocationNames.BARREL_VOLCANO_SECRET_ROOM_RIGHT_CHEST),
     EXPStarLocation(LocationNames.BARREL_VOLCANO_STAR_CHEST),
     InvisibleFlagLocation(LocationNames.BARREL_VOLCANO_STUMPET_FLAG),
 ]

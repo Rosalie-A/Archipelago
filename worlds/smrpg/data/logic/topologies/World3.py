@@ -2,7 +2,7 @@ from ..Connection import Connection
 from ..Requirements import *
 from ..SMRPGLocation import SMRPGLocation, LocationNames, InvisibleFlagLocation, UnusedLocation, StarPieceLocation, \
     BossFightLocation, CharacterRecruitLocation, RemakeBossFightLocation, RemakeStarPieceLocation, RemakeLocation, \
-    EXPStarLocation
+    EXPStarLocation, ChestLocation
 from ..regions.World2 import PipeVaultEntrance
 
 from ..regions.World3 import *
@@ -93,8 +93,8 @@ BoosterTower.connections = [
 ]
 
 BoosterTower.locations = [
-    BossFightLocation(LocationNames.BOOSTER_TOWER_BALCONY_BOSS_FIGHT),
-    StarPieceLocation(LocationNames.BOOSTER_TOWER_BALCONY_BOSS_STAR_PIECE),
+    BossFightLocation(LocationNames.BOOSTER_TOWER_BALCONY_BOSS_FIGHT, [CanAccessCurtain]),
+    StarPieceLocation(LocationNames.BOOSTER_TOWER_BALCONY_BOSS_STAR_PIECE, [CanAccessCurtain]),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_BEETLE_CAGE_FLAG),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_BROKEN_FRAME_FLAG),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_CHECKERBOARD_ROOM_ITEM),
@@ -117,24 +117,24 @@ BoosterTower.locations = [
     StarPieceLocation(LocationNames.BOOSTER_TOWER_CURTAIN_ROOM_BOSS_STAR_PIECE, [CanAccessCurtain]),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_DESK_FLAG),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_ELDER_KEY_ROOM, [HasElderKey]),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_FIRST_STAIRWAY_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_FIRST_STAIRWAY_CHEST),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_KNIFE_GUY_REWARD, [HasBoosterTower]),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_KNIFE_GUY_MAXED_OUT_REWARD, [HasBoosterTower]),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_MARIO_DOLL, [CanAccessCurtain]),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_MASHER_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_MASHER_CHEST),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_MASHER_ROOM_FLAG),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_PARACHUTE_ROOM_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_PARACHUTE_ROOM_CHEST),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_PARACHUTE_ROOM_STAIR_CREVICE),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_PORTRAIT_PRIZE),
     RemakeBossFightLocation(LocationNames.BOOSTER_TOWER_POSTGAME_BOSS_FIGHT, [PostgameCurtainAccess]),
     RemakeStarPieceLocation(LocationNames.BOOSTER_TOWER_POSTGAME_BOSS_STAR_PIECE, [PostgameCurtainAccess]),
     RemakeLocation(LocationNames.BOOSTER_TOWER_POSTGAME_PRIZE, [PostgameCurtainAccess]),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_RAILWAY_ROOM),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_ROOM_KEY_CHEST, [HasRoomKey]),
+    ChestLocation(LocationNames.BOOSTER_TOWER_ROOM_KEY_CHEST, [HasRoomKey]),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_THWOMP_INVISIBLE_FLAG),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_CORNER_CHEST),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_LOWER_CHEST),
-    SMRPGLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_UPPER_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_CORNER_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_LOWER_CHEST),
+    ChestLocation(LocationNames.BOOSTER_TOWER_TOP_FLOOR_UPPER_CHEST),
     InvisibleFlagLocation(LocationNames.BOOSTER_TOWER_TOY_BOX_FLAG),
     SMRPGLocation(LocationNames.BOOSTER_TOWER_UPPER_THWOMP_ROOM_CHEST),
 ]
@@ -174,16 +174,16 @@ Marrymore.locations = [
     InvisibleFlagLocation(LocationNames.MARRYMORE_CURTAINS_FLAG),
     InvisibleFlagLocation(LocationNames.MARRYMORE_HALLWAY_FLAG),
     SMRPGLocation(LocationNames.MARRYMORE_INN_ELDERLY_GUESTS_MAJOR_TIP),
-    SMRPGLocation(LocationNames.MARRYMORE_INN_REGULAR_ROOM_CHEST),
+    ChestLocation(LocationNames.MARRYMORE_INN_REGULAR_ROOM_CHEST),
     InvisibleFlagLocation(LocationNames.MARRYMORE_OUTSIDE_CRATE_FLAG),
     InvisibleFlagLocation(LocationNames.MARRYMORE_WINDOW_FLAG),
     InvisibleFlagLocation(LocationNames.MARRYMORE_SUITE_BED_FLAG),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_1),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_2),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_3),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_4),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_5),
-    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_6),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_1, [NotEarlyGame]),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_2, [NotEarlyGame]),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_3, [NotEarlyGame]),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_4, [NotEarlyGame]),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_5, [NotEarlyGame]),
+    SMRPGLocation(LocationNames.MARRYMORE_SUITE_TOTAL_STAYS_PRIZE_6, [NotEarlyGame]),
 ]
 
 MarrymoreChapel.connections = [
@@ -204,5 +204,5 @@ MarrymoreChapel.locations = [
     InvisibleFlagLocation(LocationNames.MARRYMORE_ALTAR_FLAG),
     BossFightLocation(LocationNames.MARRYMORE_BOSS_FIGHT, [CanAccessMarrymoreBoss]),
     StarPieceLocation(LocationNames.MARRYMORE_BOSS_STAR_PIECE, [CanAccessMarrymoreBoss]),
-    CharacterRecruitLocation(LocationNames.MARRYMORE_CHARACTER_RECRUIT),
+    CharacterRecruitLocation(LocationNames.MARRYMORE_CHARACTER_RECRUIT, [CanAccessMarrymoreBoss]),
 ]
