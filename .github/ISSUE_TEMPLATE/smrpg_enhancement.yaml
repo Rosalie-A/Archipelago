@@ -1,0 +1,13 @@
+name: SMRPG Enhancement
+description: Add an Enhancement issue for SMRPG
+title: "[Enhancement] [SMRPG] "
+assignees:
+  - Rosalie-A
+labels:
+  - enhancement
+projects: ["Rosalie-A/6"]
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: What feature would you like to see?
