@@ -286,7 +286,10 @@ class TLoZWorld(World):
             if location.item.player == self.player:
                 placement_dict[location.name] = location.item.name
             else:
-                placement_dict[location.name] = "Archipelago"
+                if location.item.classification in [ItemClassification.progression, ItemClassification.trap]:
+                    placement_dict[location.name] = "Archipelago-progression"
+                else:
+                    placement_dict[location.name] = "Archipelago-filler"
                 placement_dict[location.name + " Classification"] = location.item.classification
         entrance_randomizer_set = {}
         for screen, data in self.entrance_randomizer_set.items():

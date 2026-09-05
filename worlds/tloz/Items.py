@@ -45,8 +45,7 @@ item_table: Dict[str, ItemData] = {
     "Five Rupees": ItemData(129, filler),
     "Rupee": ItemData(130, filler),
     "Clock": ItemData(131, filler),
-    "Fairy": ItemData(132, filler),
-    "Archipelago": ItemData(133, filler)
+    "Fairy": ItemData(132, filler)
 }
 
 item_game_ids = {
@@ -71,7 +70,8 @@ item_game_ids = {
     "Red Ring": 0x13,
     "Power Bracelet": 0x14,
     "Letter": 0x15,
-    "Archipelago": 0x16, # Originally compass
+    "Archipelago-progression": 0x16, # Originally compass
+    "Archipelago-filler": 0x17, # Originally map
     "Small Key": 0x19,
     "Heart Container": 0x1A,
     "Triforce Fragment": 0x1B,
@@ -141,7 +141,8 @@ item_prices = {
     "Water of Life (Blue)": 20,
     "Water of Life (Red)": 34,
     "Recovery Heart": 5,
-    "Archipelago": 50,
+    "Archipelago-progression": 100,
+    "Archipelago-filler": 25,
     "Clock": 0,
     "Fairy": 10
 }
