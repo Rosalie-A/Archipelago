@@ -119,6 +119,17 @@ shop_correspondance = {
     "Potion Shop": potion_shop
 }
 
+item_tiles_offset = 0x808F
+compass_tile_offset = 0x6A0
+archipelago_sprite = [ 0x03, 0x07, 0x3f, 0x7f, 0xff, 0xff, 0xc6, 0x00, 0x00, 0x00, 0x38, 0x7c, 0xfe, 0xfe, 0xfe, 0x7c, 0x00, 0x03, 0x07, 0x0f, 0x0f, 0x0f, 0x07, 0x03, 0xfe, 0xfc, 0xf8, 0x70, 0x30, 0x00, 0x00, 0x00 ]
+
+# Some options for this offset:
+# 0x0 : disable flashing for Archipelago sprite
+# 0x1E74E: swaps Rupee flash with Archipelago sprite
+# 0x1E752: swaps Triforce flash with Archipelago sprite
+# 0x1E756: swaps Gannon's Triforce flash with Archipelago sprite
+# 0x1E75A: swaps Clock flash with Archipelago sprite
+flash_instruction_offset = 0x1E74E 
 
 def get_base_rom_bytes(file_name: str = "") -> bytes:
     base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
@@ -174,6 +185,13 @@ class TLOZPatchExtension(APPatchExtension):
                 rom_data[first_quest_dungeon_items_late + i] = item
             if item & 0b00011111 == 0b00000011:
                 rom_data[first_quest_dungeon_items_late + i] = item | 0b00111111
+
+        for i in range(len(archipelago_sprite)):
+            rom_data[item_tiles_offset + compass_tile_offset + i] = archipelago_sprite[i]
+        # Set the archipelago sprite (previously the compass) to flash 
+        if (flash_instruction_offset > 0):
+            rom_data[flash_instruction_offset] = 0x10
+
         return rom_data
 
     @staticmethod
@@ -245,7 +263,7 @@ class TLOZPatchExtension(APPatchExtension):
                     item_id = item_id | 0b11000000
                 price_location = shop_price_location_ids[location]
                 item_price = item_prices[item]
-                if item == "Rupee":
+                if item == "Archipelago":
                     item_class = placements.get(location + " Classification", ItemClassification.filler)
                     if item_class == ItemClassification.progression:
                         item_price = item_price * 2

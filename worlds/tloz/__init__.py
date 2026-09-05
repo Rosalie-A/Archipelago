@@ -286,7 +286,7 @@ class TLoZWorld(World):
             if location.item.player == self.player:
                 placement_dict[location.name] = location.item.name
             else:
-                placement_dict[location.name] = "Rupee"
+                placement_dict[location.name] = "Archipelago"
                 placement_dict[location.name + " Classification"] = location.item.classification
         entrance_randomizer_set = {}
         for screen, data in self.entrance_randomizer_set.items():
