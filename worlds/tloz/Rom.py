@@ -123,8 +123,26 @@ item_frame_table_offset = 0x71A7
 item_palette_table_offset = 0x6BD7
 map_item_slot = 0x11
 item_tiles_offset = 0x808F
-compass_tile_offset = 0x6A0
+compass_tile_offset = 0x6A0     # Offset from start of item tile sprites, not the rom!
 archipelago_sprite = [ 0x03, 0x07, 0x3f, 0x7f, 0xff, 0xff, 0xc6, 0x00, 0x00, 0x00, 0x38, 0x7c, 0xfe, 0xfe, 0xfe, 0x7c, 0x00, 0x03, 0x07, 0x0f, 0x0f, 0x0f, 0x07, 0x03, 0xfe, 0xfc, 0xf8, 0x70, 0x30, 0x00, 0x00, 0x00 ]
+
+compass_map_treasure_string_offset = 0x9471
+remaining_red_blue_string_offset = 0x93A8
+redundant_red_blue_string_offset = 0x93D1
+triforce_string_offset = 0x9485
+redundant_red_blue_table_offset = 0x94E1
+triforce_table_offset = 0x94F5
+archipelago_treasure_string = [6, 15, 18, 21, 21, 14, 27, 36, 36, 36, 36, 36, 25, 27, 24, 16, 27, 14, 28, 28, 18, 24, 23, 0xFF]
+
+# The ROM is chopped up into banks that are loaded into memory at 0x8000, translate between them!
+def rom_addr_to_memory_addr(address):
+    if address < 0x10: return None 
+    elif address < 0x1C010:
+        address -= 0x10
+        address %= 0x4000
+        return address + 0x8000
+    else:
+        return address - 0x1C010 + 0xC000
 
 def get_base_rom_bytes(file_name: str = "") -> bytes:
     base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
@@ -187,6 +205,20 @@ class TLOZPatchExtension(APPatchExtension):
         rom_data[item_palette_table_offset + map_item_slot] = 0x01
         for i in range(len(archipelago_sprite)):
             rom_data[item_tiles_offset + compass_tile_offset + i] = archipelago_sprite[i]
+
+        # Move the string triforce to a redundant string block to give our message more room
+        for i in range(10):
+            rom_data[redundant_red_blue_string_offset + i] = rom_data[triforce_string_offset + i]
+        memory_string_offset = rom_addr_to_memory_addr(redundant_red_blue_string_offset)
+        rom_data[triforce_table_offset] = memory_string_offset & 0xFF
+        rom_data[triforce_table_offset + 1] = (memory_string_offset >> 8) & 0xFF
+        # Update a pointer from a redundant string to the remaining string
+        memory_string_offset = rom_addr_to_memory_addr(remaining_red_blue_string_offset)
+        rom_data[redundant_red_blue_table_offset] = memory_string_offset & 0xFF
+        rom_data[redundant_red_blue_table_offset + 1] = (memory_string_offset >> 8) & 0xFF
+        # Overwrite the compass and map string in the Treasures list with our new item descriptions
+        for i in range(len(archipelago_treasure_string)):
+            rom_data[compass_map_treasure_string_offset + i] = archipelago_treasure_string[i]
 
         return rom_data
 
