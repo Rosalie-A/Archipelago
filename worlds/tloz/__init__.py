@@ -286,7 +286,7 @@ class TLoZWorld(World):
             if location.item.player == self.player:
                 placement_dict[location.name] = location.item.name
             else:
-                if location.item.classification in [ItemClassification.progression, ItemClassification.trap]:
+                if location.item.classification & (ItemClassification.progression | ItemClassification.trap):
                     placement_dict[location.name] = "Archipelago-progression"
                 else:
                     placement_dict[location.name] = "Archipelago-filler"
