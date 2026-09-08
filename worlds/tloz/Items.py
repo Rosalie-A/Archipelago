@@ -70,6 +70,8 @@ item_game_ids = {
     "Red Ring": 0x13,
     "Power Bracelet": 0x14,
     "Letter": 0x15,
+    "Archipelago-progression": 0x16, # Originally compass
+    "Archipelago-filler": 0x17, # Originally map
     "Small Key": 0x19,
     "Heart Container": 0x1A,
     "Triforce Fragment": 0x1B,
@@ -139,7 +141,8 @@ item_prices = {
     "Water of Life (Blue)": 20,
     "Water of Life (Red)": 34,
     "Recovery Heart": 5,
-    "Rupee": 50,
+    "Archipelago-progression": 100,
+    "Archipelago-filler": 25,
     "Clock": 0,
     "Fairy": 10
 }
