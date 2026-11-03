@@ -289,7 +289,7 @@ class TLoZWorld(World):
             if location.item.player == self.player:
                 placement_dict["locations"][location.name] = { "name": location.item.name, "hint": self.get_hint_string(location) }
             else:
-                if location.item.classification in [ItemClassification.progression, ItemClassification.trap]:
+                if location.item.classification & (ItemClassification.progression | ItemClassification.trap):
                     placement_dict["locations"][location.name] = { "name": "Archipelago-progression", "hint": self.get_hint_string(location) }
                 else:
                     placement_dict["locations"][location.name] = { "name": "Archipelago-filler", "hint": self.get_hint_string(location) }
