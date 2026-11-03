@@ -24,6 +24,7 @@ from .Rom import get_base_rom_path, first_quest_dungeon_items_early, first_quest
 from .Rules import set_rules
 from .Client import TLOZClient
 from .EntranceRandoRules import create_entrance_randomizer_set
+from .Strings import location_hint_sugar
 from worlds.AutoWorld import World, WebWorld
 from worlds.generic.Rules import add_rule
 
@@ -268,8 +269,9 @@ class TLoZWorld(World):
                 # Giving approximately double the money to keep grinding down
                 amount = amount * self.random.triangular(1.5, 2.5)
                 secret_cave_money_amounts[i] = int(amount)
+            placement_dict["Secret Money"] = {}
             for i, cave in enumerate(secret_caves):
-                placement_dict[cave] = secret_cave_money_amounts[i]
+                placement_dict["Secret Money"][cave] = secret_cave_money_amounts[i]
 
             patch = TLOZProcedurePatch(player=self.player, player_name=self.multiworld.player_name[self.player])
             patch.write_file("placement_file.json", json.dumps(placement_dict).encode("UTF-8"))
@@ -282,15 +284,15 @@ class TLoZWorld(World):
 
     def create_placement_file(self):
         placement_dict = {}
+        placement_dict["locations"] = {}
         for location in self.multiworld.get_filled_locations(self.player):
             if location.item.player == self.player:
-                placement_dict[location.name] = location.item.name
+                placement_dict["locations"][location.name] = { "name": location.item.name, "hint": self.get_hint_string(location) }
             else:
                 if location.item.classification & (ItemClassification.progression | ItemClassification.trap):
-                    placement_dict[location.name] = "Archipelago-progression"
+                    placement_dict["locations"][location.name] = { "name": "Archipelago-progression", "hint": self.get_hint_string(location) }
                 else:
-                    placement_dict[location.name] = "Archipelago-filler"
-                placement_dict[location.name + " Classification"] = location.item.classification
+                    placement_dict["locations"][location.name] = { "name": "Archipelago-filler", "hint": self.get_hint_string(location) }
         entrance_randomizer_set = {}
         for screen, data in self.entrance_randomizer_set.items():
             entrance_randomizer_set[screen] = data[1]
@@ -309,6 +311,26 @@ class TLoZWorld(World):
         if self.filler_items is None:
             self.filler_items = [item for item in item_table if item_table[item].classification == ItemClassification.filler]
         return self.random.choice(self.filler_items)
+
+    def get_hint_string(self, location: Location):
+        loc_player = self.multiworld.player_name[location.player]
+        item_player = self.multiworld.player_name[location.item.player]
+        item_name = location.item.name
+        ext_hint = ''
+        if self.options.EntranceShuffle > 0:
+            ext_hint = self.get_extended_hint(location)
+            if ext_hint is not None and ext_hint[:6] == "Screen":
+                ext_hint = f" s{ext_hint[-2:]}"
+            else:
+                ext_hint = ''
+
+        # Include item classification here?
+        # More logic here to find shorter hints?
+        if location.name in location_hint_sugar:
+            hint = location_hint_sugar[location.name].format(item_player, item_name, ext_hint)
+        else:
+            hint = f"{item_player}'s {item_name} at {location.name}{ext_hint}"
+        return hint
 
     def fill_slot_data(self) -> Dict[str, Any]:
         if self.options.ExpandedPool:
@@ -349,21 +371,27 @@ class TLoZWorld(World):
         if self.options.EntranceShuffle > 0:
             hint_data.update({self.player: {}})
             for location in self.multiworld.get_locations(self.player):
-                if not location.address: # Skip events
-                    continue
-                if location.name == "Armos Knights": # Armos are always in the same spot.
-                    continue
-                if location.name == "Ocean Heart Container": # Same for the ocean HC
-                    continue
-                current_region = location.parent_region
-                entrances = [entrance for entrance in current_region.entrances
-                                 if entrance.parent_region.name == "Overworld"]
-                if len(entrances) > 0: # Dungeon location
-                    entrance = [entrance for entrance in current_region.entrances if "Screen" in entrance.name].pop()
-                    hint_data[self.player][location.address] = entrance.name[-9:]
-                else: # Cave location
-                    screens = [entrance.name[:9] for entrance in current_region.entrances]
-                    hint_data[self.player][location.address] = ", ".join(screens)
+                ext_hint = self.get_extended_hint(location)
+                if ext_hint is not None:
+                    hint_data[self.player][location.address] = ext_hint
+
+    def get_extended_hint(self, location: Location):
+        if not location.address: # Skip events
+            return None
+        if location.name == "Armos Knights": # Armos are always in the same spot.
+            return None
+        if location.name == "Ocean Heart Container": # Same for the ocean HC
+            return None
+        current_region = location.parent_region
+        entrances = [entrance for entrance in current_region.entrances
+                            if entrance.parent_region.name == "Overworld"]
+        if len(entrances) > 0: # Dungeon location
+            entrance = [entrance for entrance in current_region.entrances if "Screen" in entrance.name].pop()
+            return entrance.name[-9:]
+        else: # Cave location
+            screens = [entrance.name[:9] for entrance in current_region.entrances]
+            return ", ".join(screens)
+
 
 
 class TLoZItem(Item):

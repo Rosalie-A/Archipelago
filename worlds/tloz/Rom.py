@@ -10,6 +10,8 @@ import Utils
 from BaseClasses import ItemClassification
 from worlds.Files import APDeltaPatch, APProcedurePatch, APTokenMixin, APPatchExtension
 
+from .Strings import write_hints, rom_addr_to_memory_addr
+
 NA10CHECKSUM = '337bd6f1a1163df31bf2633665589ab0'
 rom_name_location = 0x00
 rom_name_length = 0x20
@@ -25,12 +27,14 @@ potion_shop = bit_positions[2]
 shield_shop = bit_positions[5]
 ring_shop = bit_positions[6]
 take_any = bit_positions[1]
+cave_flags = 0x0413
 left_shop_slots = 0x0628
 middle_shop_slots = 0x0629
 right_shop_slots = 0x062A
 take_any_caves_checked = 0x0678
 first_quest_dungeon_items_early = 0x18910
 first_quest_dungeon_items_late = 0x18C10
+current_level = 0x10
 game_mode = 0x12
 fill_hearts = 0x63
 death_mode_counter = 0xE5
@@ -69,6 +73,7 @@ item_lift_timer = 0x0506
 sound_effect_queue = 0x0602
 
 
+map_location = 0x00EB
 overworld_status_block = 0x067F
 underworld_early_status_block = 0x06FF
 underworld_late_status_block = 0x077F
@@ -105,6 +110,10 @@ cave_type_flags = {
     "Level 1": 0b00000100
 }
 
+cave_flags_type = {}
+for k,v in cave_type_flags.items():
+    cave_flags_type[v] = k
+
 warp_cave_offset = 0x19344
 starting_sword_cave_location_byte = 0x70
 white_sword_pond_location_byte = 0x71
@@ -133,16 +142,6 @@ triforce_string_offset = 0x9485
 redundant_red_blue_table_offset = 0x94E1
 triforce_table_offset = 0x94F5
 archipelago_treasure_string = [6, 15, 18, 21, 21, 14, 27, 36, 36, 36, 36, 36, 25, 27, 24, 16, 27, 14, 28, 28, 18, 24, 23, 0xFF]
-
-# The ROM is chopped up into banks that are loaded into memory at 0x8000, translate between them!
-def rom_addr_to_memory_addr(address):
-    if address < 0x10: return None 
-    elif address < 0x1C010:
-        address -= 0x10
-        address %= 0x4000
-        return address + 0x8000
-    else:
-        return address - 0x1C010 + 0xC000
 
 def get_base_rom_bytes(file_name: str = "") -> bytes:
     base_rom_bytes = getattr(get_base_rom_bytes, "base_rom_bytes", None)
@@ -199,8 +198,8 @@ class TLOZPatchExtension(APPatchExtension):
             if item & 0b00011111 == 0b00000011:
                 rom_data[first_quest_dungeon_items_late + i] = item | 0b00111111
 
-        # Make the map item use the same sprite as the compass 
-        rom_data[item_frame_table_offset + map_item_slot] = 0x18 
+        # Make the map item use the same sprite as the compass
+        rom_data[item_frame_table_offset + map_item_slot] = 0x18
         # Change the palette to blue for non-progression items
         rom_data[item_palette_table_offset + map_item_slot] = 0x01
         for i in range(len(archipelago_sprite)):
@@ -246,7 +245,6 @@ class TLOZPatchExtension(APPatchExtension):
                 rom_data[letter_cave_location_byte] = entrance_offset
         for i, cave in enumerate(warp_caves):
             rom_data[warp_cave_offset + i] = cave
-            print(hex(cave))
         return rom_data
 
     @staticmethod
@@ -265,23 +263,16 @@ class TLOZPatchExtension(APPatchExtension):
         rom_data[player_name_location + header_length:player_name_location + header_length + player_name_length] = player_name
         rom_data[deathlink_options + header_length] = placements["meta"]["death_link"]
 
+        for location, amount in placements["Secret Money"].items():
+            rom_data[secret_money_ids[location]] = amount
+
         # Write each location's new data in
-        for location, item in placements.items():
-            # Zelda and Ganon aren't real locations. Neither is the metadata.
-            if location == "Ganon" or location == "Zelda" or location == "entrance_randomizer_set" or location == "meta":
+        for location, item in placements["locations"].items():
+            # Zelda, Ganon, and boss defeat events aren't real locations
+            if location == "Ganon" or location == "Zelda" or "Status" in location:
                 continue
 
-            if "Secret Money" in location:
-                rom_data[secret_money_ids[location]] = item
-                continue
-
-            if "Classification" in location:
-                continue
-
-            # Neither are boss defeat events
-            if "Status" in location:
-                continue
-            item_id = item_game_ids[item]
+            item_id = item_game_ids[item["name"]]
             location_id = location_ids[location]
 
             # Shop prices need to be set
@@ -290,11 +281,15 @@ class TLOZPatchExtension(APPatchExtension):
                     # Final item in stores has bit 6 and 7 set. It's what marks the cave a shop.
                     item_id = item_id | 0b11000000
                 price_location = shop_price_location_ids[location]
-                rom_data[price_location] = item_prices[item]
+                rom_data[price_location] = item_prices[item["name"]]
             if location == "Take Any Item Right":
                 # Same story as above: bit 6 is what makes this a Take Any cave
                 item_id = item_id | 0b01000000
             rom_data[location_id] = item_id
+
+        # Updates the rom_data in-place to replace character strings with placement hints
+        write_hints(rom_data, placements)
+
         return rom_data
 
 
